@@ -23,7 +23,11 @@ export type Format =
   | 'Game'
   | 'Curriculum'
   | 'AI Tool'
-  | 'Learning Platform';
+  | 'Learning Platform'
+  | 'Course/Tool'  // Added this format option
+  | 'Tutorial'
+  | 'Activity'
+  | 'Camp';
 
 export interface Resource {
   id: string;
