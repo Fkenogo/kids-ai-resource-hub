@@ -1,0 +1,6 @@
+
+@layer components {
+  .badge-success {
+    @apply bg-green-100 text-green-800 hover:bg-green-200 hover:text-green-900;
+  }
+}

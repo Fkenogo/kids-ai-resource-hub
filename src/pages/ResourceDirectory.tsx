@@ -4,20 +4,22 @@ import { Layout } from '@/components/Layout';
 import { ResourceGrid } from '@/components/ResourceGrid';
 import { FilterSidebar } from '@/components/FilterSidebar';
 import { filterResources } from '@/data/mockData';
-import { ResourceFilters } from '@/types';
+import { ResourceFilters, DisplayMode } from '@/types';
 import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Grid2x2, List } from 'lucide-react';
 
 const ResourceDirectory = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   
-  const initialAgeRanges = queryParams.get('age') 
+  const initialAgeRange = queryParams.get('age') 
     ? [queryParams.get('age') as any] 
     : [];
 
   const [filters, setFilters] = useState<ResourceFilters>({
-    ageRanges: initialAgeRanges,
+    ageRanges: initialAgeRange,
     resourceTypes: [],
     costTypes: [],
     minRating: 0,
@@ -25,12 +27,22 @@ const ResourceDirectory = () => {
     searchQuery: '',
   });
 
+  const [displayMode, setDisplayMode] = useState<DisplayMode>('grid');
+  const [showByCategory, setShowByCategory] = useState(initialAgeRange.length === 0);
+
   const [filteredResources, setFilteredResources] = useState(
-    filterResources({ ageRanges: initialAgeRanges })
+    filterResources({ ageRanges: initialAgeRange })
   );
 
   useEffect(() => {
     setFilteredResources(filterResources(filters));
+    
+    // If age range filter is applied, disable category grouping
+    if (filters.ageRanges.length > 0) {
+      setShowByCategory(false);
+    } else {
+      setShowByCategory(true);
+    }
   }, [filters]);
 
   const handleFiltersChange = (newFilters: ResourceFilters) => {
@@ -53,7 +65,7 @@ const ResourceDirectory = () => {
         animate="visible"
         variants={containerVariants}
       >
-        <h1 className="text-3xl font-bold mb-8">AI Learning Resources</h1>
+        <h1 className="text-3xl font-bold mb-8">AI Learning Resource Directory</h1>
         
         <div className="flex flex-col md:flex-row gap-8">
           <div className="md:w-1/4 lg:w-1/5">
@@ -71,10 +83,35 @@ const ResourceDirectory = () => {
               <h2 className="text-xl font-medium">
                 {filteredResources.length} {filteredResources.length === 1 ? 'resource' : 'resources'} found
               </h2>
+              
+              <div className="flex items-center gap-4">
+                <Tabs 
+                  defaultValue={displayMode} 
+                  className="w-auto"
+                  onValueChange={(value) => setDisplayMode(value as DisplayMode)}
+                >
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="grid" className="flex items-center gap-2">
+                      <Grid2x2 size={16} />
+                      <span className="hidden sm:inline">Grid</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="table" className="flex items-center gap-2">
+                      <List size={16} />
+                      <span className="hidden sm:inline">Table</span>
+                    </TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
             </div>
             
             {filteredResources.length > 0 ? (
-              <ResourceGrid resources={filteredResources} columns={3} />
+              <ResourceGrid 
+                resources={filteredResources} 
+                columns={3} 
+                displayMode={displayMode}
+                showCategories={showByCategory}
+                categoryBy={showByCategory ? 'ageRange' : null}
+              />
             ) : (
               <div className="glass-panel rounded-xl p-8 text-center">
                 <h3 className="text-lg font-medium mb-2">No resources found</h3>

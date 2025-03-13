@@ -4,14 +4,26 @@ export type AgeRange = '5-7' | '8-10' | '11-13' | '14-17';
 export type ResourceType = 
   | 'online_course'
   | 'book'
-  | 'interactive_tool'
+  | 'interactive_tool' 
   | 'game'
   | 'video'
   | 'tutorial'
   | 'activity'
-  | 'camp';
+  | 'camp'
+  | 'ai_tool'
+  | 'curriculum';
 
 export type CostType = 'free' | 'paid' | 'subscription' | 'freemium';
+
+export type Format = 
+  | 'Video'
+  | 'Interactive Tool'
+  | 'Course'
+  | 'Book'
+  | 'Game'
+  | 'Curriculum'
+  | 'AI Tool'
+  | 'Learning Platform';
 
 export interface Resource {
   id: string;
@@ -20,9 +32,11 @@ export interface Resource {
   url: string;
   ageRanges: AgeRange[];
   resourceType: ResourceType;
+  format?: Format;
   cost: CostType;
   learningOutcomes?: string[];
   skillsAttained?: string[];
+  keyFeatures?: string[];
   dateAdded: string;
   addedBy: string;
   averageRating: number;
@@ -58,3 +72,5 @@ export interface ResourceFilters {
   recentlyAdded: boolean;
   searchQuery: string;
 }
+
+export type DisplayMode = 'grid' | 'table';
