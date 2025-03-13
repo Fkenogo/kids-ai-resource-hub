@@ -18,7 +18,7 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <LazyMotion features={domAnimation}>
+    <LazyMotion strict features={domAnimation}>
       <TooltipProvider>
         <Toaster />
         <Sonner />
