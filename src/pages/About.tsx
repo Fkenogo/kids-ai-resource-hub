@@ -35,7 +35,7 @@ const About = () => {
             className="text-4xl md:text-5xl font-bold mb-6"
             variants={fadeInUp}
           >
-            About <span className="gradient-text">Teach Your Kids AI</span>
+            About <span className="gradient-text">Teach Your Kid AI</span>
           </motion.h1>
           
           <motion.p 

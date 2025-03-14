@@ -28,7 +28,7 @@ export const Layout = ({ children }: LayoutProps) => {
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center">
               <Link to="/" className="flex items-center space-x-2">
-                <span className="text-xl font-bold gradient-text">Teach Your Kids AI</span>
+                <span className="text-xl font-bold gradient-text">Teach Your Kid AI</span>
               </Link>
             </div>
             
@@ -73,7 +73,7 @@ export const Layout = ({ children }: LayoutProps) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-3 gap-8">
             <div>
-              <h3 className="text-lg font-semibold mb-4">Teach Your Kids AI</h3>
+              <h3 className="text-lg font-semibold mb-4">Teach Your Kid AI</h3>
               <p className="text-muted-foreground">
                 Helping parents discover the best AI learning resources for their children.
               </p>
@@ -107,7 +107,7 @@ export const Layout = ({ children }: LayoutProps) => {
             </div>
           </div>
           <div className="mt-8 pt-8 border-t border-border text-center text-muted-foreground">
-            <p>© {new Date().getFullYear()} Teach Your Kids AI. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} Teach Your Kid AI. All rights reserved.</p>
           </div>
         </div>
       </footer>
