@@ -4,7 +4,13 @@ import { Link } from 'react-router-dom';
 import { Resource } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
-import { Star } from 'lucide-react';
+import { Star, Eye, Heart, MessageSquare } from 'lucide-react';
+import { ResourceEngagement } from './ResourceEngagement';
+import { 
+  getResourceViewCount, 
+  getResourceLikeCount,
+  getResourceCommentCount
+} from '@/services/engagementService';
 
 interface ResourceCardProps {
   resource: Resource;
@@ -23,6 +29,10 @@ export const ResourceCard = ({ resource, index = 0 }: ResourceCardProps) => {
   const getCostLabel = (cost: string) => {
     return cost.charAt(0).toUpperCase() + cost.slice(1);
   };
+
+  const viewCount = getResourceViewCount(resource.id);
+  const likeCount = getResourceLikeCount(resource.id);
+  const commentCount = getResourceCommentCount(resource.id);
 
   const STAGGER_DELAY = 0.05;
   const initialDelay = index * STAGGER_DELAY;
@@ -99,9 +109,29 @@ export const ResourceCard = ({ resource, index = 0 }: ResourceCardProps) => {
                 <span>{resource.averageRating.toFixed(1)}</span>
                 <span className="text-muted-foreground ml-1">({resource.reviewCount})</span>
               </div>
-              <span className="text-muted-foreground text-xs">
-                {formatDate(resource.dateAdded)}
-              </span>
+              
+              <div className="flex gap-3">
+                {viewCount > 0 && (
+                  <div className="flex items-center gap-1" title="Views">
+                    <Eye className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-xs">{viewCount}</span>
+                  </div>
+                )}
+                
+                {likeCount > 0 && (
+                  <div className="flex items-center gap-1" title="Likes">
+                    <Heart className="w-4 h-4 text-red-500 fill-red-500" />
+                    <span className="text-xs">{likeCount}</span>
+                  </div>
+                )}
+                
+                {commentCount > 0 && (
+                  <div className="flex items-center gap-1" title="Comments">
+                    <MessageSquare className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-xs">{commentCount}</span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

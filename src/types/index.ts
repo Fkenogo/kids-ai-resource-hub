@@ -24,7 +24,7 @@ export type Format =
   | 'Curriculum'
   | 'AI Tool'
   | 'Learning Platform'
-  | 'Course/Tool'  // Added this format option
+  | 'Course/Tool'
   | 'Tutorial'
   | 'Activity'
   | 'Camp';
@@ -47,6 +47,12 @@ export interface Resource {
   reviewCount: number;
   featuredResource: boolean;
   imageUrl?: string;
+  // Engagement metrics
+  viewCount: number;
+  likeCount: number;
+  shareCount: number;
+  saveCount: number;
+  commentCount: number;
 }
 
 export interface User {
@@ -56,15 +62,26 @@ export interface User {
   dateJoined: string;
   isAdmin: boolean;
   profileBio?: string;
+  savedResources?: string[]; // IDs of saved resources
+  likedResources?: string[]; // IDs of liked resources
 }
 
 export interface Review {
   id: string;
   resourceId: string;
   userId: string;
-  username: string; // Added for display purposes
+  username: string;
   rating: number;
   comment?: string;
+  datePosted: string;
+}
+
+export interface Comment {
+  id: string;
+  resourceId: string;
+  userId: string;
+  username: string;
+  content: string;
   datePosted: string;
 }
 
@@ -78,3 +95,5 @@ export interface ResourceFilters {
 }
 
 export type DisplayMode = 'grid' | 'table';
+
+export type SortOption = 'date' | 'rating' | 'popularity';

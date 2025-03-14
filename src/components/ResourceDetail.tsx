@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Resource, Review } from '@/types';
 import { RatingStars } from './RatingStars';
 import { Badge } from '@/components/ui/badge';
@@ -7,7 +7,9 @@ import { Button } from '@/components/ui/button';
 import { ExternalLink, Bookmark, Share2 } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 import { motion } from 'framer-motion';
-import { toast } from 'sonner';
+import { ResourceEngagement } from './ResourceEngagement';
+import { ResourceComments } from './ResourceComments';
+import { trackResourceView } from '@/services/engagementService';
 
 interface ResourceDetailProps {
   resource: Resource;
@@ -15,21 +17,10 @@ interface ResourceDetailProps {
 }
 
 export const ResourceDetail = ({ resource, reviews }: ResourceDetailProps) => {
-  const [isSaved, setIsSaved] = useState(false);
-
-  const handleSaveResource = () => {
-    setIsSaved(!isSaved);
-    toast.success(
-      isSaved 
-        ? "Resource removed from saved items" 
-        : "Resource saved successfully"
-    );
-  };
-
-  const handleShareResource = () => {
-    navigator.clipboard.writeText(window.location.href);
-    toast.success("Link copied to clipboard");
-  };
+  // Track view when component mounts
+  useEffect(() => {
+    trackResourceView(resource.id);
+  }, [resource.id]);
 
   const getResourceTypeLabel = (type: string) => {
     return type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
@@ -105,33 +96,15 @@ export const ResourceDetail = ({ resource, reviews }: ResourceDetailProps) => {
               ))}
             </div>
             
-            <div className="flex flex-wrap gap-3 mt-6">
-              <Button 
-                className="gap-2" 
-                onClick={() => window.open(resource.url, '_blank')}
-              >
-                <ExternalLink className="h-4 w-4" />
-                Visit Resource
-              </Button>
-              
-              <Button 
-                variant={isSaved ? "default" : "outline"} 
-                className="gap-2"
-                onClick={handleSaveResource}
-              >
-                <Bookmark className={`h-4 w-4 ${isSaved ? 'fill-primary-foreground' : ''}`} />
-                {isSaved ? 'Saved' : 'Save'}
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                className="gap-2"
-                onClick={handleShareResource}
-              >
-                <Share2 className="h-4 w-4" />
-                Share
-              </Button>
-            </div>
+            <Button 
+              className="gap-2 mb-6" 
+              onClick={() => window.open(resource.url, '_blank')}
+            >
+              <ExternalLink className="h-4 w-4" />
+              Visit Resource
+            </Button>
+            
+            <ResourceEngagement resource={resource} />
           </div>
         </div>
       </motion.div>
@@ -179,10 +152,20 @@ export const ResourceDetail = ({ resource, reviews }: ResourceDetailProps) => {
         </div>
       </motion.div>
       
+      {/* Comments Section */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
+        className="glass-panel rounded-xl p-6 shadow-medium"
+      >
+        <ResourceComments resource={resource} />
+      </motion.div>
+      
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
         className="glass-panel rounded-xl p-6 shadow-medium"
       >
         <h2 className="text-2xl font-medium mb-6">Reviews</h2>
