@@ -223,7 +223,7 @@ export const mockResources: Resource[] = [
     averageRating: 4.7,
     reviewCount: 31,
     featuredResource: false,
-    imageUrl: null,
+    imageUrl: 'https://images.unsplash.com/photo-1561736778-92e52a7769ef?q=80&w=2670&auto=format&fit=crop',
   },
   
   // 14-17 Age Range (Advanced AI & Career Readiness)
@@ -244,7 +244,7 @@ export const mockResources: Resource[] = [
     averageRating: 4.6,
     reviewCount: 48,
     featuredResource: false,
-    imageUrl: null,
+    imageUrl: 'https://images.unsplash.com/photo-1581089781785-603411fa81e5?q=80&w=2670&auto=format&fit=crop',
   },
   {
     id: '12',
@@ -263,7 +263,7 @@ export const mockResources: Resource[] = [
     averageRating: 4.3,
     reviewCount: 22,
     featuredResource: false,
-    imageUrl: null,
+    imageUrl: 'https://images.unsplash.com/photo-1551033406-611cf9a28f67?q=80&w=2574&auto=format&fit=crop',
   },
   {
     id: '13',
@@ -282,7 +282,7 @@ export const mockResources: Resource[] = [
     averageRating: 4.1,
     reviewCount: 17,
     featuredResource: false,
-    imageUrl: null,
+    imageUrl: 'https://images.unsplash.com/photo-1677442135968-6bd86a41e5fa?q=80&w=2670&auto=format&fit=crop',
   },
   // Age 8-14 (Beginner to Intermediate)
   {
@@ -302,7 +302,7 @@ export const mockResources: Resource[] = [
     averageRating: 4.5,
     reviewCount: 26,
     featuredResource: false,
-    imageUrl: null,
+    imageUrl: 'https://images.unsplash.com/photo-1598550476439-6847785fcea6?q=80&w=2670&auto=format&fit=crop',
   },
   {
     id: '15',
@@ -321,7 +321,7 @@ export const mockResources: Resource[] = [
     averageRating: 4.2,
     reviewCount: 19,
     featuredResource: false,
-    imageUrl: null,
+    imageUrl: 'https://images.unsplash.com/photo-1633356122102-3fe601e05bd2?q=80&w=2670&auto=format&fit=crop',
   },
   {
     id: '16',
@@ -340,7 +340,7 @@ export const mockResources: Resource[] = [
     averageRating: 4.8,
     reviewCount: 34,
     featuredResource: false,
-    imageUrl: null,
+    imageUrl: 'https://images.unsplash.com/photo-1550399105-c4db5fb85c18?q=80&w=2671&auto=format&fit=crop',
   }
 ];
 
