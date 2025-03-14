@@ -1,4 +1,3 @@
-
 import { AgeRange, Resource, ResourceType, CostType, Review, User, Format } from '../types';
 
 export const mockUsers: User[] = [
