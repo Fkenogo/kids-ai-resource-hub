@@ -47,6 +47,11 @@ export const mockResources: Resource[] = [
     reviewCount: 24,
     featuredResource: true,
     imageUrl: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=2670&auto=format&fit=crop',
+    viewCount: 1250,
+    likeCount: 348,
+    shareCount: 89,
+    saveCount: 167,
+    commentCount: 32
   },
   {
     id: '2',
@@ -66,6 +71,11 @@ export const mockResources: Resource[] = [
     reviewCount: 32,
     featuredResource: true,
     imageUrl: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=2673&auto=format&fit=crop',
+    viewCount: 980,
+    likeCount: 412,
+    shareCount: 120,
+    saveCount: 203,
+    commentCount: 45
   },
   
   // 5-7 Age Range (Early Learning)
@@ -87,6 +97,11 @@ export const mockResources: Resource[] = [
     reviewCount: 18,
     featuredResource: false,
     imageUrl: 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=2669&auto=format&fit=crop',
+    viewCount: 756,
+    likeCount: 189,
+    shareCount: 65,
+    saveCount: 98,
+    commentCount: 22
   },
   {
     id: '4',
@@ -106,6 +121,11 @@ export const mockResources: Resource[] = [
     reviewCount: 45,
     featuredResource: false,
     imageUrl: 'https://images.unsplash.com/photo-1553481187-be93c21490a9?q=80&w=2670&auto=format&fit=crop',
+    viewCount: 623,
+    likeCount: 142,
+    shareCount: 48,
+    saveCount: 89,
+    commentCount: 18
   },
   {
     id: '5',
@@ -125,6 +145,11 @@ export const mockResources: Resource[] = [
     reviewCount: 29,
     featuredResource: false,
     imageUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2670&auto=format&fit=crop',
+    viewCount: 1430,
+    likeCount: 567,
+    shareCount: 256,
+    saveCount: 345,
+    commentCount: 38
   },
   
   // 8-10 Age Range (Beginner AI Learning)
@@ -146,6 +171,11 @@ export const mockResources: Resource[] = [
     reviewCount: 37,
     featuredResource: false,
     imageUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=2576&auto=format&fit=crop',
+    viewCount: 876,
+    likeCount: 234,
+    shareCount: 87,
+    saveCount: 156,
+    commentCount: 25
   },
   {
     id: '7',
@@ -165,6 +195,11 @@ export const mockResources: Resource[] = [
     reviewCount: 22,
     featuredResource: false,
     imageUrl: 'https://images.unsplash.com/photo-1599687266725-0d4e8e0ed2ad?q=80&w=2670&auto=format&fit=crop',
+    viewCount: 542,
+    likeCount: 121,
+    shareCount: 43,
+    saveCount: 78,
+    commentCount: 15
   },
   
   // 11-13 Age Range (Hands-on AI & Coding)
@@ -186,6 +221,11 @@ export const mockResources: Resource[] = [
     reviewCount: 19,
     featuredResource: false,
     imageUrl: 'https://images.unsplash.com/photo-1531746790731-6c087fecd65a?q=80&w=2606&auto=format&fit=crop',
+    viewCount: 389,
+    likeCount: 87,
+    shareCount: 32,
+    saveCount: 64,
+    commentCount: 11
   },
   {
     id: '9',
@@ -205,6 +245,11 @@ export const mockResources: Resource[] = [
     reviewCount: 15,
     featuredResource: false,
     imageUrl: 'https://images.unsplash.com/photo-1531746790731-6c087fecd65a?q=80&w=2606&auto=format&fit=crop',
+    viewCount: 475,
+    likeCount: 98,
+    shareCount: 42,
+    saveCount: 67,
+    commentCount: 14
   },
   {
     id: '10',
@@ -224,6 +269,11 @@ export const mockResources: Resource[] = [
     reviewCount: 31,
     featuredResource: false,
     imageUrl: 'https://images.unsplash.com/photo-1561736778-92e52a7769ef?q=80&w=2670&auto=format&fit=crop',
+    viewCount: 925,
+    likeCount: 287,
+    shareCount: 134,
+    saveCount: 203,
+    commentCount: 28
   },
   
   // 14-17 Age Range (Advanced AI & Career Readiness)
@@ -245,6 +295,11 @@ export const mockResources: Resource[] = [
     reviewCount: 48,
     featuredResource: false,
     imageUrl: 'https://images.unsplash.com/photo-1581089781785-603411fa81e5?q=80&w=2670&auto=format&fit=crop',
+    viewCount: 843,
+    likeCount: 256,
+    shareCount: 87,
+    saveCount: 142,
+    commentCount: 32
   },
   {
     id: '12',
@@ -264,6 +319,11 @@ export const mockResources: Resource[] = [
     reviewCount: 22,
     featuredResource: false,
     imageUrl: 'https://images.unsplash.com/photo-1551033406-611cf9a28f67?q=80&w=2574&auto=format&fit=crop',
+    viewCount: 567,
+    likeCount: 123,
+    shareCount: 45,
+    saveCount: 87,
+    commentCount: 19
   },
   {
     id: '13',
@@ -283,6 +343,11 @@ export const mockResources: Resource[] = [
     reviewCount: 17,
     featuredResource: false,
     imageUrl: 'https://images.unsplash.com/photo-1677442135968-6bd86a41e5fa?q=80&w=2670&auto=format&fit=crop',
+    viewCount: 704,
+    likeCount: 154,
+    shareCount: 67,
+    saveCount: 112,
+    commentCount: 21
   },
   // Age 8-14 (Beginner to Intermediate)
   {
@@ -303,6 +368,11 @@ export const mockResources: Resource[] = [
     reviewCount: 26,
     featuredResource: false,
     imageUrl: 'https://images.unsplash.com/photo-1598550476439-6847785fcea6?q=80&w=2670&auto=format&fit=crop',
+    viewCount: 612,
+    likeCount: 145,
+    shareCount: 52,
+    saveCount: 94,
+    commentCount: 23
   },
   {
     id: '15',
@@ -322,6 +392,11 @@ export const mockResources: Resource[] = [
     reviewCount: 19,
     featuredResource: false,
     imageUrl: 'https://images.unsplash.com/photo-1633356122102-3fe601e05bd2?q=80&w=2670&auto=format&fit=crop',
+    viewCount: 823,
+    likeCount: 219,
+    shareCount: 78,
+    saveCount: 132,
+    commentCount: 27
   },
   {
     id: '16',
@@ -341,6 +416,11 @@ export const mockResources: Resource[] = [
     reviewCount: 34,
     featuredResource: false,
     imageUrl: 'https://images.unsplash.com/photo-1550399105-c4db5fb85c18?q=80&w=2671&auto=format&fit=crop',
+    viewCount: 934,
+    likeCount: 278,
+    shareCount: 109,
+    saveCount: 184,
+    commentCount: 42
   }
 ];
 
