@@ -4,7 +4,60 @@ import { BlogPost } from '@/types';
 export const blogPosts: BlogPost[] = [
   {
     id: '1',
-    title: 'How Parents Can Support Their Child's AI Education at Home',
+    title: 'Welcome to Kids AI Resources - Your Guide to AI Education for Children',
+    slug: 'welcome-to-kids-ai-resources',
+    excerpt: 'Discover how our platform can help your children learn about artificial intelligence through curated educational resources, interactive tools, and expert guidance.',
+    content: `
+# Welcome to Kids AI Resources!
+
+We're excited to launch our platform dedicated to helping parents and educators introduce artificial intelligence concepts to children in fun, accessible, and age-appropriate ways.
+
+## Our Mission
+
+At Kids AI Resources, we believe that understanding AI is becoming as fundamental as reading and math. Our mission is to curate the best educational resources that make AI concepts accessible to children of all ages, helping them develop the skills they'll need for the future.
+
+## What You'll Find Here
+
+- **Curated Resources**: We carefully review and select the best AI learning tools, books, courses, and activities for different age groups.
+- **Age-Appropriate Content**: All resources are categorized by age range, ensuring children can learn at a level that's right for them.
+- **Expert Guidance**: Our blog provides tips from educators and AI professionals on how to support your child's AI learning journey.
+- **Community Reviews**: Learn from other parents' and educators' experiences with different resources.
+
+## Getting Started
+
+Here's how to make the most of Kids AI Resources:
+
+1. **Browse by Age**: Use our age filters to find resources appropriate for your child.
+2. **Explore Different Formats**: From interactive games to books and courses, we offer a variety of learning formats.
+3. **Read Reviews**: Check what other parents and educators think about each resource.
+4. **Stay Updated**: Follow our blog for the latest in children's AI education.
+
+## Join Our Community
+
+Creating an account allows you to:
+- Save your favorite resources
+- Leave reviews on resources you've tried
+- Receive personalized recommendations
+- Stay updated on new resources and articles
+
+We're thrilled to be part of your child's AI learning journey and look forward to growing this resource together with our community of parents and educators.
+
+Happy exploring!
+
+*- The Kids AI Resources Team*
+`,
+    author: 'Kids AI Resources Team',
+    datePublished: '2024-01-15',
+    category: 'Announcements',
+    tags: ['Welcome', 'Getting Started', 'AI Education', 'Platform Guide'],
+    imageUrl: 'https://source.unsplash.com/random/800x600/?kids,technology',
+    readTime: 4,
+    viewCount: 1856,
+    featured: true
+  },
+  {
+    id: '2',
+    title: 'How Parents Can Support Their Child\'s AI Education at Home',
     slug: 'how-parents-can-support-child-ai-education-at-home',
     excerpt: 'As artificial intelligence (AI) becomes an integral part of our world, parents play a key role in ensuring their children develop the right skills and understanding.',
     content: `
@@ -83,7 +136,7 @@ By taking an **active role** in your child's AI learning journey, you can **empo
 
 ✅ **Start small, explore AI tools together, and make learning fun!**
 
-👉 **Looking for AI learning resources for kids?** Check out our Kids Ai Resources to find curated courses, books, activities and much more
+👉 **Looking for AI learning resources for kids?** Check out our Kids AI Resources to find curated courses, books, activities and much more
     `,
     author: 'AI Education Team',
     datePublished: '2023-11-15',
@@ -95,7 +148,7 @@ By taking an **active role** in your child's AI learning journey, you can **empo
     featured: true
   },
   {
-    id: '2',
+    id: '3',
     title: 'The Benefits of Learning AI at a Young Age',
     slug: 'benefits-of-learning-ai-at-young-age',
     excerpt: 'As artificial intelligence (AI) continues to shape the world around us, teaching children AI from an early age can provide them with essential skills for the future.',
@@ -210,21 +263,6 @@ Teaching AI at a young age **isn't just about preparing kids for tech careers—
     readTime: 8,
     viewCount: 2310,
     featured: true
-  },
-  {
-    id: '3',
-    title: 'Top 10 AI Tools for Beginners in 2024',
-    slug: 'top-10-ai-tools-for-beginners-2024',
-    excerpt: 'Looking for the best AI tools to introduce to your child? Here are our top 10 beginner-friendly AI tools for 2024 that make learning fun and accessible.',
-    content: 'Full article content...',
-    author: 'Tech Education Team',
-    datePublished: '2024-01-20',
-    category: 'Tools & Resources',
-    tags: ['AI Tools', 'Beginners', 'Educational Technology', '2024 Trends'],
-    imageUrl: 'https://source.unsplash.com/random/800x600/?technology,kids',
-    readTime: 5,
-    viewCount: 1820,
-    featured: false
   }
 ];
 
