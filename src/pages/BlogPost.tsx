@@ -53,15 +53,15 @@ const BlogPost = () => {
             </Link>
           </Button>
 
-          <div className="mb-6">
+          <div className="mb-8">
             <div className="flex flex-wrap gap-2 mb-4">
               <Badge variant="outline" className="bg-primary/10 text-primary hover:bg-primary/20">
                 {post.category}
               </Badge>
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold mb-6">{post.title}</h1>
+            <h1 className="text-3xl md:text-4xl font-bold mb-6 leading-tight">{post.title}</h1>
 
-            <div className="flex items-center justify-between flex-wrap gap-4 mb-8">
+            <div className="flex items-center justify-between flex-wrap gap-4 mb-8 border-b pb-6">
               <div className="flex items-center gap-4">
                 <Avatar>
                   <AvatarFallback className="bg-primary/10 text-primary">
@@ -94,7 +94,7 @@ const BlogPost = () => {
           </div>
 
           {post.imageUrl && (
-            <div className="mb-8 rounded-lg overflow-hidden">
+            <div className="mb-10 rounded-lg overflow-hidden shadow-medium">
               <img 
                 src={post.imageUrl} 
                 alt={post.title} 
@@ -103,15 +103,15 @@ const BlogPost = () => {
             </div>
           )}
 
-          <Card className="mb-8">
-            <CardContent className="p-6">
-              <div className="prose prose-lg max-w-none dark:prose-invert prose-headings:font-semibold prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-primary">
+          <Card className="mb-10 shadow-medium">
+            <CardContent className="p-8">
+              <div className="prose prose-lg max-w-none dark:prose-invert prose-headings:font-semibold prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-hr:my-8 prose-li:marker:text-primary/70">
                 <ReactMarkdown>{post.content}</ReactMarkdown>
               </div>
             </CardContent>
           </Card>
 
-          <div className="flex flex-wrap gap-2 mt-8 mb-12">
+          <div className="flex flex-wrap gap-2 mt-10 mb-12 border-t pt-6">
             {post.tags.map(tag => (
               <Badge key={tag} variant="secondary" className="text-xs">
                 {tag}
@@ -121,7 +121,7 @@ const BlogPost = () => {
 
           {relatedPosts.length > 0 && (
             <div className="mt-16">
-              <h2 className="text-2xl font-semibold mb-6">Related Articles</h2>
+              <h2 className="text-2xl font-semibold mb-8">Related Articles</h2>
               <BlogGrid posts={relatedPosts} columns={3} compact />
             </div>
           )}

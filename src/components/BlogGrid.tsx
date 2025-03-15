@@ -17,7 +17,7 @@ export const BlogGrid = ({ posts, columns = 3, compact = false }: BlogGridProps)
   };
 
   return (
-    <div className={`grid ${gridCols[columns]} gap-6`}>
+    <div className={`grid ${gridCols[columns]} gap-8`}>
       {posts.map((post) => (
         <BlogCard key={post.id} post={post} compact={compact} />
       ))}
