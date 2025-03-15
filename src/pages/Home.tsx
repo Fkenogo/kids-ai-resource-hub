@@ -2,8 +2,10 @@
 import { Link } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
 import { ResourceGrid } from '@/components/ResourceGrid';
+import { BlogGrid } from '@/components/BlogGrid';
 import { Button } from '@/components/ui/button';
 import { getRecentResources, getTopRatedResources, getFeaturedResources } from '@/data/mockData';
+import { getFeaturedBlogPosts } from '@/data/blogData';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
@@ -12,6 +14,7 @@ const Home = () => {
   const featuredResources = getFeaturedResources(3);
   const recentResources = getRecentResources(6);
   const topRatedResources = getTopRatedResources(6);
+  const featuredBlogPosts = getFeaturedBlogPosts(2);
 
   const fadeInUp = {
     hidden: { opacity: 0, y: 20 },
@@ -89,8 +92,21 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Age Range Quick Filters */}
+      {/* Latest Blog Posts */}
       <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl md:text-3xl font-semibold">Latest Articles</h2>
+            <Button variant="outline" asChild>
+              <Link to="/blog">View All</Link>
+            </Button>
+          </div>
+          <BlogGrid posts={featuredBlogPosts} columns={2} />
+        </div>
+      </section>
+
+      {/* Age Range Quick Filters */}
+      <section className="py-16 bg-secondary/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl md:text-3xl font-semibold mb-8">Browse by Age Group</h2>
           
@@ -127,7 +143,7 @@ const Home = () => {
       </section>
 
       {/* Recent Resources */}
-      <section className="py-16 bg-secondary/50">
+      <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl md:text-3xl font-semibold">Recently Added</h2>
@@ -140,7 +156,7 @@ const Home = () => {
       </section>
 
       {/* Top Rated Resources */}
-      <section className="py-16">
+      <section className="py-16 bg-secondary/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl md:text-3xl font-semibold">Top Rated</h2>

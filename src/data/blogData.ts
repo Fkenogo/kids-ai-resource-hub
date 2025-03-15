@@ -1,0 +1,245 @@
+
+import { BlogPost } from '@/types';
+
+export const blogPosts: BlogPost[] = [
+  {
+    id: '1',
+    title: 'How Parents Can Support Their Child's AI Education at Home',
+    slug: 'how-parents-can-support-child-ai-education-at-home',
+    excerpt: 'As artificial intelligence (AI) becomes an integral part of our world, parents play a key role in ensuring their children develop the right skills and understanding.',
+    content: `
+### **How Parents Can Support Their Child's AI Education at Home**
+
+As artificial intelligence (AI) becomes an integral part of our world, parents play a key role in ensuring their children develop the right skills and understanding. Whether your child is a beginner or already exploring AI concepts, here's how you can support their AI education at home.
+
+---
+
+## **1. Engage in AI Learning Together**
+
+Children learn best when parents are actively involved in their education. Here's how you can explore AI together:
+
+🔹 **Explore AI Tools:** Introduce your child to beginner-friendly AI platforms like [Scratch](https://scratch.mit.edu/), [Teachable Machine](https://teachablemachine.withgoogle.com/), or AI chatbots like ChatGPT. These tools help kids grasp AI fundamentals in a hands-on way.
+
+🔹 **Try Interactive Activities:** Participate in fun AI-driven activities, such as using **Google Quick, Draw!** to see how AI recognizes sketches or experimenting with AI-generated music and art.
+
+👩‍🏫 **Pro Tip:** Ask your child open-ended questions like, *"How do you think the AI knows that's a cat?"* to encourage curiosity and critical thinking.
+
+---
+
+## **2. Promote Critical Thinking and Responsible AI Use**
+
+AI is a powerful tool, but kids need to understand its limitations and ethical implications.
+
+🧠 **Encourage Critical Thinking:** Teach your child to question AI outputs. Discuss topics like AI bias and misinformation. Ask them, *"How do you know if the AI's answer is correct?"*
+
+🚦 **Set Healthy Boundaries:** AI should be a learning aid, not a shortcut. Establish rules for **when and how** AI tools can be used (e.g., not relying on AI for homework answers but using it for brainstorming ideas).
+
+🔍 **Example Discussion:**
+
+- *"AI can generate a story, but how can you add your own creativity to it?"*
+- *"How do we check if AI-generated information is accurate?"*
+
+---
+
+## **3. Stay Informed and Involved**
+
+As AI education continues to evolve, staying updated will help you guide your child effectively.
+
+📌 **Stay Updated:** Read articles, join online communities, and explore resources that keep you informed about AI education trends.
+
+📌 **Communicate with Teachers:** Ask your child's teachers how AI is integrated into their learning and how you can reinforce AI concepts at home.
+
+👩‍🏫 **Action Step:** Attend school workshops on AI education or explore online courses designed for parents.
+
+---
+
+## **4. Foster Creativity and Originality**
+
+AI should **enhance creativity, not replace it**. Encourage your child to use AI as a **tool for inspiration**, rather than a way to complete tasks automatically.
+
+🎨 **Emphasize Creativity:** Guide your child to use AI to **generate ideas** rather than depend on it for final answers. For example, they can use AI to suggest story ideas but write the story in their own words.
+
+🎓 **Teach the Value of Originality:** Discuss ethical AI use, plagiarism, and why original work is important, especially when using AI-powered writing or image-generation tools.
+
+💡 **Fun Activity:** Have your child use AI to generate artwork, then modify and personalize it using their own creativity.
+
+---
+
+## **5. Provide Hands-On AI Experiences**
+
+🔧 **Encourage AI Projects:** Kids learn best by doing! Help them build AI-powered projects, such as:
+
+- Creating **AI chatbots** in [Scratch](https://scratch.mit.edu/)
+- Training a **basic image recognition model** in [Teachable Machine](https://teachablemachine.withgoogle.com/)
+- Experimenting with **AI-powered games**
+
+👩‍💻 **Provide Feedback & Support:** Help them troubleshoot their AI projects and discuss how they can improve their creations.
+
+---
+
+## **Final Thoughts**
+
+By taking an **active role** in your child's AI learning journey, you can **empower them with essential skills for the future**—critical thinking, creativity, and responsible AI use.
+
+✅ **Start small, explore AI tools together, and make learning fun!**
+
+👉 **Looking for AI learning resources for kids?** Check out our Kids Ai Resources to find curated courses, books, activities and much more
+    `,
+    author: 'AI Education Team',
+    datePublished: '2023-11-15',
+    category: 'Parent Resources',
+    tags: ['AI Education', 'Parenting', 'Learning at Home', 'Critical Thinking'],
+    imageUrl: 'https://source.unsplash.com/random/800x600/?ai,children',
+    readTime: 6,
+    viewCount: 1542,
+    featured: true
+  },
+  {
+    id: '2',
+    title: 'The Benefits of Learning AI at a Young Age',
+    slug: 'benefits-of-learning-ai-at-young-age',
+    excerpt: 'As artificial intelligence (AI) continues to shape the world around us, teaching children AI from an early age can provide them with essential skills for the future.',
+    content: `
+### **The Benefits of Learning AI at a Young Age**
+
+As artificial intelligence (AI) continues to shape the world around us, teaching children AI from an early age can provide them with essential skills for the future. AI education is not just about coding—it helps kids develop **critical thinking, creativity, and problem-solving skills** that will benefit them in every aspect of life.
+
+Here are the key benefits of introducing AI to children at a young age:
+
+---
+
+## **1. Boosts Critical Thinking & Problem-Solving Skills**
+
+AI encourages children to analyze data, recognize patterns, and solve problems in creative ways. AI-based activities often require kids to experiment, test different solutions, and refine their approach—key skills for **logical reasoning and decision-making**.
+
+🔹 **Example Activity:** Train an AI model to recognize objects using [Teachable Machine](https://teachablemachine.withgoogle.com/). Ask your child to test how accurate it is and explore why some results might be wrong.
+
+---
+
+## **2. Personalized Learning Experiences**
+
+AI-driven tools **adapt to a child's learning style and pace**, offering a more customized experience. Whether a child learns best through visual, hands-on, or text-based approaches, AI platforms can **adjust lessons to fit their needs**, making learning more engaging.
+
+🔹 **Example Resource:** Platforms like [Code.org AI for Kids](https://code.org/) provide interactive lessons tailored to different skill levels.
+
+---
+
+## **3. Enhances Creativity & Innovation**
+
+AI encourages children to think **beyond traditional learning methods** by experimenting with **AI-powered storytelling, music generation, and game development**. It helps children develop creative problem-solving skills that will be crucial in future careers.
+
+🔹 **Example Activity:** Use AI-powered drawing tools like [Google Quick, Draw!](https://quickdraw.withgoogle.com/) to explore how AI learns from human creativity.
+
+---
+
+## **4. Prepares Kids for Future Careers**
+
+AI is rapidly transforming industries, from healthcare to finance. **Early exposure to AI concepts gives children a head start in developing the skills needed for high-demand careers**, whether in AI development, data science, robotics, or beyond.
+
+🔹 **Future Career Paths Influenced by AI:**
+
+✅ AI Engineer
+
+✅ Data Scientist
+
+✅ Robotics Developer
+
+✅ AI Ethics Specialist
+
+---
+
+## **5. Strengthens STEM Skills**
+
+AI learning is closely connected to **Science, Technology, Engineering, and Mathematics (STEM)**. By engaging with AI projects, children develop skills in **coding, data analysis, and algorithmic thinking**, making them more confident in STEM subjects.
+
+🔹 **Example Resource:** [Scratch AI Projects](https://scratch.mit.edu/search/projects?q=AI) introduce kids to AI through creative coding challenges.
+
+---
+
+## **6. Improves Emotional Intelligence & Mental Agility**
+
+AI education isn't just about technology—it also teaches children **how to manage complex situations and make informed decisions**. Understanding how AI systems work can help kids develop emotional intelligence by recognizing bias and **interpreting data objectively**.
+
+🔹 **Example Discussion:** Talk to your child about **AI-generated recommendations** (like YouTube suggestions) and discuss how AI decides what to show.
+
+---
+
+## **7. Encourages Curiosity & Independent Learning**
+
+AI makes learning more interactive, encouraging kids to **ask questions, explore, and experiment** on their own. Children who engage with AI are more likely to **develop a self-driven approach to education**, helping them become lifelong learners.
+
+🔹 **Example Activity:** Let your child **train their own chatbot** using [Cognimates](https://www.media.mit.edu/projects/cognimates/overview/), exploring how AI learns from interactions.
+
+---
+
+## **8. Fosters Teamwork & Leadership Skills**
+
+Many AI projects involve collaboration, helping children develop teamwork and leadership skills as they **work together on AI-based challenges**. AI competitions and coding clubs encourage kids to communicate, delegate tasks, and solve problems as a team.
+
+🔹 **Example Resource:** Check out [AI Kids Academy](https://aikids-academy.com/) for workshops and group learning opportunities.
+
+---
+
+## **9. Promotes a Growth Mindset**
+
+AI encourages **experimentation and iteration**, teaching kids that failure is just part of the learning process. AI models often require multiple attempts to improve accuracy—just like real-world problem-solving.
+
+🔹 **Example Discussion:** If an AI tool gives an incorrect response, ask your child *"How do you think we can improve this model?"* to **promote perseverance**.
+
+---
+
+## **10. Expands Opportunities for Underrepresented Groups**
+
+AI education provides **equal access to technology** for kids from all backgrounds. By teaching AI skills early, we can **bridge the digital divide and create more diverse opportunities** in tech-related fields.
+
+🔹 **Example Initiative:** Programs like [AI4K12](https://ai4k12.org/) promote inclusive AI education for all students.
+
+---
+
+## **Final Thoughts**
+
+Teaching AI at a young age **isn't just about preparing kids for tech careers—it's about helping them develop essential skills like critical thinking, creativity, and adaptability**.
+
+✅ **Want to get started?** Check out our Kids AI Resources to find the best AI courses, books, and tools for your child!
+    `,
+    author: 'Dr. Maria Chen',
+    datePublished: '2023-12-05',
+    category: 'Education',
+    tags: ['AI Benefits', 'Early Learning', 'Future Skills', 'STEM Education'],
+    imageUrl: 'https://source.unsplash.com/random/800x600/?ai,learning',
+    readTime: 8,
+    viewCount: 2310,
+    featured: true
+  },
+  {
+    id: '3',
+    title: 'Top 10 AI Tools for Beginners in 2024',
+    slug: 'top-10-ai-tools-for-beginners-2024',
+    excerpt: 'Looking for the best AI tools to introduce to your child? Here are our top 10 beginner-friendly AI tools for 2024 that make learning fun and accessible.',
+    content: 'Full article content...',
+    author: 'Tech Education Team',
+    datePublished: '2024-01-20',
+    category: 'Tools & Resources',
+    tags: ['AI Tools', 'Beginners', 'Educational Technology', '2024 Trends'],
+    imageUrl: 'https://source.unsplash.com/random/800x600/?technology,kids',
+    readTime: 5,
+    viewCount: 1820,
+    featured: false
+  }
+];
+
+export const getFeaturedBlogPosts = (limit?: number): BlogPost[] => {
+  const featured = blogPosts.filter(post => post.featured);
+  return limit ? featured.slice(0, limit) : featured;
+};
+
+export const getRecentBlogPosts = (limit?: number): BlogPost[] => {
+  const sorted = [...blogPosts].sort((a, b) => {
+    return new Date(b.datePublished).getTime() - new Date(a.datePublished).getTime();
+  });
+  return limit ? sorted.slice(0, limit) : sorted;
+};
+
+export const getBlogPostBySlug = (slug: string): BlogPost | undefined => {
+  return blogPosts.find(post => post.slug === slug);
+};

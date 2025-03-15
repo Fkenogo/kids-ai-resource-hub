@@ -12,12 +12,13 @@ export const Layout = ({ children }: LayoutProps) => {
   const location = useLocation();
   
   const isActive = (path: string) => {
-    return location.pathname === path;
+    return location.pathname === path || location.pathname.startsWith(`${path}/`);
   };
 
   const navLinks = [
     { path: '/', label: 'Home' },
     { path: '/resources', label: 'Resources' },
+    { path: '/blog', label: 'News & Updates' },
     { path: '/about', label: 'About' },
   ];
 

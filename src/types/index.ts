@@ -97,3 +97,19 @@ export interface ResourceFilters {
 export type DisplayMode = 'grid' | 'table';
 
 export type SortOption = 'date' | 'rating' | 'popularity';
+
+export interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  author: string;
+  datePublished: string;
+  category: string;
+  tags: string[];
+  imageUrl?: string;
+  readTime: number; // in minutes
+  viewCount: number;
+  featured: boolean;
+}
