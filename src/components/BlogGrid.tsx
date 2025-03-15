@@ -1,6 +1,7 @@
 
 import { BlogPost } from '@/types';
 import { BlogCard } from '@/components/BlogCard';
+import { motion } from 'framer-motion';
 
 interface BlogGridProps {
   posts: BlogPost[];
@@ -16,11 +17,37 @@ export const BlogGrid = ({ posts, columns = 3, compact = false }: BlogGridProps)
     4: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4',
   };
 
+  const container = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5 }
+    }
+  };
+
   return (
-    <div className={`grid ${gridCols[columns]} gap-8`}>
-      {posts.map((post) => (
-        <BlogCard key={post.id} post={post} compact={compact} />
+    <motion.div 
+      className={`grid ${gridCols[columns]} gap-8`}
+      variants={container}
+      initial="hidden"
+      animate="visible"
+    >
+      {posts.map((post, index) => (
+        <motion.div key={post.id} variants={item}>
+          <BlogCard post={post} compact={compact} />
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   );
 };

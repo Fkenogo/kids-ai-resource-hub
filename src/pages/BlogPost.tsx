@@ -1,23 +1,41 @@
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
 import { getBlogPostBySlug, getRecentBlogPosts } from '@/data/blogData';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { BlogGrid } from '@/components/BlogGrid';
-import { Calendar, Clock, ArrowLeft, Eye, Share2 } from 'lucide-react';
+import { Calendar, Clock, ArrowLeft, Eye, Share2, Mail } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
+import { Input } from '@/components/ui/input';
+import { toast } from 'sonner';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+const subscribeFormSchema = z.object({
+  email: z.string().email({ message: "Please enter a valid email address" })
+});
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const post = getBlogPostBySlug(slug || '');
   const relatedPosts = getRecentBlogPosts(3).filter(p => p.id !== post?.id);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+
+  const form = useForm<z.infer<typeof subscribeFormSchema>>({
+    resolver: zodResolver(subscribeFormSchema),
+    defaultValues: {
+      email: "",
+    },
+  });
 
   useEffect(() => {
     if (!post) {
@@ -27,6 +45,14 @@ const BlogPost = () => {
     // Scroll to top when post loads
     window.scrollTo(0, 0);
   }, [post, navigate]);
+
+  const onSubscribe = (data: z.infer<typeof subscribeFormSchema>) => {
+    // This would connect to a real subscription service in production
+    console.log("Subscribing email:", data.email);
+    toast.success("Thanks for subscribing to our blog updates!");
+    setIsSubscribed(true);
+    form.reset();
+  };
 
   if (!post) return null;
 
@@ -40,7 +66,7 @@ const BlogPost = () => {
 
   return (
     <Layout>
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-[800px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <motion.div
           initial="hidden"
           animate="visible"
@@ -53,65 +79,55 @@ const BlogPost = () => {
             </Link>
           </Button>
 
-          <div className="mb-8">
-            <div className="flex flex-wrap gap-2 mb-4">
+          <div className="text-center mb-12">
+            <div className="flex flex-wrap gap-2 justify-center mb-6">
               <Badge variant="outline" className="bg-primary/10 text-primary hover:bg-primary/20">
                 {post.category}
               </Badge>
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold mb-6 leading-tight">{post.title}</h1>
+            
+            <h1 className="text-4xl md:text-5xl font-bold mb-8 leading-tight font-serif">{post.title}</h1>
 
-            <div className="flex items-center justify-between flex-wrap gap-4 mb-8 border-b pb-6">
-              <div className="flex items-center gap-4">
-                <Avatar>
-                  <AvatarFallback className="bg-primary/10 text-primary">
-                    {post.author.split(' ').map(n => n[0]).join('')}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <div className="font-medium">{post.author}</div>
-                  <div className="text-sm text-muted-foreground flex items-center gap-1">
-                    <Calendar className="h-3.5 w-3.5" />
-                    {format(new Date(post.datePublished), 'MMMM d, yyyy')}
-                  </div>
+            <div className="flex items-center justify-center gap-4 mb-8">
+              <Avatar>
+                <AvatarFallback className="bg-primary/10 text-primary">
+                  {post.author.split(' ').map(n => n[0]).join('')}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <div className="font-medium">{post.author}</div>
+                <div className="text-sm text-muted-foreground flex items-center gap-1">
+                  <Calendar className="h-3.5 w-3.5" />
+                  {format(new Date(post.datePublished), 'MMMM d, yyyy')}
                 </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                  <Clock className="h-3.5 w-3.5" />
-                  <span>{post.readTime} min read</span>
-                </div>
-                <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                  <Eye className="h-3.5 w-3.5" />
-                  <span>{post.viewCount.toLocaleString()} views</span>
-                </div>
-                <Button variant="outline" size="sm" className="gap-1">
-                  <Share2 className="h-4 w-4" />
-                  Share
-                </Button>
               </div>
             </div>
           </div>
 
           {post.imageUrl && (
-            <div className="mb-10 rounded-lg overflow-hidden shadow-medium">
+            <div className="mb-12 rounded-xl overflow-hidden shadow-medium">
               <img 
                 src={post.imageUrl} 
                 alt={post.title} 
-                className="w-full h-auto object-cover"
+                className="w-full h-auto object-cover aspect-[16/9]"
               />
             </div>
           )}
 
-          <Card className="mb-10 shadow-medium">
-            <CardContent className="p-8">
-              <div className="prose prose-lg max-w-none dark:prose-invert prose-headings:font-semibold prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-hr:my-8 prose-li:marker:text-primary/70">
+          <Card className="mb-16 border-none shadow-none">
+            <CardContent className="p-0">
+              <div className="prose prose-lg max-w-none dark:prose-invert
+                prose-headings:font-serif prose-headings:font-semibold prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-2xl
+                prose-headings:text-foreground prose-p:text-muted-foreground prose-p:text-xl prose-p:leading-relaxed
+                prose-a:text-primary prose-a:no-underline hover:prose-a:underline 
+                prose-img:rounded-lg prose-img:my-12 prose-img:shadow-medium
+                prose-hr:my-8 prose-li:marker:text-primary/70">
                 <ReactMarkdown>{post.content}</ReactMarkdown>
               </div>
             </CardContent>
           </Card>
 
-          <div className="flex flex-wrap gap-2 mt-10 mb-12 border-t pt-6">
+          <div className="flex flex-wrap gap-2 mt-12 mb-16 border-t pt-6">
             {post.tags.map(tag => (
               <Badge key={tag} variant="secondary" className="text-xs">
                 {tag}
@@ -119,9 +135,47 @@ const BlogPost = () => {
             ))}
           </div>
 
+          <Card className="mb-16 bg-secondary/30 border border-secondary p-8 rounded-xl">
+            <div className="text-center mb-6">
+              <h3 className="text-2xl font-bold mb-2 font-serif">Subscribe to Our Blog</h3>
+              <p className="text-muted-foreground">Get the latest articles delivered right to your inbox</p>
+            </div>
+            
+            {isSubscribed ? (
+              <div className="text-center p-4 bg-primary/10 rounded-lg">
+                <p className="font-medium text-primary">Thanks for subscribing!</p>
+              </div>
+            ) : (
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubscribe)} className="flex flex-col sm:flex-row gap-3">
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem className="flex-1">
+                        <FormControl>
+                          <div className="relative">
+                            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
+                            <Input 
+                              placeholder="Your email address" 
+                              className="pl-10" 
+                              {...field} 
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button type="submit">Subscribe</Button>
+                </form>
+              </Form>
+            )}
+          </Card>
+
           {relatedPosts.length > 0 && (
             <div className="mt-16">
-              <h2 className="text-2xl font-semibold mb-8">Related Articles</h2>
+              <h2 className="text-3xl font-bold mb-8 font-serif text-center">Related Articles</h2>
               <BlogGrid posts={relatedPosts} columns={3} compact />
             </div>
           )}
