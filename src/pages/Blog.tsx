@@ -13,10 +13,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Card, CardContent } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 
 const subscribeFormSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address" })
+  email: z.string().email({ message: "Please enter a valid email address" }),
+  name: z.string().min(2, { message: "Please enter your name" }).optional()
 });
 
 const Blog = () => {
@@ -24,20 +26,23 @@ const Blog = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [openSubscribeDialog, setOpenSubscribeDialog] = useState(false);
   const postsPerPage = 9;
 
   const form = useForm<z.infer<typeof subscribeFormSchema>>({
     resolver: zodResolver(subscribeFormSchema),
     defaultValues: {
       email: "",
+      name: ""
     },
   });
 
   const onSubscribe = (data: z.infer<typeof subscribeFormSchema>) => {
     // This would connect to a real subscription service in production
-    console.log("Subscribing email:", data.email);
+    console.log("Subscribing email:", data.email, "Name:", data.name);
     toast.success("Thanks for subscribing to our blog updates!");
     setIsSubscribed(true);
+    setOpenSubscribeDialog(false);
     form.reset();
   };
 
@@ -154,35 +159,61 @@ const Blog = () => {
                     <p className="font-medium text-primary">Thanks for subscribing!</p>
                   </div>
                 ) : (
-                  <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubscribe)} className="flex flex-col gap-3">
-                      <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <div className="relative">
-                                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
-                                <Input 
-                                  placeholder="Your email address" 
-                                  className="pl-10" 
-                                  {...field} 
-                                />
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <Button type="submit" className="w-full">Subscribe</Button>
-                    </form>
-                  </Form>
+                  <Button 
+                    onClick={() => setOpenSubscribeDialog(true)}
+                    className="w-full flex items-center justify-center gap-2"
+                  >
+                    <Mail className="h-4 w-4" />
+                    Subscribe to Newsletter
+                  </Button>
                 )}
               </CardContent>
             </Card>
           </div>
         </div>
+
+        {/* Subscription Dialog */}
+        <Dialog open={openSubscribeDialog} onOpenChange={setOpenSubscribeDialog}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-serif">Subscribe to Our Newsletter</DialogTitle>
+              <DialogDescription>
+                Enter your details below to receive our latest articles and updates directly in your inbox.
+              </DialogDescription>
+            </DialogHeader>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubscribe)} className="space-y-4 mt-4">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input placeholder="Your name (optional)" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input placeholder="Your email address" required {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="flex justify-end pt-4">
+                  <Button type="submit">Subscribe</Button>
+                </div>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
       </div>
     </Layout>
   );

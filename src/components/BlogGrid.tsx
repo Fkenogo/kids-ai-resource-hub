@@ -36,6 +36,15 @@ export const BlogGrid = ({ posts, columns = 3, compact = false }: BlogGridProps)
     }
   };
 
+  // If no posts, show a message
+  if (posts.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-muted-foreground">No articles found.</p>
+      </div>
+    );
+  }
+
   return (
     <motion.div 
       className={`grid ${gridCols[columns]} gap-8`}

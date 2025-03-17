@@ -8,11 +8,13 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { BlogGrid } from '@/components/BlogGrid';
+import { BlogComments } from '@/components/BlogComments';
 import { Calendar, Clock, ArrowLeft, Eye, Share2, Mail } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { z } from 'zod';
@@ -20,7 +22,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 const subscribeFormSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address" })
+  email: z.string().email({ message: "Please enter a valid email address" }),
+  name: z.string().min(2, { message: "Please enter your name" }).optional()
 });
 
 const BlogPost = () => {
@@ -29,11 +32,13 @@ const BlogPost = () => {
   const post = getBlogPostBySlug(slug || '');
   const relatedPosts = getRecentBlogPosts(3).filter(p => p.id !== post?.id);
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [openSubscribeDialog, setOpenSubscribeDialog] = useState(false);
 
   const form = useForm<z.infer<typeof subscribeFormSchema>>({
     resolver: zodResolver(subscribeFormSchema),
     defaultValues: {
       email: "",
+      name: ""
     },
   });
 
@@ -48,9 +53,10 @@ const BlogPost = () => {
 
   const onSubscribe = (data: z.infer<typeof subscribeFormSchema>) => {
     // This would connect to a real subscription service in production
-    console.log("Subscribing email:", data.email);
+    console.log("Subscribing email:", data.email, "Name:", data.name);
     toast.success("Thanks for subscribing to our blog updates!");
     setIsSubscribed(true);
+    setOpenSubscribeDialog(false);
     form.reset();
   };
 
@@ -146,32 +152,20 @@ const BlogPost = () => {
                 <p className="font-medium text-primary">Thanks for subscribing!</p>
               </div>
             ) : (
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubscribe)} className="flex flex-col sm:flex-row gap-3">
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem className="flex-1">
-                        <FormControl>
-                          <div className="relative">
-                            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
-                            <Input 
-                              placeholder="Your email address" 
-                              className="pl-10" 
-                              {...field} 
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button type="submit">Subscribe</Button>
-                </form>
-              </Form>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button 
+                  onClick={() => setOpenSubscribeDialog(true)}
+                  className="flex items-center gap-2"
+                >
+                  <Mail className="h-4 w-4" />
+                  Subscribe to Newsletter
+                </Button>
+              </div>
             )}
           </Card>
+
+          {/* Comment Section */}
+          <BlogComments postId={post.id} postTitle={post.title} />
 
           {relatedPosts.length > 0 && (
             <div className="mt-16">
@@ -181,6 +175,49 @@ const BlogPost = () => {
           )}
         </motion.div>
       </div>
+
+      {/* Subscription Dialog */}
+      <Dialog open={openSubscribeDialog} onOpenChange={setOpenSubscribeDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-serif">Subscribe to Our Newsletter</DialogTitle>
+            <DialogDescription>
+              Enter your details below to receive our latest articles and updates directly in your inbox.
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubscribe)} className="space-y-4 mt-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input placeholder="Your name (optional)" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input placeholder="Your email address" required {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="flex justify-end pt-4">
+                <Button type="submit">Subscribe</Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 };
