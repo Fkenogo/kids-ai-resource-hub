@@ -7,19 +7,19 @@ import { mockCommunityPosts } from "@/data/communityData";
 // Helper function to convert mock data format to database format
 const convertResourceToDbFormat = (resource: any) => {
   // Map mock age ranges to database enum values
-  const mapAgeRange = (ageRange: string) => {
-    const mapping: Record<string, string> = {
+  const mapAgeRange = (ageRange: string): "5-7" | "8-10" | "11-13" | "14-17" => {
+    const mapping: Record<string, "5-7" | "8-10" | "11-13" | "14-17"> = {
       '5-7': '5-7',
       '8-10': '8-10', 
       '11-13': '11-13',
       '14-17': '14-17'
     };
-    return mapping[ageRange] || ageRange;
+    return mapping[ageRange] || '8-10';
   };
 
   // Map mock resource types to database enum values
-  const mapResourceType = (type: string) => {
-    const mapping: Record<string, string> = {
+  const mapResourceType = (type: string): "interactive_tool" | "online_course" | "video" | "book" | "game" | "camp" | "ai_tool" | "curriculum" | "tutorial" | "activity" => {
+    const mapping: Record<string, "interactive_tool" | "online_course" | "video" | "book" | "game" | "camp" | "ai_tool" | "curriculum" | "tutorial" | "activity"> = {
       'interactive_tool': 'interactive_tool',
       'online_course': 'online_course',
       'video': 'video',
@@ -35,8 +35,8 @@ const convertResourceToDbFormat = (resource: any) => {
   };
 
   // Map mock cost types to database enum values
-  const mapCostType = (cost: string) => {
-    const mapping: Record<string, string> = {
+  const mapCostType = (cost: string): "free" | "paid" | "subscription" | "freemium" => {
+    const mapping: Record<string, "free" | "paid" | "subscription" | "freemium"> = {
       'free': 'free',
       'paid': 'paid',
       'subscription': 'subscription',
@@ -50,7 +50,7 @@ const convertResourceToDbFormat = (resource: any) => {
     title: resource.title,
     description: resource.description,
     url: resource.url,
-    age_ranges: resource.ageRanges?.map(mapAgeRange) || [],
+    age_ranges: resource.ageRanges?.map(mapAgeRange) || ['8-10'],
     resource_type: mapResourceType(resource.resourceType),
     format: resource.format,
     cost: mapCostType(resource.cost),
@@ -60,7 +60,7 @@ const convertResourceToDbFormat = (resource: any) => {
     requirements: resource.requirements || [],
     image_url: resource.imageUrl,
     // Use null for added_by - will be set to system admin if available
-    added_by: null,
+    added_by: null as string | null,
     average_rating: resource.averageRating || 0,
     review_count: resource.reviewCount || 0,
     is_featured: resource.featuredResource || false,
@@ -76,8 +76,8 @@ const convertResourceToDbFormat = (resource: any) => {
 
 const convertProductToDbFormat = (product: any) => {
   // Map mock product categories to database enum values
-  const mapProductCategory = (category: string) => {
-    const mapping: Record<string, string> = {
+  const mapProductCategory = (category: string): "books" | "courses" | "videos" | "tools" | "games" | "kits" => {
+    const mapping: Record<string, "books" | "courses" | "videos" | "tools" | "games" | "kits"> = {
       'books': 'books',
       'courses': 'courses', 
       'videos': 'videos',
@@ -89,8 +89,8 @@ const convertProductToDbFormat = (product: any) => {
   };
 
   // Map mock price types to database enum values
-  const mapPriceType = (priceType: string) => {
-    const mapping: Record<string, string> = {
+  const mapPriceType = (priceType: string): "one-time" | "subscription" | "free" => {
+    const mapping: Record<string, "one-time" | "subscription" | "free"> = {
       'one-time': 'one-time',
       'subscription': 'subscription',
       'free': 'free'
@@ -132,7 +132,7 @@ export const migrateResourceData = async () => {
   
   try {
     // First, try to get or create a system admin user
-    let adminUserId = null;
+    let adminUserId: string | null = null;
     
     // Try to get current user as fallback
     const { data: { user } } = await supabase.auth.getUser();
