@@ -18,6 +18,7 @@ export const Layout = ({ children }: LayoutProps) => {
   const navLinks = [
     { path: '/', label: 'Home' },
     { path: '/resources', label: 'Resources' },
+    { path: '/shopping', label: 'Shop' },
     { path: '/community', label: 'Community' },
     { path: '/blog', label: 'News & Updates' },
     { path: '/about', label: 'About' },

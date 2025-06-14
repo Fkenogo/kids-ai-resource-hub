@@ -18,6 +18,7 @@ import TermsOfService from "./pages/TermsOfService";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Community from "./pages/Community";
+import Shopping from "./pages/Shopping";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ const App = () => (
             <Route path="/resources" element={<ResourceDirectory />} />
             <Route path="/resources/:id" element={<ResourcePage />} />
             <Route path="/community" element={<Community />} />
+            <Route path="/shopping" element={<Shopping />} />
             <Route path="/about" element={<About />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
