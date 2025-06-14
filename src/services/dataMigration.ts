@@ -6,21 +6,61 @@ import { mockCommunityPosts } from "@/data/communityData";
 
 // Helper function to convert mock data format to database format
 const convertResourceToDbFormat = (resource: any) => {
+  // Map mock age ranges to database enum values
+  const mapAgeRange = (ageRange: string) => {
+    const mapping: Record<string, string> = {
+      '5-7': '5-7',
+      '8-10': '8-10', 
+      '11-13': '11-13',
+      '14-17': '14-17'
+    };
+    return mapping[ageRange] || ageRange;
+  };
+
+  // Map mock resource types to database enum values
+  const mapResourceType = (type: string) => {
+    const mapping: Record<string, string> = {
+      'interactive_tool': 'interactive_tool',
+      'online_course': 'online_course',
+      'video': 'video',
+      'book': 'book',
+      'game': 'game',
+      'camp': 'camp',
+      'ai_tool': 'ai_tool',
+      'curriculum': 'curriculum',
+      'tutorial': 'tutorial',
+      'activity': 'activity'
+    };
+    return mapping[type] || 'online_course';
+  };
+
+  // Map mock cost types to database enum values
+  const mapCostType = (cost: string) => {
+    const mapping: Record<string, string> = {
+      'free': 'free',
+      'paid': 'paid',
+      'subscription': 'subscription',
+      'freemium': 'freemium'
+    };
+    return mapping[cost] || 'free';
+  };
+
   return {
-    id: resource.id,
+    // Don't include id - let database generate UUID
     title: resource.title,
     description: resource.description,
     url: resource.url,
-    age_ranges: resource.ageRanges,
-    resource_type: resource.resourceType,
+    age_ranges: resource.ageRanges?.map(mapAgeRange) || [],
+    resource_type: mapResourceType(resource.resourceType),
     format: resource.format,
-    cost: resource.cost,
+    cost: mapCostType(resource.cost),
     learning_outcomes: resource.learningOutcomes || [],
     skills_attained: resource.skillsAttained || [],
     key_features: resource.keyFeatures || [],
     requirements: resource.requirements || [],
     image_url: resource.imageUrl,
-    added_by: 'system-admin', // We'll need to create a system admin user
+    // Use null for added_by - will be set to system admin if available
+    added_by: null,
     average_rating: resource.averageRating || 0,
     review_count: resource.reviewCount || 0,
     is_featured: resource.featuredResource || false,
@@ -35,15 +75,38 @@ const convertResourceToDbFormat = (resource: any) => {
 };
 
 const convertProductToDbFormat = (product: any) => {
+  // Map mock product categories to database enum values
+  const mapProductCategory = (category: string) => {
+    const mapping: Record<string, string> = {
+      'books': 'books',
+      'courses': 'courses', 
+      'videos': 'videos',
+      'tools': 'tools',
+      'games': 'games',
+      'kits': 'kits'
+    };
+    return mapping[category?.toLowerCase()] || 'tools';
+  };
+
+  // Map mock price types to database enum values
+  const mapPriceType = (priceType: string) => {
+    const mapping: Record<string, string> = {
+      'one-time': 'one-time',
+      'subscription': 'subscription',
+      'free': 'free'
+    };
+    return mapping[priceType] || 'one-time';
+  };
+
   return {
-    id: product.id,
+    // Don't include id - let database generate UUID
     title: product.title,
     description: product.description,
     short_description: product.shortDescription,
-    category: product.category,
-    price: product.price,
+    category: mapProductCategory(product.category),
+    price: product.price || 0,
     original_price: product.originalPrice,
-    price_type: product.priceType,
+    price_type: mapPriceType(product.priceType || 'one-time'),
     currency: product.currency || 'USD',
     image_url: product.imageUrl,
     images: product.images || [],
@@ -51,10 +114,10 @@ const convertProductToDbFormat = (product: any) => {
     review_count: product.reviewCount || 0,
     in_stock: product.inStock !== false,
     stock_count: product.stockCount,
-    seller: product.seller,
+    seller: product.seller || 'Unknown Seller',
     is_affiliate: product.isAffiliate || false,
     affiliate_url: product.affiliateUrl,
-    age_range: product.ageRange,
+    age_range: product.ageRange || '8-10',
     tags: product.tags || [],
     features: product.features || [],
     requirements: product.requirements || [],
@@ -68,30 +131,30 @@ export const migrateResourceData = async () => {
   console.log('Starting resource data migration...');
   
   try {
-    // Create a system admin user first (if needed)
-    const { data: adminProfile, error: adminError } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('username', 'system-admin')
-      .single();
-
-    let adminUserId = adminProfile?.id;
-
-    if (adminError && adminError.code === 'PGRST116') {
-      // Admin doesn't exist, we'll use a placeholder for now
-      // In a real app, you'd create this through proper auth
-      adminUserId = '00000000-0000-0000-0000-000000000000';
+    // First, try to get or create a system admin user
+    let adminUserId = null;
+    
+    // Try to get current user as fallback
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      adminUserId = user.id;
+      console.log('Using current user as admin for migration:', adminUserId);
     }
 
     // Convert and insert resources
-    const convertedResources = mockResources.map(resource => ({
-      ...convertResourceToDbFormat(resource),
-      added_by: adminUserId
-    }));
+    const convertedResources = mockResources.map(resource => {
+      const converted = convertResourceToDbFormat(resource);
+      if (adminUserId) {
+        converted.added_by = adminUserId;
+      }
+      return converted;
+    });
+
+    console.log('Converted resources sample:', convertedResources[0]);
 
     const { data, error } = await supabase
       .from('resources')
-      .upsert(convertedResources, { onConflict: 'id' });
+      .upsert(convertedResources, { onConflict: 'title' }); // Use title for conflict resolution
 
     if (error) {
       console.error('Error migrating resources:', error);
@@ -113,9 +176,11 @@ export const migrateProductData = async () => {
     // Convert and insert products
     const convertedProducts = mockProducts.map(convertProductToDbFormat);
 
+    console.log('Converted products sample:', convertedProducts[0]);
+
     const { data, error } = await supabase
       .from('products')
-      .upsert(convertedProducts, { onConflict: 'id' });
+      .upsert(convertedProducts, { onConflict: 'title' }); // Use title for conflict resolution
 
     if (error) {
       console.error('Error migrating products:', error);
