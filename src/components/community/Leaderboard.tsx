@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Trophy, Medal, Award, Star } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 
 const leaderboard = [
   {
@@ -103,7 +103,7 @@ export const Leaderboard = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           {leaderboard.map((user, index) => (
-            <motion.div
+            <m.div
               key={user.userId}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -147,7 +147,7 @@ export const Leaderboard = () => {
                   {user.posts} posts • {user.helpfulReplies} replies
                 </div>
               </div>
-            </motion.div>
+            </m.div>
           ))}
         </CardContent>
       </Card>
