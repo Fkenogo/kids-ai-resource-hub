@@ -3,8 +3,43 @@ import { Layout } from '@/components/Layout';
 import { MigrationTool } from '@/components/MigrationTool';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Shield, Database, Users, Package } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 const Admin = () => {
+  // Fetch resource count
+  const { data: resourceCount } = useQuery({
+    queryKey: ['admin-resource-count'],
+    queryFn: async () => {
+      const { count } = await supabase
+        .from('resources')
+        .select('*', { count: 'exact', head: true });
+      return count || 0;
+    },
+  });
+
+  // Fetch product count
+  const { data: productCount } = useQuery({
+    queryKey: ['admin-product-count'],
+    queryFn: async () => {
+      const { count } = await supabase
+        .from('products')
+        .select('*', { count: 'exact', head: true });
+      return count || 0;
+    },
+  });
+
+  // Fetch user count
+  const { data: userCount } = useQuery({
+    queryKey: ['admin-user-count'],
+    queryFn: async () => {
+      const { count } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true });
+      return count || 0;
+    },
+  });
+
   return (
     <Layout>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -26,7 +61,7 @@ const Admin = () => {
                 <Database className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">Loading...</div>
+                <div className="text-2xl font-bold">{resourceCount ?? 'Loading...'}</div>
                 <p className="text-xs text-muted-foreground">
                   Educational resources in database
                 </p>
@@ -39,7 +74,7 @@ const Admin = () => {
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">Loading...</div>
+                <div className="text-2xl font-bold">{userCount ?? 'Loading...'}</div>
                 <p className="text-xs text-muted-foreground">
                   Registered users
                 </p>
@@ -52,7 +87,7 @@ const Admin = () => {
                 <Package className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">Loading...</div>
+                <div className="text-2xl font-bold">{productCount ?? 'Loading...'}</div>
                 <p className="text-xs text-muted-foreground">
                   Available for purchase
                 </p>
