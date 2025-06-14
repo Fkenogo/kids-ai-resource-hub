@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { runFullMigration, migrateResourceData, migrateProductData } from '@/services/dataMigration';
+import { runFullMigration, migrateResourceData, migrateProductData } from '@/services/migration/migrators';
 import { toast } from 'sonner';
 import { Database, Upload, Package, Users, CheckCircle, AlertCircle } from 'lucide-react';
 
