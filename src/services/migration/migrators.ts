@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { mockResources } from "@/data/mockData";
 import { mockProducts } from "@/data/shoppingData";
@@ -45,7 +44,7 @@ export const migrateResourceData = async () => {
       throw error;
     }
 
-    console.log(`Successfully migrated ${data?.length ?? 0} resources to Supabase.`);
+    console.log(`Successfully migrated ${(data || []).length} resources to Supabase.`);
     return data;
   } catch (error) {
     console.error('Resource migration failed catastrophically:', error);
@@ -85,7 +84,7 @@ export const migrateProductData = async () => {
       throw error;
     }
 
-    console.log(`Successfully migrated ${data?.length ?? 0} products to Supabase.`);
+    console.log(`Successfully migrated ${(data || []).length} products to Supabase.`);
     return data;
   } catch (error) {
     console.error('Product migration failed catastrophically:', error);
