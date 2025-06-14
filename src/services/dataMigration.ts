@@ -1,8 +1,8 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { resources, products } from "@/data/mockData";
-import { shoppingData } from "@/data/shoppingData";
-import { communityData } from "@/data/communityData";
+import { mockResources } from "@/data/mockData";
+import { mockProducts } from "@/data/shoppingData";
+import { mockCommunityPosts } from "@/data/communityData";
 
 // Helper function to convert mock data format to database format
 const convertResourceToDbFormat = (resource: any) => {
@@ -84,7 +84,7 @@ export const migrateResourceData = async () => {
     }
 
     // Convert and insert resources
-    const convertedResources = resources.map(resource => ({
+    const convertedResources = mockResources.map(resource => ({
       ...convertResourceToDbFormat(resource),
       added_by: adminUserId
     }));
@@ -111,7 +111,7 @@ export const migrateProductData = async () => {
   
   try {
     // Convert and insert products
-    const convertedProducts = shoppingData.products.map(convertProductToDbFormat);
+    const convertedProducts = mockProducts.map(convertProductToDbFormat);
 
     const { data, error } = await supabase
       .from('products')
