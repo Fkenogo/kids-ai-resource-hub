@@ -2,7 +2,7 @@
 import { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 
 interface LayoutProps {
   children: ReactNode;
@@ -44,7 +44,7 @@ export const Layout = ({ children }: LayoutProps) => {
                   >
                     {link.label}
                     {isActive(link.path) && (
-                      <motion.div
+                      <m.div
                         layoutId="nav-indicator"
                         className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
                         initial={false}

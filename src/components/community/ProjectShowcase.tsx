@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Heart, MessageCircle, ExternalLink } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 
 const projectShowcases = [
   {
@@ -58,7 +58,7 @@ export const ProjectShowcase = () => {
       
       <div className="grid gap-6">
         {projectShowcases.map((project, index) => (
-          <motion.div
+          <m.div
             key={project.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -124,7 +124,7 @@ export const ProjectShowcase = () => {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </m.div>
         ))}
       </div>
     </div>

@@ -1,6 +1,5 @@
-
 import { Layout } from '@/components/Layout';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 
 const About = () => {
   const fadeInUp = {
@@ -25,27 +24,27 @@ const About = () => {
   return (
     <Layout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <motion.div 
+        <m.div 
           className="max-w-3xl mx-auto"
           initial="hidden"
           animate="visible"
           variants={staggerContainer}
         >
-          <motion.h1 
+          <m.h1 
             className="text-4xl md:text-5xl font-bold mb-6"
             variants={fadeInUp}
           >
             About <span className="gradient-text">Kids AI Resources</span>
-          </motion.h1>
+          </m.h1>
           
-          <motion.p 
+          <m.p 
             className="text-xl mb-8 text-muted-foreground"
             variants={fadeInUp}
           >
             Our mission is to help parents discover the best AI learning resources for their children.
-          </motion.p>
+          </m.p>
           
-          <motion.div 
+          <m.div 
             className="prose prose-lg max-w-none"
             variants={fadeInUp}
           >
@@ -102,8 +101,8 @@ const About = () => {
               enthusiast with expertise to offer, we welcome you to our community. Together, we can
               ensure the next generation has the tools they need to thrive in an AI-enhanced world.
             </p>
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       </div>
     </Layout>
   );

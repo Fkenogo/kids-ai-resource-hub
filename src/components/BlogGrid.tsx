@@ -1,7 +1,7 @@
 
 import { BlogPost } from '@/types';
 import { BlogCard } from '@/components/BlogCard';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 
 interface BlogGridProps {
   posts: BlogPost[];
@@ -46,17 +46,17 @@ export const BlogGrid = ({ posts, columns = 3, compact = false }: BlogGridProps)
   }
 
   return (
-    <motion.div 
+    <m.div 
       className={`grid ${gridCols[columns]} gap-8`}
       variants={container}
       initial="hidden"
       animate="visible"
     >
       {posts.map((post, index) => (
-        <motion.div key={post.id} variants={item}>
+        <m.div key={post.id} variants={item}>
           <BlogCard post={post} compact={compact} />
-        </motion.div>
+        </m.div>
       ))}
-    </motion.div>
+    </m.div>
   );
 };

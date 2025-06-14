@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Heart, MessageCircle, Eye, Share2, Pin } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { CommunityPost } from '@/types/community';
 import { mockCommunityPosts } from '@/data/communityData';
 
@@ -52,7 +52,7 @@ export const CommunityFeed = () => {
   return (
     <div className="space-y-6">
       {posts.map((post, index) => (
-        <motion.div
+        <m.div
           key={post.id}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -130,7 +130,7 @@ export const CommunityFeed = () => {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </m.div>
       ))}
     </div>
   );

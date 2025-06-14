@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Clock, Eye } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
 
 interface BlogCardProps {
@@ -17,7 +17,7 @@ export const BlogCard = ({ post, compact = false }: BlogCardProps) => {
   const timeAgo = formatDistanceToNow(publishedDate, { addSuffix: true });
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
@@ -67,6 +67,6 @@ export const BlogCard = ({ post, compact = false }: BlogCardProps) => {
           </CardFooter>
         </Card>
       </Link>
-    </motion.div>
+    </m.div>
   );
 };

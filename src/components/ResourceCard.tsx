@@ -1,5 +1,5 @@
 
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Resource } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
@@ -51,7 +51,7 @@ export const ResourceCard = ({ resource, index = 0 }: ResourceCardProps) => {
   };
 
   return (
-    <motion.div
+    <m.div
       initial="hidden"
       animate="visible"
       variants={cardVariants}
@@ -136,6 +136,6 @@ export const ResourceCard = ({ resource, index = 0 }: ResourceCardProps) => {
           </div>
         </div>
       </Link>
-    </motion.div>
+    </m.div>
   );
 };
