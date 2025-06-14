@@ -14,7 +14,7 @@ import {
   UserPlus, 
   Trophy, 
   AtSign,
-  MarkAsRead
+  Check
 } from 'lucide-react';
 
 interface NotificationPanelProps {
@@ -119,7 +119,7 @@ export const NotificationPanel = ({ open, onClose }: NotificationPanelProps) => 
         <div className="mt-6">
           <div className="flex justify-end mb-4">
             <Button variant="outline" size="sm">
-              <MarkAsRead className="h-4 w-4 mr-2" />
+              <Check className="h-4 w-4 mr-2" />
               Mark all as read
             </Button>
           </div>
