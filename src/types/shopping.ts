@@ -1,4 +1,3 @@
-
 export type ProductCategory = 
   | 'books'
   | 'courses'
@@ -52,4 +51,4 @@ export interface ShoppingFilters {
   searchQuery: string;
 }
 
-export type SortOption = 'newest' | 'price-low' | 'price-high' | 'rating' | 'popular';
+export type SortOption = 'featured' | 'newest' | 'price-low' | 'price-high' | 'rating' | 'popular';
