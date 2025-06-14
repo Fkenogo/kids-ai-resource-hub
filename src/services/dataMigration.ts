@@ -14,7 +14,11 @@ const convertResourceToDbFormat = (resource: any, userId: string) => {
       '11-13': '11-13',
       '14-17': '14-17'
     };
-    return mapping[ageRange] || '8-10';
+    if (!mapping[ageRange]) {
+      console.warn(`Unsupported resource age range: "${ageRange}", defaulting to '8-10'. Resource: ${resource.title}`);
+      return '8-10';
+    }
+    return mapping[ageRange];
   };
 
   // Map mock resource types to database enum values
@@ -31,7 +35,11 @@ const convertResourceToDbFormat = (resource: any, userId: string) => {
       'tutorial': 'tutorial',
       'activity': 'activity'
     };
-    return mapping[type] || 'online_course';
+    if (!mapping[type]) {
+      console.warn(`Unsupported resource type: "${type}", defaulting to 'online_course'. Resource: ${resource.title}`);
+      return 'online_course';
+    }
+    return mapping[type];
   };
 
   // Map mock cost types to database enum values
@@ -42,7 +50,11 @@ const convertResourceToDbFormat = (resource: any, userId: string) => {
       'subscription': 'subscription',
       'freemium': 'freemium'
     };
-    return mapping[cost] || 'free';
+    if (!mapping[cost]) {
+      console.warn(`Unsupported cost type: "${cost}", defaulting to 'free'. Resource: ${resource.title}`);
+      return 'free';
+    }
+    return mapping[cost];
   };
 
   return {
@@ -85,7 +97,11 @@ const convertProductToDbFormat = (product: any) => {
       'games': 'games',
       'kits': 'kits'
     };
-    return mapping[category?.toLowerCase()] || 'tools';
+    if (!mapping[category?.toLowerCase()]) {
+      console.warn(`Unsupported product category: "${category}", defaulting to 'tools'. Product: ${product.title}`);
+      return 'tools';
+    }
+    return mapping[category?.toLowerCase()];
   };
 
   // Map mock price types to database enum values
@@ -95,7 +111,11 @@ const convertProductToDbFormat = (product: any) => {
       'subscription': 'subscription',
       'free': 'free'
     };
-    return mapping[priceType] || 'one-time';
+    if (!mapping[priceType]) {
+      console.warn(`Unsupported price type: "${priceType}", defaulting to 'one-time'. Product: ${product.title}`);
+      return 'one-time';
+    }
+    return mapping[priceType];
   };
 
   return {
@@ -134,31 +154,44 @@ export const migrateResourceData = async () => {
     // First, check if user is authenticated - this is REQUIRED for migration
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
+      console.error('Migration Aborted: User must be logged in to perform migration.');
       throw new Error('User must be logged in to perform migration. Please log in first.');
     }
 
-    console.log('Using authenticated user for migration:', user.id);
+    console.log('Authenticated user found. User ID:', user.id);
 
     // Convert and insert resources with the authenticated user's ID
-    const convertedResources = mockResources.map(resource => 
-      convertResourceToDbFormat(resource, user.id)
-    );
+    const convertedResources = mockResources.map(resource => {
+      try {
+        return convertResourceToDbFormat(resource, user.id);
+      } catch (e) {
+        console.error(`Failed to convert resource: "${resource?.title}"`, e);
+        return null;
+      }
+    }).filter((r): r is NonNullable<typeof r> => r !== null);
 
-    console.log('Converted resources sample:', convertedResources[0]);
+    if (convertedResources.length !== mockResources.length) {
+      console.warn(`${mockResources.length - convertedResources.length} resource(s) were skipped due to conversion errors.`);
+    }
+
+    console.log(`Successfully converted ${convertedResources.length} resources. Preparing to upsert to Supabase.`);
+    if (convertedResources.length > 0) {
+      console.log('Sample converted resource:', JSON.stringify(convertedResources[0], null, 2));
+    }
 
     const { data, error } = await supabase
       .from('resources')
       .upsert(convertedResources, { onConflict: 'title' }); // Use title for conflict resolution
 
     if (error) {
-      console.error('Error migrating resources:', error);
+      console.error('Error during Supabase upsert for resources:', error);
       throw error;
     }
 
-    console.log(`Successfully migrated ${convertedResources.length} resources`);
+    console.log(`Successfully migrated ${data?.length ?? 0} resources to Supabase.`);
     return data;
   } catch (error) {
-    console.error('Resource migration failed:', error);
+    console.error('Resource migration failed catastrophically:', error);
     throw error;
   }
 };
@@ -168,23 +201,37 @@ export const migrateProductData = async () => {
   
   try {
     // Convert and insert products
-    const convertedProducts = mockProducts.map(convertProductToDbFormat);
+    const convertedProducts = mockProducts.map(product => {
+       try {
+        return convertProductToDbFormat(product);
+      } catch (e) {
+        console.error(`Failed to convert product: "${product?.title}"`, e);
+        return null;
+      }
+    }).filter((p): p is NonNullable<typeof p> => p !== null);
 
-    console.log('Converted products sample:', convertedProducts[0]);
+    if (convertedProducts.length !== mockProducts.length) {
+      console.warn(`${mockProducts.length - convertedProducts.length} product(s) were skipped due to conversion errors.`);
+    }
+
+    console.log(`Successfully converted ${convertedProducts.length} products. Preparing to upsert to Supabase.`);
+    if (convertedProducts.length > 0) {
+      console.log('Sample converted product:', JSON.stringify(convertedProducts[0], null, 2));
+    }
 
     const { data, error } = await supabase
       .from('products')
       .upsert(convertedProducts, { onConflict: 'title' }); // Use title for conflict resolution
 
     if (error) {
-      console.error('Error migrating products:', error);
+      console.error('Error during Supabase upsert for products:', error);
       throw error;
     }
 
-    console.log(`Successfully migrated ${convertedProducts.length} products`);
+    console.log(`Successfully migrated ${data?.length ?? 0} products to Supabase.`);
     return data;
   } catch (error) {
-    console.error('Product migration failed:', error);
+    console.error('Product migration failed catastrophically:', error);
     throw error;
   }
 };
