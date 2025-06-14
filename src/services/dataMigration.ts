@@ -5,7 +5,7 @@ import { mockProducts } from "@/data/shoppingData";
 import { mockCommunityPosts } from "@/data/communityData";
 
 // Helper function to convert mock data format to database format
-const convertResourceToDbFormat = (resource: any) => {
+const convertResourceToDbFormat = (resource: any, userId: string) => {
   // Map mock age ranges to database enum values
   const mapAgeRange = (ageRange: string): "5-7" | "8-10" | "11-13" | "14-17" => {
     const mapping: Record<string, "5-7" | "8-10" | "11-13" | "14-17"> = {
@@ -59,8 +59,8 @@ const convertResourceToDbFormat = (resource: any) => {
     key_features: resource.keyFeatures || [],
     requirements: resource.requirements || [],
     image_url: resource.imageUrl,
-    // Use null for added_by - will be set to system admin if available
-    added_by: null as string | null,
+    // Use the provided userId - this field is NOT NULL in database
+    added_by: userId,
     average_rating: resource.averageRating || 0,
     review_count: resource.reviewCount || 0,
     is_featured: resource.featuredResource || false,
@@ -131,24 +131,18 @@ export const migrateResourceData = async () => {
   console.log('Starting resource data migration...');
   
   try {
-    // First, try to get or create a system admin user
-    let adminUserId: string | null = null;
-    
-    // Try to get current user as fallback
+    // First, check if user is authenticated - this is REQUIRED for migration
     const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      adminUserId = user.id;
-      console.log('Using current user as admin for migration:', adminUserId);
+    if (!user) {
+      throw new Error('User must be logged in to perform migration. Please log in first.');
     }
 
-    // Convert and insert resources
-    const convertedResources = mockResources.map(resource => {
-      const converted = convertResourceToDbFormat(resource);
-      if (adminUserId) {
-        converted.added_by = adminUserId;
-      }
-      return converted;
-    });
+    console.log('Using authenticated user for migration:', user.id);
+
+    // Convert and insert resources with the authenticated user's ID
+    const convertedResources = mockResources.map(resource => 
+      convertResourceToDbFormat(resource, user.id)
+    );
 
     console.log('Converted resources sample:', convertedResources[0]);
 
