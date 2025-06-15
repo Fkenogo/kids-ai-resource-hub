@@ -43,10 +43,32 @@ const Home = () => {
     ? dbResourcesRaw.map(mapDbResourceToResource)
     : [];
 
-  const featuredResources = dbResources.filter(r => r.featuredResource).slice(0, 3);
+  // Find Teachable Machine resource by title (case-insensitive, fallback to url if needed)
+  const teachableMachine = dbResources.find(
+    r =>
+      r.title &&
+      r.title.toLowerCase().includes("teachable machine") &&
+      r.url === "https://teachablemachine.withgoogle.com/"
+  );
+
+  // Featured resources, max 3, always include Teachable Machine first if available
+  let featuredResources = dbResources.filter(r => r.featuredResource);
+
+  // Insert Teachable Machine at the front if not already featured and resource exists
+  if (teachableMachine) {
+    const alreadyInFeatured = featuredResources.some(r => r.id === teachableMachine.id);
+    if (!alreadyInFeatured) {
+      featuredResources = [teachableMachine, ...featuredResources];
+    }
+  }
+
+  // Limit to 3
+  featuredResources = featuredResources.slice(0, 3);
 
   // All resources except featured
-  const nonFeaturedResources = dbResources.filter(r => !r.featuredResource);
+  const nonFeaturedResources = dbResources.filter(
+    r => !featuredResources.some(fr => fr.id === r.id)
+  );
 
   const recentResources = [...dbResources]
     .sort((a, b) =>
