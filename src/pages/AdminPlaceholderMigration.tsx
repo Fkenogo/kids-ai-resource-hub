@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/Layout";
 
 /**
- * Admin page to batch assign placeholder images to resources missing one.
+ * Admin page to batch assign placeholder images to resources with broken/legacy image urls.
  */
 const AdminPlaceholderMigration = () => {
   const [resources, setResources] = useState<any[]>([]);
@@ -14,16 +14,16 @@ const AdminPlaceholderMigration = () => {
   const [progress, setProgress] = useState("");
   const [done, setDone] = useState(false);
 
-  // Fetch resources missing image_url
+  // Fetch resources with broken /lovable-uploads/ image_url
   async function fetchResources() {
     setLoading(true);
     setDone(false);
-    setProgress("Fetching resources...");
+    setProgress("Finding broken images...");
+    // Look for any resources with image_url LIKE '/lovable-uploads/%'
     const { data, error } = await supabase
       .from("resources")
       .select("id, title, image_url")
-      .or("image_url.is.null,image_url.eq.''");
-
+      .filter("image_url", "like", "/lovable-uploads/%");
     if (error) {
       setProgress(error.message);
       setLoading(false);
@@ -31,6 +31,11 @@ const AdminPlaceholderMigration = () => {
     }
     setResources(data || []);
     setLoading(false);
+    setProgress(
+      data && data.length > 0
+        ? `${data.length} resources found with broken images.`
+        : "No resources with broken images found."
+    );
   }
 
   // Upload svg string as a file
@@ -92,12 +97,12 @@ const AdminPlaceholderMigration = () => {
       <div className="max-w-2xl mx-auto p-8">
         <h1 className="text-2xl font-bold mb-6">Resource Image Placeholder Migration</h1>
         <Button onClick={fetchResources} disabled={loading} className="mb-4">
-          {loading ? "Loading..." : "Find Missing Images"}
+          {loading ? "Loading..." : "Find Broken Images"}
         </Button>
         <div className="mb-4">{progress}</div>
         {resources.length > 0 && (
           <div>
-            <div className="mb-4">{resources.length} resources missing images.</div>
+            <div className="mb-4">{resources.length} resources with broken images.</div>
             <Button onClick={assignPlaceholders} disabled={loading} variant="destructive">
               Auto Assign Placeholders to All
             </Button>
