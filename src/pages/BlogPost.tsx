@@ -11,7 +11,7 @@ import { BlogGrid } from '@/components/BlogGrid';
 import { BlogComments } from '@/components/BlogComments';
 import { Calendar, Clock, ArrowLeft, Eye, Share2, Mail } from 'lucide-react';
 import { format } from 'date-fns';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -73,7 +73,7 @@ const BlogPost = () => {
   return (
     <Layout>
       <div className="max-w-[800px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <motion.div
+        <m.div
           initial="hidden"
           animate="visible"
           variants={fadeIn}
@@ -173,7 +173,7 @@ const BlogPost = () => {
               <BlogGrid posts={relatedPosts} columns={3} compact />
             </div>
           )}
-        </motion.div>
+        </m.div>
       </div>
 
       {/* Subscription Dialog */}

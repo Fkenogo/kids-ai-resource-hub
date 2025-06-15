@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { getRecentResources, getTopRatedResources, getFeaturedResources } from '@/data/mockData';
 import { getFeaturedBlogPosts } from '@/data/blogData';
 import { Badge } from '@/components/ui/badge';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 
 const Home = () => {
@@ -41,33 +41,33 @@ const Home = () => {
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/10" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 relative z-10">
-          <motion.div 
+          <m.div 
             className="max-w-3xl"
             initial="hidden"
             animate="visible"
             variants={staggerContainer}
           >
-            <motion.div variants={fadeInUp}>
+            <m.div variants={fadeInUp}>
               <Badge className="mb-4 bg-accent/10 text-accent border-accent/20 text-sm py-1 px-3">
                 Educational Resources
               </Badge>
-            </motion.div>
+            </m.div>
             
-            <motion.h1 
+            <m.h1 
               className="text-4xl sm:text-5xl md:text-display font-bold leading-tight mb-6"
               variants={fadeInUp}
             >
               Discover the best <span className="gradient-text">AI learning resources</span> for your children
-            </motion.h1>
+            </m.h1>
             
-            <motion.p 
+            <m.p 
               className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl"
               variants={fadeInUp}
             >
               A curated directory of educational tools, courses, games, and materials to help kids learn about artificial intelligence.
-            </motion.p>
+            </m.p>
             
-            <motion.div 
+            <m.div 
               className="flex flex-wrap gap-4"
               variants={fadeInUp}
             >
@@ -77,8 +77,8 @@ const Home = () => {
               <Button variant="outline" size="lg" asChild>
                 <Link to="/about">Learn More</Link>
               </Button>
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         </div>
       </section>
 
@@ -117,7 +117,7 @@ const Home = () => {
                 to={`/resources?age=${ageRange}`}
                 className="block"
               >
-                <motion.div 
+                <m.div 
                   className="glass-panel rounded-xl p-6 h-full flex flex-col items-center justify-center text-center shadow-soft hover:shadow-medium transition-all duration-300"
                   whileHover={{ y: -5, transition: { duration: 0.2 } }}
                 >
@@ -135,7 +135,7 @@ const Home = () => {
                   <Button variant="outline" size="sm" className="gap-1 mt-auto">
                     Explore <ArrowRight className="h-4 w-4" />
                   </Button>
-                </motion.div>
+                </m.div>
               </Link>
             ))}
           </div>

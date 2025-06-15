@@ -7,7 +7,7 @@ import { ResourceGrid } from '@/components/ResourceGrid';
 import { getResourceById, getReviewsForResource, filterResources } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, TrendingUp } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { getPopularResources } from '@/services/engagementService';
 import { Resource } from '@/types';
 
@@ -67,7 +67,7 @@ const ResourcePage = () => {
         <ResourceDetail resource={resource} reviews={reviews} />
         
         {similarResources.length > 0 && (
-          <motion.div 
+          <m.div 
             className="mt-12"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -75,11 +75,11 @@ const ResourcePage = () => {
           >
             <h2 className="text-2xl font-medium mb-6">Similar Resources</h2>
             <ResourceGrid resources={similarResources} columns={3} />
-          </motion.div>
+          </m.div>
         )}
         
         {popularResources.length > 0 && (
-          <motion.div 
+          <m.div 
             className="mt-12"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -90,7 +90,7 @@ const ResourcePage = () => {
               Popular Resources
             </h2>
             <ResourceGrid resources={popularResources} columns={3} />
-          </motion.div>
+          </m.div>
         )}
       </div>
     </Layout>

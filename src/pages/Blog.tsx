@@ -6,7 +6,7 @@ import { getRecentBlogPosts } from '@/data/blogData';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { Search, Mail } from 'lucide-react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -72,7 +72,7 @@ const Blog = () => {
   return (
     <Layout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <motion.div
+        <m.div
           initial="hidden"
           animate="visible"
           variants={fadeInUp}
@@ -82,7 +82,7 @@ const Blog = () => {
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Stay informed with the latest articles, guides, and updates on AI education for children.
           </p>
-        </motion.div>
+        </m.div>
 
         <div className="flex flex-col md:flex-row gap-8 mb-16">
           <div className="w-full md:w-2/3">

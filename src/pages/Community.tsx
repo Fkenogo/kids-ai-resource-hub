@@ -11,7 +11,7 @@ import { CreatePostDialog } from '@/components/community/CreatePostDialog';
 import { UserProfile } from '@/components/community/UserProfile';
 import { NotificationPanel } from '@/components/community/NotificationPanel';
 import { Plus, Bell, Users, Trophy, FolderOpen } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 
 const Community = () => {
   const [showCreatePost, setShowCreatePost] = useState(false);
@@ -25,14 +25,14 @@ const Community = () => {
           {/* Header */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
             <div>
-              <motion.h1 
+              <m.h1 
                 className="text-4xl font-bold gradient-text mb-2"
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
               >
                 Community Forum
-              </motion.h1>
+              </m.h1>
               <p className="text-lg text-muted-foreground">
                 Connect with other parents on their AI education journey
               </p>

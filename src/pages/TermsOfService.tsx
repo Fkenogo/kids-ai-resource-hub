@@ -1,6 +1,6 @@
 
 import { Layout } from '@/components/Layout';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 
 const TermsOfService = () => {
   const fadeInUp = {
@@ -15,18 +15,18 @@ const TermsOfService = () => {
   return (
     <Layout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <motion.div 
+        <m.div 
           className="max-w-3xl mx-auto"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <motion.h1 
+          <m.h1 
             className="text-4xl font-bold mb-6"
             variants={fadeInUp}
           >
             Terms of Service
-          </motion.h1>
+          </m.h1>
           
           <div className="prose prose-lg max-w-none">
             <p>Last Updated: {new Date().toLocaleDateString()}</p>
@@ -142,7 +142,7 @@ const TermsOfService = () => {
               terms@kidsairesources.com
             </p>
           </div>
-        </motion.div>
+        </m.div>
       </div>
     </Layout>
   );

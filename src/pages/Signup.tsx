@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { Separator } from '@/components/ui/separator';
 import { Github, Phone, Facebook } from 'lucide-react';
 
@@ -53,7 +53,7 @@ const Signup = () => {
     <Layout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="max-w-md mx-auto">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -195,7 +195,7 @@ const Signup = () => {
                 </p>
               </CardFooter>
             </Card>
-          </motion.div>
+          </m.div>
         </div>
       </div>
     </Layout>
