@@ -1,4 +1,7 @@
+
 import { Review, User } from '../types';
+
+// All dummy/mock resource data removed - use only real resources from Supabase
 
 export const mockUsers: User[] = [
   {
@@ -78,3 +81,4 @@ export const mockReviews: Review[] = [
 export const getReviewsForResource = (resourceId: string): Review[] => {
   return mockReviews.filter(review => review.resourceId === resourceId);
 };
+

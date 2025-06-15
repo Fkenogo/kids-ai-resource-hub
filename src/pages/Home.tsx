@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
 import { ResourceGrid } from '@/components/ResourceGrid';
@@ -9,32 +10,54 @@ import { Badge } from '@/components/ui/badge';
 import { m } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 
+const mapDbResourceToResource = (r: any): import('@/types').Resource => ({
+  id: r.id,
+  title: r.title,
+  description: r.description,
+  url: r.url,
+  ageRanges: r.age_ranges,
+  resourceType: r.resource_type,
+  format: r.format ?? undefined,
+  cost: r.cost,
+  learningOutcomes: r.learning_outcomes ?? undefined,
+  skillsAttained: r.skills_attained ?? undefined,
+  keyFeatures: r.key_features ?? undefined,
+  dateAdded: r.created_at,
+  addedBy: r.added_by,
+  averageRating: r.average_rating ?? 0,
+  reviewCount: r.review_count ?? 0,
+  featuredResource: r.is_featured ?? false,
+  imageUrl: r.image_url ?? undefined,
+  viewCount: r.view_count ?? 0,
+  likeCount: r.like_count ?? 0,
+  shareCount: r.share_count ?? 0,
+  saveCount: r.save_count ?? 0,
+  commentCount: r.comment_count ?? 0,
+});
+
 const Home = () => {
-  // Featured, recent, and top rated resource sections now always pull from Supabase
-  const { data: dbResources = [], isLoading } = useResources();
-  // We filter for types of resources after loading
-  // Featured
-  const featuredResources = dbResources
-    .filter(r => r.is_featured)
-    .slice(0, 3);
-  // Recent: sort by created_at descending
+  const { data: dbResourcesRaw = [], isLoading } = useResources();
+  const dbResources = Array.isArray(dbResourcesRaw)
+    ? dbResourcesRaw.map(mapDbResourceToResource)
+    : [];
+
+  const featuredResources = dbResources.filter(r => r.featuredResource).slice(0, 3);
   const recentResources = [...dbResources]
     .sort((a, b) =>
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime()
     )
     .slice(0, 6);
-  // Top Rated: sort by average_rating
   const topRatedResources = [...dbResources]
-    .sort((a, b) => (b.average_rating ?? 0) - (a.average_rating ?? 0))
+    .sort((a, b) => (b.averageRating ?? 0) - (a.averageRating ?? 0))
     .slice(0, 6);
 
   const featuredBlogPosts = getFeaturedBlogPosts(2);
 
   const fadeInUp = {
     hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
+    visible: {
+      opacity: 1,
+      y: 0,
       transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] }
     }
   };
