@@ -6,7 +6,7 @@ import { FilterSidebar } from '@/components/FilterSidebar';
 import { filterResources } from '@/data/mockData';
 import { ResourceFilters, DisplayMode } from '@/types';
 import { useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Grid2x2, List } from 'lucide-react';
 
@@ -59,7 +59,7 @@ const ResourceDirectory = () => {
 
   return (
     <Layout>
-      <motion.div 
+      <m.div 
         className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
         initial="hidden"
         animate="visible"
@@ -122,7 +122,7 @@ const ResourceDirectory = () => {
             )}
           </div>
         </div>
-      </motion.div>
+      </m.div>
     </Layout>
   );
 };
