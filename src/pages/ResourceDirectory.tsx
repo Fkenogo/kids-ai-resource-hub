@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Layout } from '@/components/Layout';
 import { ResourceGrid } from '@/components/ResourceGrid';
@@ -43,7 +42,10 @@ const ResourceDirectory = () => {
     ? [queryParams.get('age') as AgeRange] 
     : [];
 
-  const { data: dbResourcesRaw = [], isLoading } = useResources();
+  const { data: dbResourcesRaw = [], isLoading, error } = useResources();
+  if (error) console.error("ResourceDirectory: resource query error", error);
+  console.log("ResourceDirectory: dbResourcesRaw", dbResourcesRaw);
+
   const dbResources = Array.isArray(dbResourcesRaw)
     ? dbResourcesRaw.map(mapDbResourceToResource)
     : [];

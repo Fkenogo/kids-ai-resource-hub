@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
@@ -6,7 +5,6 @@ import { ResourceDetail } from '@/components/ResourceDetail';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { useResource } from '@/hooks/useSupabaseData';
-import { getReviewsForResource } from '@/data/mockData';
 
 const mapDbResourceToResource = (r: any): import('@/types').Resource => ({
   id: r.id,
@@ -37,7 +35,7 @@ const ResourcePage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const { data: dbResource, isLoading } = useResource(id || '');
+  const { data: dbResource, isLoading, error } = useResource(id || '');
 
   useEffect(() => {
     if (!isLoading && !dbResource) {
@@ -46,6 +44,10 @@ const ResourcePage = () => {
     }
     window.scrollTo(0, 0);
   }, [dbResource, navigate, id, isLoading]);
+
+  if (error) {
+    console.error("ResourcePage: resource query error", error);
+  }
 
   if (isLoading) {
     return (
@@ -61,7 +63,6 @@ const ResourcePage = () => {
     return null;
   }
 
-  // For now, pass empty reviews array, unless you fetch reviews elsewhere
   return (
     <Layout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

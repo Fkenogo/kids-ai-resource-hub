@@ -1,4 +1,3 @@
-
 import { Link } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
 import { ResourceGrid } from '@/components/ResourceGrid';
@@ -36,7 +35,11 @@ const mapDbResourceToResource = (r: any): import('@/types').Resource => ({
 });
 
 const Home = () => {
-  const { data: dbResourcesRaw = [], isLoading } = useResources();
+  const { data: dbResourcesRaw = [], isLoading, error } = useResources();
+  // LOG the resources and any error for debugging
+  if (error) console.error("Home: resource query error", error);
+  console.log("Home: dbResourcesRaw", dbResourcesRaw);
+
   const dbResources = Array.isArray(dbResourcesRaw)
     ? dbResourcesRaw.map(mapDbResourceToResource)
     : [];

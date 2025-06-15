@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Database } from "@/integrations/supabase/types";
 import { Resource, Review, Comment, User } from "@/types";
@@ -64,10 +63,8 @@ export const updateProfile = async (userId: string, updates: Partial<ProfileRow>
 export const getResources = async (filters?: any) => {
   let query = supabase
     .from('resources')
-    .select(`
-      *,
-      profiles!resources_added_by_fkey(username, display_name)
-    `)
+    .select('*') // FIX: remove join to profiles
+
     .eq('is_approved', true);
 
   if (filters?.ageRanges && filters.ageRanges.length > 0) {
@@ -91,22 +88,28 @@ export const getResources = async (filters?: any) => {
   }
 
   const { data, error } = await query.order('created_at', { ascending: false });
-  
-  if (error) throw error;
+  if (error) {
+    console.error("Supabase getResources error:", error);
+    throw error;
+  }
+  if (!Array.isArray(data)) {
+    console.error("Supabase getResources did not return array:", data);
+    return [];
+  }
   return data;
 };
 
 export const getResourceById = async (id: string) => {
   const { data, error } = await supabase
     .from('resources')
-    .select(`
-      *,
-      profiles!resources_added_by_fkey(username, display_name)
-    `)
+    .select('*') // FIX: remove join to profiles
     .eq('id', id)
     .single();
-  
-  if (error) throw error;
+
+  if (error) {
+    console.error("Supabase getResourceById error:", error);
+    throw error;
+  }
   return data;
 };
 
