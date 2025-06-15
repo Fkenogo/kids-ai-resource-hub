@@ -1,0 +1,129 @@
+
+import React, { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { generatePlaceholderSvg } from "@/utils/generatePlaceholderSvg";
+import { Button } from "@/components/ui/button";
+import { Layout } from "@/components/Layout";
+
+/**
+ * Admin page to batch assign placeholder images to resources missing one.
+ */
+const AdminPlaceholderMigration = () => {
+  const [resources, setResources] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState("");
+  const [done, setDone] = useState(false);
+
+  // Fetch resources missing image_url
+  async function fetchResources() {
+    setLoading(true);
+    setDone(false);
+    setProgress("Fetching resources...");
+    const { data, error } = await supabase
+      .from("resources")
+      .select("id, title, image_url")
+      .or("image_url.is.null,image_url.eq.''");
+
+    if (error) {
+      setProgress(error.message);
+      setLoading(false);
+      return;
+    }
+    setResources(data || []);
+    setLoading(false);
+  }
+
+  // Upload svg string as a file
+  async function uploadSvgForResource(resource: any) {
+    const svgDataUrl = generatePlaceholderSvg(resource.title);
+    // Convert data URL to blob
+    const res = await fetch(svgDataUrl);
+    const blob = await res.blob();
+    const fileName = `placeholder-${resource.id}.svg`;
+
+    // Upload to Supabase
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from("resource-images")
+      .upload(fileName, blob, {
+        contentType: "image/svg+xml",
+        upsert: true,
+        cacheControl: "3600"
+      });
+    if (uploadError) {
+      throw new Error(uploadError.message);
+    }
+    // Get public URL
+    const { data: urlData } = supabase.storage
+      .from("resource-images")
+      .getPublicUrl(uploadData.path);
+    return urlData?.publicUrl ?? null;
+  }
+
+  // Assign placeholders to all in list
+  async function assignPlaceholders() {
+    setLoading(true);
+    let updated = 0;
+    for (let i = 0; i < resources.length; i++) {
+      const res = resources[i];
+      setProgress(`Processing (${i + 1}/${resources.length}): ${res.title}`);
+      try {
+        const url = await uploadSvgForResource(res);
+        if (url) {
+          // Update resource
+          const { error } = await supabase
+            .from("resources")
+            .update({ image_url: url })
+            .eq("id", res.id);
+          if (!error) updated++;
+        }
+      } catch (e) {
+        setProgress(`Error uploading for ${res.title}: ${e}`);
+      }
+    }
+    setProgress(`Done. Placeholders assigned to ${updated} resources.`);
+    setLoading(false);
+    setDone(true);
+    // Refresh list
+    fetchResources();
+  }
+
+  return (
+    <Layout>
+      <div className="max-w-2xl mx-auto p-8">
+        <h1 className="text-2xl font-bold mb-6">Resource Image Placeholder Migration</h1>
+        <Button onClick={fetchResources} disabled={loading} className="mb-4">
+          {loading ? "Loading..." : "Find Missing Images"}
+        </Button>
+        <div className="mb-4">{progress}</div>
+        {resources.length > 0 && (
+          <div>
+            <div className="mb-4">{resources.length} resources missing images.</div>
+            <Button onClick={assignPlaceholders} disabled={loading} variant="destructive">
+              Auto Assign Placeholders to All
+            </Button>
+            <div className="mt-4 grid gap-2">
+              {resources.map((r) => (
+                <div key={r.id} className="flex items-center gap-3">
+                  <span className="flex-shrink-0 w-12 h-8 rounded border overflow-hidden bg-muted">
+                    <img
+                      src={generatePlaceholderSvg(r.title)}
+                      alt={`Placeholder for ${r.title}`}
+                      className="w-full h-full object-contain"
+                    />
+                  </span>
+                  <span className="truncate">{r.title}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {done && (
+          <div className="mt-6 text-green-600 font-semibold">
+            Migration complete! You can refresh the page to check or re-run.
+          </div>
+        )}
+      </div>
+    </Layout>
+  );
+};
+export default AdminPlaceholderMigration;
