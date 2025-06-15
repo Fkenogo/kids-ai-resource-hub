@@ -36,7 +36,6 @@ const mapDbResourceToResource = (r: any): import('@/types').Resource => ({
 
 const Home = () => {
   const { data: dbResourcesRaw = [], isLoading, error } = useResources();
-  // LOG the resources and any error for debugging
   if (error) console.error("Home: resource query error", error);
   console.log("Home: dbResourcesRaw", dbResourcesRaw);
 
@@ -45,6 +44,10 @@ const Home = () => {
     : [];
 
   const featuredResources = dbResources.filter(r => r.featuredResource).slice(0, 3);
+
+  // All resources except featured
+  const nonFeaturedResources = dbResources.filter(r => !r.featuredResource);
+
   const recentResources = [...dbResources]
     .sort((a, b) =>
       new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime()
@@ -55,7 +58,6 @@ const Home = () => {
     .slice(0, 6);
 
   const featuredBlogPosts = getFeaturedBlogPosts(2);
-
   const fadeInUp = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -132,16 +134,42 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Latest Blog Posts */}
+      {/* All Resources */}
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl md:text-3xl font-semibold">Latest Articles</h2>
+            <h2 className="text-2xl md:text-3xl font-semibold">All Resources</h2>
             <Button variant="outline" asChild>
-              <Link to="/blog">View All</Link>
+              <Link to="/resources">View All</Link>
             </Button>
           </div>
-          <BlogGrid posts={featuredBlogPosts} columns={2} />
+          <ResourceGrid resources={nonFeaturedResources} columns={3} />
+        </div>
+      </section>
+
+      {/* Top Rated Resources */}
+      <section className="py-16 bg-secondary/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl md:text-3xl font-semibold">Top Rated</h2>
+            <Button variant="outline" asChild>
+              <Link to="/resources">View All</Link>
+            </Button>
+          </div>
+          <ResourceGrid resources={topRatedResources} columns={3} />
+        </div>
+      </section>
+
+      {/* Recently Added Resources */}
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl md:text-3xl font-semibold">Recently Added</h2>
+            <Button variant="outline" asChild>
+              <Link to="/resources">View All</Link>
+            </Button>
+          </div>
+          <ResourceGrid resources={recentResources} columns={3} />
         </div>
       </section>
 
@@ -182,29 +210,16 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Recent Resources */}
+      {/* Latest Blog Posts */}
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl md:text-3xl font-semibold">Recently Added</h2>
+            <h2 className="text-2xl md:text-3xl font-semibold">Latest Articles</h2>
             <Button variant="outline" asChild>
-              <Link to="/resources">View All</Link>
+              <Link to="/blog">View All</Link>
             </Button>
           </div>
-          <ResourceGrid resources={recentResources} columns={3} />
-        </div>
-      </section>
-
-      {/* Top Rated Resources */}
-      <section className="py-16 bg-secondary/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl md:text-3xl font-semibold">Top Rated</h2>
-            <Button variant="outline" asChild>
-              <Link to="/resources">View All</Link>
-            </Button>
-          </div>
-          <ResourceGrid resources={topRatedResources} columns={3} />
+          <BlogGrid posts={featuredBlogPosts} columns={2} />
         </div>
       </section>
 
