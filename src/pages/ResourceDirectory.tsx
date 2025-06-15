@@ -1,9 +1,8 @@
-
 import { useState, useEffect } from 'react';
 import { Layout } from '@/components/Layout';
 import { ResourceGrid } from '@/components/ResourceGrid';
 import { FilterSidebar } from '@/components/FilterSidebar';
-import { filterResources } from '@/data/mockData';
+import { useResources } from '@/hooks/useSupabaseData';
 import { ResourceFilters, DisplayMode } from '@/types';
 import { useLocation } from 'react-router-dom';
 import { m } from 'framer-motion';
@@ -18,6 +17,8 @@ const ResourceDirectory = () => {
     ? [queryParams.get('age') as any] 
     : [];
 
+  const { data: dbResources = [], isLoading } = useResources();
+  
   const [filters, setFilters] = useState<ResourceFilters>({
     ageRanges: initialAgeRange,
     resourceTypes: [],
@@ -30,13 +31,43 @@ const ResourceDirectory = () => {
   const [displayMode, setDisplayMode] = useState<DisplayMode>('grid');
   const [showByCategory, setShowByCategory] = useState(initialAgeRange.length === 0);
 
-  const [filteredResources, setFilteredResources] = useState(
-    filterResources({ ageRanges: initialAgeRange })
-  );
+  const filteredResources = dbResources.filter(resource => {
+    // Filter by ageRanges
+    if (filters.ageRanges.length > 0 && !resource.age_ranges.some((age: string) => filters.ageRanges.includes(age))) {
+      return false;
+    }
+    // Filter by resourceTypes
+    if (filters.resourceTypes.length > 0 && !filters.resourceTypes.includes(resource.resource_type)) {
+      return false;
+    }
+    // Filter by costTypes
+    if (filters.costTypes.length > 0 && !filters.costTypes.includes(resource.cost)) {
+      return false;
+    }
+    // Filter by minRating
+    if (filters.minRating > 0 && (resource.average_rating ?? 0) < filters.minRating) {
+      return false;
+    }
+    // Filter by recentlyAdded (last 30 days)
+    if (filters.recentlyAdded) {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      if (new Date(resource.created_at) < thirtyDaysAgo) return false;
+    }
+    // Filter by search query
+    if (filters.searchQuery) {
+      const query = filters.searchQuery.toLowerCase();
+      if (
+        !resource.title.toLowerCase().includes(query) &&
+        !resource.description.toLowerCase().includes(query)
+      ) {
+        return false;
+      }
+    }
+    return true;
+  });
 
   useEffect(() => {
-    setFilteredResources(filterResources(filters));
-    
     // If age range filter is applied, disable category grouping
     if (filters.ageRanges.length > 0) {
       setShowByCategory(false);

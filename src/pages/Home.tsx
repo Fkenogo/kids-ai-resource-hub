@@ -1,19 +1,33 @@
-
 import { Link } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
 import { ResourceGrid } from '@/components/ResourceGrid';
 import { BlogGrid } from '@/components/BlogGrid';
 import { Button } from '@/components/ui/button';
-import { getRecentResources, getTopRatedResources, getFeaturedResources } from '@/data/mockData';
+import { useResources } from '@/hooks/useSupabaseData';
 import { getFeaturedBlogPosts } from '@/data/blogData';
 import { Badge } from '@/components/ui/badge';
 import { m } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 
 const Home = () => {
-  const featuredResources = getFeaturedResources(3);
-  const recentResources = getRecentResources(6);
-  const topRatedResources = getTopRatedResources(6);
+  // Featured, recent, and top rated resource sections now always pull from Supabase
+  const { data: dbResources = [], isLoading } = useResources();
+  // We filter for types of resources after loading
+  // Featured
+  const featuredResources = dbResources
+    .filter(r => r.is_featured)
+    .slice(0, 3);
+  // Recent: sort by created_at descending
+  const recentResources = [...dbResources]
+    .sort((a, b) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    )
+    .slice(0, 6);
+  // Top Rated: sort by average_rating
+  const topRatedResources = [...dbResources]
+    .sort((a, b) => (b.average_rating ?? 0) - (a.average_rating ?? 0))
+    .slice(0, 6);
+
   const featuredBlogPosts = getFeaturedBlogPosts(2);
 
   const fadeInUp = {
