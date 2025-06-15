@@ -15,13 +15,26 @@ export const getCurrentUser = async () => {
 };
 
 export const signUp = async (email: string, password: string, metadata?: any) => {
-  return await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: metadata
+  // Critical: always set emailRedirectTo so Supabase can handle email verification correctly!
+  const redirectUrl = `${window.location.origin}/`;
+  try {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: redirectUrl,
+        data: metadata || {},
+      }
+    });
+    if (error) {
+      console.error("signUp error:", error);
+      return { error };
     }
-  });
+    return { data };
+  } catch (err) {
+    console.error("Unexpected signUp error:", err);
+    return { error: err };
+  }
 };
 
 export const signIn = async (email: string, password: string) => {

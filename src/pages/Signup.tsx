@@ -33,7 +33,7 @@ const Signup = () => {
     setIsLoading(true);
 
     // Register user via Supabase
-    const { error } = await signUp(email, password, {
+    const { error, data } = await signUp(email, password, {
       username,
       display_name: username,
       // Add more metadata fields if needed
@@ -41,6 +41,7 @@ const Signup = () => {
 
     if (error) {
       toast.error(error.message || 'Error creating your account. Please try again.');
+      console.error("Signup error (frontend):", error);
     } else {
       toast.success('Account created! Check your email to confirm your address.');
       navigate('/login');
