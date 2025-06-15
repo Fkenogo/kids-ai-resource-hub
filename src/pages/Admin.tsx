@@ -1,4 +1,3 @@
-
 import { Layout } from '@/components/Layout';
 import { MigrationTool } from '@/components/MigrationTool';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import React, { useEffect, useState } from 'react';
 import { ResourceImageEditor } from '@/components/ResourceImageEditor';
+import { Button } from '@/components/ui/button';
 
 const Admin = () => {
   // Fetch resource count
