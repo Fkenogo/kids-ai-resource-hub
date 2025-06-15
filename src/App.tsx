@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -21,6 +20,7 @@ import BlogPost from "./pages/BlogPost";
 import Community from "./pages/Community";
 import Shopping from "./pages/Shopping";
 import Admin from "./pages/Admin";
+import AdminPlaceholderMigration from "./pages/AdminPlaceholderMigration";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +46,7 @@ const App = () => (
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/admin" element={<Admin />} />
+              <Route path="/admin-placeholders" element={<AdminPlaceholderMigration />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

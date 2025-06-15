@@ -262,15 +262,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-
-      {/* DEV: Placeholder migration link (remove after migration) */}
-      <section className="py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <Button asChild variant="secondary" size="sm">
-            <a href="/admin-placeholders" className="underline">Placeholder Migration (Admin Only)</a>
-          </Button>
-        </div>
-      </section>
     </Layout>
   );
 };
