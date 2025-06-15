@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { m } from 'framer-motion';
 import { Separator } from '@/components/ui/separator';
 import { Github, Phone, Facebook } from 'lucide-react';
+import { useAuthContext } from '@/components/auth/AuthProvider';
 
 const Signup = () => {
   const [username, setUsername] = useState('');
@@ -17,36 +18,56 @@ const Signup = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  
+
+  const { signUp } = useAuthContext();
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (password !== confirmPassword) {
       toast.error('Passwords do not match');
       return;
     }
-    
+
     setIsLoading(true);
-    
-    // Simple mock signup for demo purposes
-    setTimeout(() => {
-      toast.success('Account created successfully!');
-      navigate('/');
-      setIsLoading(false);
-    }, 1000);
+
+    // Register user via Supabase
+    const { error } = await signUp(email, password, {
+      username,
+      display_name: username,
+      // Add more metadata fields if needed
+    });
+
+    if (error) {
+      toast.error(error.message || 'Error creating your account. Please try again.');
+    } else {
+      toast.success('Account created! Check your email to confirm your address.');
+      navigate('/login');
+    }
+
+    setIsLoading(false);
   };
 
-  const handleSocialSignup = (provider: string) => {
+  // Real Supabase social authentication
+  const handleSocialSignup = async (provider: 'google' | 'github') => {
     setIsLoading(true);
-    
-    // Mock social signup
-    setTimeout(() => {
-      toast.success(`Account created with ${provider} successfully!`);
-      navigate('/');
-      setIsLoading(false);
-    }, 1000);
+    const { supabase } = await import('@/integrations/supabase/client');
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: window.location.origin + '/',
+        }
+      });
+      if (error) {
+        toast.error(`Failed to sign up with ${provider}: ${error.message}`);
+      }
+      // The redirect will happen if successful
+    } catch (err: any) {
+      toast.error(`Failed to sign up with ${provider}: ${err.message || err}`);
+    }
+    setIsLoading(false);
   };
 
   return (
@@ -70,7 +91,7 @@ const Signup = () => {
                   <div className="grid grid-cols-2 gap-2">
                     <Button 
                       variant="outline" 
-                      onClick={() => handleSocialSignup('Google')}
+                      onClick={() => handleSocialSignup('google')}
                       disabled={isLoading}
                       className="w-full"
                     >
@@ -101,7 +122,7 @@ const Signup = () => {
                     </Button>
                     <Button 
                       variant="outline" 
-                      onClick={() => handleSocialSignup('Facebook')}
+                      onClick={() => toast.info("Facebook auth not implemented yet!")}
                       disabled={isLoading}
                       className="w-full"
                     >
@@ -112,7 +133,7 @@ const Signup = () => {
                   <div className="grid grid-cols-2 gap-2">
                     <Button 
                       variant="outline" 
-                      onClick={() => handleSocialSignup('Phone')}
+                      onClick={() => toast.info("Phone auth not implemented yet!")}
                       disabled={isLoading}
                       className="w-full"
                     >
@@ -121,7 +142,7 @@ const Signup = () => {
                     </Button>
                     <Button 
                       variant="outline" 
-                      onClick={() => handleSocialSignup('GitHub')}
+                      onClick={() => handleSocialSignup('github')}
                       disabled={isLoading}
                       className="w-full"
                     >
@@ -129,13 +150,11 @@ const Signup = () => {
                       GitHub
                     </Button>
                   </div>
-                  
                   <div className="flex items-center">
                     <Separator className="flex-1" />
                     <span className="mx-2 text-xs text-muted-foreground">OR</span>
                     <Separator className="flex-1" />
                   </div>
-                  
                   <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="username">Username</Label>
@@ -145,6 +164,7 @@ const Signup = () => {
                         onChange={e => setUsername(e.target.value)}
                         placeholder="johndoe"
                         required
+                        disabled={isLoading}
                       />
                     </div>
                     <div className="space-y-2">
@@ -156,6 +176,7 @@ const Signup = () => {
                         onChange={e => setEmail(e.target.value)}
                         placeholder="john.doe@example.com"
                         required
+                        disabled={isLoading}
                       />
                     </div>
                     <div className="space-y-2">
@@ -167,6 +188,7 @@ const Signup = () => {
                         onChange={e => setPassword(e.target.value)}
                         placeholder="••••••••"
                         required
+                        disabled={isLoading}
                       />
                     </div>
                     <div className="space-y-2">
@@ -178,6 +200,7 @@ const Signup = () => {
                         onChange={e => setConfirmPassword(e.target.value)}
                         placeholder="••••••••"
                         required
+                        disabled={isLoading}
                       />
                     </div>
                     <Button type="submit" className="w-full" disabled={isLoading}>
