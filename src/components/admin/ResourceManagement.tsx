@@ -8,10 +8,10 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search, Plus, Eye, Star, Users, CheckCircle, XCircle, Image as ImageIcon } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { mapDbResourceToResource } from '@/utils/resourceTransform';
 import { toast } from 'sonner';
 import { ResourceImageEditor } from '@/components/ResourceImageEditor';
 import { AddResourceForm } from './AddResourceForm';
+import { ResourceEditDialog } from './ResourceEditDialog';
 
 export const ResourceManagement = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -187,6 +187,11 @@ export const ResourceManagement = () => {
                     </div>
 
                     <div className="flex items-center gap-2">
+                      <ResourceEditDialog 
+                        resource={resource} 
+                        onUpdated={() => queryClient.invalidateQueries({ queryKey: ['admin-resources'] })} 
+                      />
+                      
                       <Button
                         variant={resource.is_approved ? "outline" : "default"}
                         size="sm"
