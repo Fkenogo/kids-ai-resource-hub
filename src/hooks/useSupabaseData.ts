@@ -19,16 +19,7 @@ import { toast } from 'sonner';
 export const useResources = (filters?: ResourceFilters) => {
   return useQuery({
     queryKey: ['resources', filters],
-    queryFn: async () => {
-      try {
-        const result = await getResources(filters);
-        return result;
-      } catch (err) {
-        console.error('useResources error:', err);
-        toast.error('Could not fetch resources');
-        return [];
-      }
-    },
+    queryFn: () => getResources(filters),
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };
@@ -36,16 +27,7 @@ export const useResources = (filters?: ResourceFilters) => {
 export const useResource = (id: string) => {
   return useQuery({
     queryKey: ['resource', id],
-    queryFn: async () => {
-      try {
-        const result = await getResourceById(id);
-        return result;
-      } catch (err) {
-        console.error('useResource error:', err);
-        toast.error('Could not fetch resource');
-        return null;
-      }
-    },
+    queryFn: () => getResourceById(id),
     enabled: !!id,
   });
 };

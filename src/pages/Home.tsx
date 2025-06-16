@@ -21,8 +21,6 @@ import CallToActionSection from './home/CallToActionSection';
 
 const Home = () => {
   const { data: dbResourcesRaw = [], isLoading, error } = useResources();
-  
-  if (error) console.error("Home: resource query error", error);
 
   const dbResources = Array.isArray(dbResourcesRaw)
     ? dbResourcesRaw.map(mapDbResourceToResource).filter(Boolean)
