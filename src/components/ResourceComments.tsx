@@ -28,7 +28,7 @@ interface CommentWithProfile {
   profiles: {
     username: string;
     display_name: string;
-  } | null;
+  };
 }
 
 export const ResourceComments = ({ resource }: ResourceCommentsProps) => {
@@ -67,8 +67,18 @@ export const ResourceComments = ({ resource }: ResourceCommentsProps) => {
     return formatDistanceToNow(new Date(dateString), { addSuffix: true });
   };
 
-  // Type guard to ensure we have proper comment data
-  const typedComments = (commentsData as CommentWithProfile[]) || [];
+  // Safe type conversion with fallback
+  const typedComments: CommentWithProfile[] = Array.isArray(commentsData) 
+    ? commentsData.filter((comment): comment is CommentWithProfile => 
+        comment && 
+        typeof comment === 'object' && 
+        'profiles' in comment && 
+        comment.profiles && 
+        typeof comment.profiles === 'object' &&
+        'username' in comment.profiles &&
+        'display_name' in comment.profiles
+      )
+    : [];
   
   return (
     <m.div

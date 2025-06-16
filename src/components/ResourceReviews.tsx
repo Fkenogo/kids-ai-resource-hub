@@ -28,7 +28,7 @@ interface ReviewWithProfile {
   profiles: {
     username: string;
     display_name: string;
-  } | null;
+  };
 }
 
 export const ResourceReviews = ({ resource }: ResourceReviewsProps) => {
@@ -40,13 +40,23 @@ export const ResourceReviews = ({ resource }: ResourceReviewsProps) => {
   const [rating, setRating] = useState<number>(0);
   const [hoveredStar, setHoveredStar] = useState<number>(0);
 
-  // Type guard to ensure we have proper review data
-  const typedReviews = (reviewsData as ReviewWithProfile[]) || [];
+  // Safe type conversion with fallback
+  const typedReviews: ReviewWithProfile[] = Array.isArray(reviewsData) 
+    ? reviewsData.filter((review): review is ReviewWithProfile => 
+        review && 
+        typeof review === 'object' && 
+        'profiles' in review && 
+        review.profiles && 
+        typeof review.profiles === 'object' &&
+        'username' in review.profiles &&
+        'display_name' in review.profiles
+      )
+    : [];
   
   // Check if user has already reviewed this resource
-  const userHasReviewed = typedReviews.some(review => 
-    review.user_id === user?.id
-  );
+  const userHasReviewed = user ? typedReviews.some(review => 
+    review.user_id === user.id
+  ) : false;
 
   const handleSubmitReview = async () => {
     if (!rating) {
