@@ -1,8 +1,10 @@
+
 import { useState, useEffect } from 'react';
 import { Resource, Review } from '@/types';
 import { RatingStars } from './RatingStars';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ExternalLink, Bookmark, Share2 } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 import { m } from 'framer-motion';
@@ -36,6 +38,20 @@ export const ResourceDetail = ({ resource, reviews }: ResourceDetailProps) => {
   };
 
   const resourceUrl = `/resources/${resource.id}`;
+
+  const renderListContent = (items: string[] | undefined, emptyMessage: string) => {
+    if (!items || items.length === 0) {
+      return <p className="text-muted-foreground italic">{emptyMessage}</p>;
+    }
+
+    return (
+      <ul className="list-disc pl-5 space-y-2">
+        {items.map((item, index) => (
+          <li key={index} className="text-base leading-relaxed">{item}</li>
+        ))}
+      </ul>
+    );
+  };
 
   return (
     <div className="space-y-8">
@@ -127,39 +143,81 @@ export const ResourceDetail = ({ resource, reviews }: ResourceDetailProps) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
-        className="glass-panel rounded-xl p-6 shadow-medium"
+        className="glass-panel rounded-xl overflow-hidden shadow-medium"
       >
-        <h2 className="text-2xl font-medium mb-4">About this resource</h2>
-        
-        <div className="grid md:grid-cols-2 gap-6">
-          <div>
-            <h3 className="text-lg font-medium mb-2">Learning Outcomes</h3>
-            {resource.learningOutcomes && resource.learningOutcomes.length > 0 ? (
-              <ul className="list-disc pl-5 space-y-1">
-                {resource.learningOutcomes.map((outcome, index) => (
-                  <li key={index}>{outcome}</li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-muted-foreground">No learning outcomes specified</p>
-            )}
-          </div>
+        <div className="p-6">
+          <h2 className="text-2xl font-medium mb-6">About this resource</h2>
           
-          <div>
-            <h3 className="text-lg font-medium mb-2">Skills Attained</h3>
-            {resource.skillsAttained && resource.skillsAttained.length > 0 ? (
-              <ul className="list-disc pl-5 space-y-1">
-                {resource.skillsAttained.map((skill, index) => (
-                  <li key={index}>{skill}</li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-muted-foreground">No skills specified</p>
-            )}
-          </div>
+          <Tabs defaultValue="keyFeatures" className="w-full">
+            <TabsList className="grid w-full grid-cols-3 mb-6">
+              <TabsTrigger 
+                value="keyFeatures" 
+                className="text-sm font-medium transition-all duration-300"
+              >
+                Key Features
+              </TabsTrigger>
+              <TabsTrigger 
+                value="skillsLearned" 
+                className="text-sm font-medium transition-all duration-300"
+              >
+                Skills Learned
+              </TabsTrigger>
+              <TabsTrigger 
+                value="learningOutcomes" 
+                className="text-sm font-medium transition-all duration-300"
+              >
+                Learning Outcomes
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="keyFeatures" className="mt-0">
+              <m.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-4"
+              >
+                <h3 className="text-xl font-semibold text-gray-800">Key Features</h3>
+                {renderListContent(
+                  resource.keyFeatures, 
+                  "No key features specified for this resource."
+                )}
+              </m.div>
+            </TabsContent>
+            
+            <TabsContent value="skillsLearned" className="mt-0">
+              <m.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-4"
+              >
+                <h3 className="text-xl font-semibold text-gray-800">Skills Learned</h3>
+                {renderListContent(
+                  resource.skillsAttained, 
+                  "No specific skills specified for this resource."
+                )}
+              </m.div>
+            </TabsContent>
+            
+            <TabsContent value="learningOutcomes" className="mt-0">
+              <m.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-4"
+              >
+                <h3 className="text-xl font-semibold text-gray-800">Learning Outcomes</h3>
+                {renderListContent(
+                  resource.learningOutcomes, 
+                  "No learning outcomes specified for this resource."
+                )}
+              </m.div>
+            </TabsContent>
+          </Tabs>
         </div>
         
-        <div className="mt-6 pt-6 border-t border-border">
+        <div className="px-6 pb-6 pt-0 border-t border-border">
           <div className="text-sm text-muted-foreground">
             Added on {formatDate(resource.dateAdded)}
           </div>
