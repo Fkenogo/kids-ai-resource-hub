@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Resource, Comment } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -13,6 +13,22 @@ import { toast } from 'sonner';
 
 interface ResourceCommentsProps {
   resource: Resource;
+}
+
+interface CommentWithProfile {
+  id: string;
+  resource_id: string;
+  user_id: string;
+  parent_comment_id: string | null;
+  content: string;
+  like_count: number;
+  is_pinned: boolean;
+  created_at: string;
+  updated_at: string;
+  profiles: {
+    username: string;
+    display_name: string;
+  } | null;
 }
 
 export const ResourceComments = ({ resource }: ResourceCommentsProps) => {
@@ -50,6 +66,9 @@ export const ResourceComments = ({ resource }: ResourceCommentsProps) => {
   const formatCommentDate = (dateString: string) => {
     return formatDistanceToNow(new Date(dateString), { addSuffix: true });
   };
+
+  // Type guard to ensure we have proper comment data
+  const typedComments = (commentsData as CommentWithProfile[]) || [];
   
   return (
     <m.div
@@ -61,7 +80,7 @@ export const ResourceComments = ({ resource }: ResourceCommentsProps) => {
       <div className="space-y-4">
         <h3 className="text-xl font-medium flex items-center gap-2">
           <MessageSquare className="h-5 w-5" />
-          Comments ({commentsData.length})
+          Comments ({typedComments.length})
         </h3>
         
         {isAuthenticated ? (
@@ -96,9 +115,9 @@ export const ResourceComments = ({ resource }: ResourceCommentsProps) => {
         )}
       </div>
       
-      {commentsData.length > 0 ? (
+      {typedComments.length > 0 ? (
         <div className="space-y-6 pt-4">
-          {commentsData.map((comment, index) => (
+          {typedComments.map((comment, index) => (
             <m.div 
               key={comment.id}
               className="flex gap-4"

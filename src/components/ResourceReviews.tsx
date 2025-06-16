@@ -15,6 +15,22 @@ interface ResourceReviewsProps {
   resource: Resource;
 }
 
+interface ReviewWithProfile {
+  id: string;
+  resource_id: string;
+  user_id: string;
+  rating: number;
+  comment: string | null;
+  is_verified_purchase: boolean;
+  helpful_count: number;
+  created_at: string;
+  updated_at: string;
+  profiles: {
+    username: string;
+    display_name: string;
+  } | null;
+}
+
 export const ResourceReviews = ({ resource }: ResourceReviewsProps) => {
   const { isAuthenticated, user } = useAuthContext();
   const { data: reviewsData = [], refetch } = useResourceReviews(resource.id);
@@ -23,9 +39,12 @@ export const ResourceReviews = ({ resource }: ResourceReviewsProps) => {
   const [reviewText, setReviewText] = useState<string>('');
   const [rating, setRating] = useState<number>(0);
   const [hoveredStar, setHoveredStar] = useState<number>(0);
+
+  // Type guard to ensure we have proper review data
+  const typedReviews = (reviewsData as ReviewWithProfile[]) || [];
   
   // Check if user has already reviewed this resource
-  const userHasReviewed = reviewsData.some(review => 
+  const userHasReviewed = typedReviews.some(review => 
     review.user_id === user?.id
   );
 
@@ -107,7 +126,7 @@ export const ResourceReviews = ({ resource }: ResourceReviewsProps) => {
       <div className="space-y-4">
         <h3 className="text-xl font-medium flex items-center gap-2">
           <StarIcon className="h-5 w-5" />
-          Reviews ({reviewsData.length})
+          Reviews ({typedReviews.length})
         </h3>
         
         {isAuthenticated && !userHasReviewed ? (
@@ -152,9 +171,9 @@ export const ResourceReviews = ({ resource }: ResourceReviewsProps) => {
         )}
       </div>
       
-      {reviewsData.length > 0 ? (
+      {typedReviews.length > 0 ? (
         <div className="space-y-6 pt-4">
-          {reviewsData.map((review, index) => (
+          {typedReviews.map((review, index) => (
             <m.div 
               key={review.id}
               className="flex gap-4 pb-6 border-b border-border last:border-b-0"
