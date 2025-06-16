@@ -13,6 +13,7 @@ import EnhancedHeroSection from '../components/EnhancedHeroSection';
 import FeaturedResourcesSection from './home/FeaturedResourcesSection';
 import TopRatedResourcesSection from './home/TopRatedResourcesSection';
 import RecentlyAddedSection from './home/RecentlyAddedSection';
+import NewResourcesSection from './home/NewResourcesSection';
 import AgeRangeQuickFiltersSection from './home/AgeRangeQuickFiltersSection';
 import LatestBlogPostsSection from './home/LatestBlogPostsSection';
 import CallToActionSection from './home/CallToActionSection';
@@ -72,12 +73,19 @@ const Home = () => {
   // Limit to 3
   featuredResources = featuredResources.slice(0, 3);
 
-  // Recently added resources - last 3 only
+  // Recently added resources - last 6 only
   const recentResources = [...dbResources]
     .sort((a, b) =>
       new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime()
     )
-    .slice(0, 3);
+    .slice(0, 6);
+
+  // Get the newest resources (last 8 added resources for new section)
+  const newResources = [...dbResources]
+    .sort((a, b) =>
+      new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime()
+    )
+    .slice(0, 8);
 
   // Most popular resources - top 3 by view count
   const mostPopularResources = [...dbResources]
@@ -91,6 +99,9 @@ const Home = () => {
       <EnhancedHeroSection />
       <div className="enhanced-section">
         <FeaturedResourcesSection featuredResources={featuredResources} />
+      </div>
+      <div className="enhanced-section">
+        <NewResourcesSection newResources={newResources} />
       </div>
       <div className="enhanced-section">
         <TopRatedResourcesSection topRatedResources={mostPopularResources} />
