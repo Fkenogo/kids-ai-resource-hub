@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Database } from "@/integrations/supabase/types";
 import { Resource, Review, Comment, User } from "@/types";
@@ -107,8 +108,7 @@ export const updateProfile = async (userId: string, updates: Partial<ProfileRow>
 export const getResources = async (filters?: any) => {
   let query = supabase
     .from('resources')
-    .select('*') // FIX: remove join to profiles
-
+    .select('*')
     .eq('is_approved', true);
 
   if (filters?.ageRanges && filters.ageRanges.length > 0) {
@@ -146,7 +146,7 @@ export const getResources = async (filters?: any) => {
 export const getResourceById = async (id: string) => {
   const { data, error } = await supabase
     .from('resources')
-    .select('*') // FIX: remove join to profiles
+    .select('*')
     .eq('id', id)
     .single();
 
@@ -186,23 +186,43 @@ export const getResourceReviews = async (resourceId: string) => {
     .from('resource_reviews')
     .select(`
       *,
-      profiles!resource_reviews_user_id_fkey(username, display_name)
+      profiles(username, display_name)
     `)
     .eq('resource_id', resourceId)
     .order('created_at', { ascending: false });
   
-  if (error) throw error;
-  return data;
+  if (error) {
+    console.error('Error fetching reviews:', error);
+    throw error;
+  }
+  return data || [];
 };
 
-export const createReview = async (review: Omit<ReviewRow, 'id' | 'created_at' | 'updated_at'>) => {
+export const createReview = async (review: {
+  resource_id: string;
+  user_id: string;
+  rating: number;
+  comment?: string | null;
+}) => {
+  const reviewData = {
+    resource_id: review.resource_id,
+    user_id: review.user_id,
+    rating: review.rating,
+    comment: review.comment,
+    helpful_count: 0,
+    is_verified_purchase: false
+  };
+
   const { data, error } = await supabase
     .from('resource_reviews')
-    .insert(review)
+    .insert(reviewData)
     .select()
     .single();
   
-  if (error) throw error;
+  if (error) {
+    console.error('Error creating review:', error);
+    throw error;
+  }
   
   // Update resource average rating
   await updateResourceRating(review.resource_id);
@@ -235,23 +255,42 @@ export const getResourceComments = async (resourceId: string) => {
     .from('resource_comments')
     .select(`
       *,
-      profiles!resource_comments_user_id_fkey(username, display_name)
+      profiles(username, display_name)
     `)
     .eq('resource_id', resourceId)
     .order('created_at', { ascending: false });
   
-  if (error) throw error;
-  return data;
+  if (error) {
+    console.error('Error fetching comments:', error);
+    throw error;
+  }
+  return data || [];
 };
 
-export const createComment = async (comment: Omit<CommentRow, 'id' | 'created_at' | 'updated_at'>) => {
+export const createComment = async (comment: {
+  resource_id: string;
+  user_id: string;
+  content: string;
+}) => {
+  const commentData = {
+    resource_id: comment.resource_id,
+    user_id: comment.user_id,
+    content: comment.content,
+    like_count: 0,
+    is_pinned: false,
+    parent_comment_id: null
+  };
+
   const { data, error } = await supabase
     .from('resource_comments')
-    .insert(comment)
+    .insert(commentData)
     .select()
     .single();
   
-  if (error) throw error;
+  if (error) {
+    console.error('Error creating comment:', error);
+    throw error;
+  }
   
   // Update resource comment count
   const { data: comments } = await supabase

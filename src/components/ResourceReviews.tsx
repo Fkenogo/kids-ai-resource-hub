@@ -10,7 +10,6 @@ import { m } from 'framer-motion';
 import { useAuthContext } from '@/components/auth/AuthProvider';
 import { useResourceReviews, useCreateReview } from '@/hooks/useSupabaseData';
 import { toast } from 'sonner';
-import { RatingStars } from '@/components/RatingStars';
 
 interface ResourceReviewsProps {
   resource: Resource;
