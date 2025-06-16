@@ -21,13 +21,34 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    const { error } = await signIn(email, password);
+    console.log('Attempting login for:', email);
 
-    if (error) {
-      toast.error(error.message);
-    } else {
-      toast.success('Login successful!');
-      navigate('/');
+    try {
+      const { data, error } = await signIn(email, password);
+
+      if (error) {
+        console.error('Login error:', error);
+        let errorMessage = 'Login failed. Please try again.';
+        
+        if (error.message?.includes('Invalid login credentials')) {
+          errorMessage = 'Invalid email or password. Please check your credentials.';
+        } else if (error.message?.includes('Email not confirmed')) {
+          errorMessage = 'Please confirm your email address before signing in.';
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        
+        toast.error(errorMessage);
+      } else if (data?.user) {
+        console.log('Login successful for user:', data.user.id);
+        toast.success('Login successful!');
+        navigate('/');
+      } else {
+        toast.error('Login failed. No user data received.');
+      }
+    } catch (err: any) {
+      console.error('Unexpected login error:', err);
+      toast.error('An unexpected error occurred. Please try again.');
     }
 
     setIsLoading(false);

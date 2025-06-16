@@ -30,21 +30,44 @@ const Signup = () => {
       return;
     }
 
+    if (password.length < 6) {
+      toast.error('Password must be at least 6 characters long');
+      return;
+    }
+
     setIsLoading(true);
 
-    // Register user via Supabase
-    const { error, data } = await signUp(email, password, {
-      username,
-      display_name: username,
-      // Add more metadata fields if needed
-    });
+    console.log('Attempting signup for:', email);
 
-    if (error) {
-      toast.error(error.message || 'Error creating your account. Please try again.');
-      console.error("Signup error (frontend):", error);
-    } else {
-      toast.success('Account created! Check your email to confirm your address.');
-      navigate('/login');
+    try {
+      const { data, error } = await signUp(email, password, {
+        username,
+        display_name: username,
+      });
+
+      if (error) {
+        console.error("Signup error:", error);
+        let errorMessage = 'Error creating your account. Please try again.';
+        
+        if (error.message?.includes('User already registered')) {
+          errorMessage = 'An account with this email already exists. Please try logging in instead.';
+        } else if (error.message?.includes('Password')) {
+          errorMessage = 'Password does not meet requirements. Please use at least 6 characters.';
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        
+        toast.error(errorMessage);
+      } else if (data?.user) {
+        console.log('Signup successful for user:', data.user.id);
+        toast.success('Account created! Check your email to confirm your address.');
+        navigate('/login');
+      } else {
+        toast.error('Account creation failed. No user data received.');
+      }
+    } catch (err: any) {
+      console.error('Unexpected signup error:', err);
+      toast.error('An unexpected error occurred. Please try again.');
     }
 
     setIsLoading(false);
@@ -62,10 +85,12 @@ const Signup = () => {
         }
       });
       if (error) {
+        console.error(`${provider} auth error:`, error);
         toast.error(`Failed to sign up with ${provider}: ${error.message}`);
       }
       // The redirect will happen if successful
     } catch (err: any) {
+      console.error(`${provider} auth unexpected error:`, err);
       toast.error(`Failed to sign up with ${provider}: ${err.message || err}`);
     }
     setIsLoading(false);
@@ -190,6 +215,7 @@ const Signup = () => {
                         placeholder="••••••••"
                         required
                         disabled={isLoading}
+                        minLength={6}
                       />
                     </div>
                     <div className="space-y-2">
@@ -202,6 +228,7 @@ const Signup = () => {
                         placeholder="••••••••"
                         required
                         disabled={isLoading}
+                        minLength={6}
                       />
                     </div>
                     <Button type="submit" className="w-full" disabled={isLoading}>

@@ -10,13 +10,18 @@ type CommentRow = Tables['resource_comments']['Row'];
 
 // Auth functions
 export const getCurrentUser = async () => {
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error) {
+    console.error('Error getting current user:', error);
+    return null;
+  }
   return user;
 };
 
 export const signUp = async (email: string, password: string, metadata?: any) => {
-  // Critical: always set emailRedirectTo so Supabase can handle email verification correctly!
   const redirectUrl = `${window.location.origin}/`;
+  console.log('Signing up with redirect URL:', redirectUrl);
+  
   try {
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -26,10 +31,13 @@ export const signUp = async (email: string, password: string, metadata?: any) =>
         data: metadata || {},
       }
     });
+    
     if (error) {
       console.error("signUp error:", error);
       return { error };
     }
+    
+    console.log('SignUp successful:', data);
     return { data };
   } catch (err) {
     console.error("Unexpected signUp error:", err);
@@ -38,14 +46,34 @@ export const signUp = async (email: string, password: string, metadata?: any) =>
 };
 
 export const signIn = async (email: string, password: string) => {
-  return await supabase.auth.signInWithPassword({
-    email,
-    password
-  });
+  console.log('Attempting to sign in with email:', email);
+  
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+    
+    if (error) {
+      console.error("signIn error:", error);
+      return { error };
+    }
+    
+    console.log('SignIn successful:', data);
+    return { data };
+  } catch (err) {
+    console.error("Unexpected signIn error:", err);
+    return { error: err };
+  }
 };
 
 export const signOut = async () => {
-  return await supabase.auth.signOut();
+  console.log('Signing out...');
+  const { error } = await supabase.auth.signOut();
+  if (error) {
+    console.error('SignOut error:', error);
+  }
+  return { error };
 };
 
 // Profile functions
@@ -56,7 +84,10 @@ export const getProfile = async (userId: string) => {
     .eq('id', userId)
     .single();
   
-  if (error) throw error;
+  if (error) {
+    console.error('Error fetching profile:', error);
+    throw error;
+  }
   return data;
 };
 

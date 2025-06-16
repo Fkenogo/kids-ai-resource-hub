@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Avatar } from '@/components/ui/avatar';
 import { formatDistanceToNow } from 'date-fns';
 import { MessageSquare } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { addResourceComment, getResourceComments } from '@/services/engagementService';
 
 interface ResourceCommentsProps {
@@ -36,7 +36,7 @@ export const ResourceComments = ({ resource }: ResourceCommentsProps) => {
   };
   
   return (
-    <motion.div
+    <m.div
       className="space-y-6"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -72,7 +72,7 @@ export const ResourceComments = ({ resource }: ResourceCommentsProps) => {
       {comments.length > 0 ? (
         <div className="space-y-6 pt-4">
           {comments.map((comment, index) => (
-            <motion.div 
+            <m.div 
               key={comment.id}
               className="flex gap-4"
               initial={{ opacity: 0, y: 10 }}
@@ -93,7 +93,7 @@ export const ResourceComments = ({ resource }: ResourceCommentsProps) => {
                 </div>
                 <p className="text-base">{comment.content}</p>
               </div>
-            </motion.div>
+            </m.div>
           ))}
         </div>
       ) : (
@@ -102,6 +102,6 @@ export const ResourceComments = ({ resource }: ResourceCommentsProps) => {
           <p>No comments yet. Be the first to share your thoughts!</p>
         </div>
       )}
-    </motion.div>
+    </m.div>
   );
 };

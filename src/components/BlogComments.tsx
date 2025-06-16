@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -10,7 +9,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { toast } from 'sonner';
 import { MessageSquare } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 
 const commentSchema = z.object({
   comment: z.string().min(3, { message: "Comment must be at least 3 characters long" })
@@ -134,14 +133,14 @@ export const BlogComments = ({ postId, postTitle }: BlogCommentsProps) => {
       </Card>
       
       {comments.length > 0 && (
-        <motion.div
+        <m.div
           variants={container}
           initial="hidden"
           animate="visible"
           className="space-y-6"
         >
           {comments.map((comment) => (
-            <motion.div key={comment.id} variants={item}>
+            <m.div key={comment.id} variants={item}>
               <Card>
                 <CardContent className="pt-6">
                   <div className="flex gap-4">
@@ -160,9 +159,9 @@ export const BlogComments = ({ postId, postTitle }: BlogCommentsProps) => {
                   </div>
                 </CardContent>
               </Card>
-            </motion.div>
+            </m.div>
           ))}
-        </motion.div>
+        </m.div>
       )}
     </div>
   );

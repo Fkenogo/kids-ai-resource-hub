@@ -1,9 +1,11 @@
 
 import React, { createContext, useContext } from 'react';
+import { Session } from '@supabase/supabase-js';
 import { useAuth } from '@/hooks/useAuth';
 
 interface AuthContextType {
   user: any;
+  session: Session | null;
   profile: any;
   loading: boolean;
   signUp: (email: string, password: string, metadata?: any) => Promise<any>;
