@@ -182,31 +182,18 @@ export const updateResource = async (id: string, updates: Partial<ResourceRow>) 
 // Review functions with improved error handling
 export const getResourceReviews = async (resourceId: string) => {
   try {
-    // Try with profiles join first
     const { data, error } = await supabase
       .from('resource_reviews')
       .select(`
         *,
-        profiles(username, display_name)
+        profiles!resource_reviews_user_id_fkey(username, display_name)
       `)
       .eq('resource_id', resourceId)
       .order('created_at', { ascending: false });
     
     if (error) {
-      console.error('Error fetching reviews with profiles:', error);
-      // Fallback: fetch reviews without profiles
-      const { data: fallbackData, error: fallbackError } = await supabase
-        .from('resource_reviews')
-        .select('*')
-        .eq('resource_id', resourceId)
-        .order('created_at', { ascending: false });
-      
-      if (fallbackError) {
-        console.error('Error fetching reviews fallback:', fallbackError);
-        return [];
-      }
-      
-      return (fallbackData || []).map(review => ({ ...review, profiles: null }));
+      console.error('Error fetching reviews:', error);
+      return [];
     }
     
     console.log('Successfully fetched reviews:', data?.length || 0);
@@ -271,31 +258,18 @@ export const updateResourceRating = async (resourceId: string) => {
 // Comment functions with improved error handling
 export const getResourceComments = async (resourceId: string) => {
   try {
-    // Try with profiles join first
     const { data, error } = await supabase
       .from('resource_comments')
       .select(`
         *,
-        profiles(username, display_name)
+        profiles!resource_comments_user_id_fkey(username, display_name)
       `)
       .eq('resource_id', resourceId)
       .order('created_at', { ascending: false });
     
     if (error) {
-      console.error('Error fetching comments with profiles:', error);
-      // Fallback: fetch comments without profiles
-      const { data: fallbackData, error: fallbackError } = await supabase
-        .from('resource_comments')
-        .select('*')
-        .eq('resource_id', resourceId)
-        .order('created_at', { ascending: false });
-      
-      if (fallbackError) {
-        console.error('Error fetching comments fallback:', fallbackError);
-        return [];
-      }
-      
-      return (fallbackData || []).map(comment => ({ ...comment, profiles: null }));
+      console.error('Error fetching comments:', error);
+      return [];
     }
     
     console.log('Successfully fetched comments:', data?.length || 0);

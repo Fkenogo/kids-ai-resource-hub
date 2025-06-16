@@ -25,7 +25,7 @@ interface ReviewWithProfile {
   helpful_count: number;
   created_at: string;
   updated_at: string;
-  profiles?: {
+  profiles: {
     username?: string;
     display_name?: string;
   } | null;
@@ -52,9 +52,7 @@ export const ResourceReviews = ({ resource }: ResourceReviewsProps) => {
         helpful_count: review.helpful_count,
         created_at: review.created_at,
         updated_at: review.updated_at,
-        profiles: review.profiles && typeof review.profiles === 'object' && !('error' in review.profiles)
-          ? review.profiles
-          : null
+        profiles: review.profiles || null
       }))
     : [];
   
@@ -93,7 +91,11 @@ export const ResourceReviews = ({ resource }: ResourceReviewsProps) => {
       toast.success('Review submitted successfully!');
     } catch (error) {
       console.error('Error creating review:', error);
-      toast.error('Failed to submit review');
+      if (error instanceof Error && error.message.includes('duplicate key')) {
+        toast.error('You have already reviewed this resource');
+      } else {
+        toast.error('Failed to submit review');
+      }
     }
   };
   

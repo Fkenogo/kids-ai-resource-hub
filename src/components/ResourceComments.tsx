@@ -25,7 +25,7 @@ interface CommentWithProfile {
   is_pinned: boolean;
   created_at: string;
   updated_at: string;
-  profiles?: {
+  profiles: {
     username?: string;
     display_name?: string;
   } | null;
@@ -79,9 +79,7 @@ export const ResourceComments = ({ resource }: ResourceCommentsProps) => {
         is_pinned: comment.is_pinned,
         created_at: comment.created_at,
         updated_at: comment.updated_at,
-        profiles: comment.profiles && typeof comment.profiles === 'object' && !('error' in comment.profiles)
-          ? comment.profiles
-          : null
+        profiles: comment.profiles || null
       }))
     : [];
   
