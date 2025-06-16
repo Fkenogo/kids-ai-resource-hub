@@ -22,6 +22,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
 
   useEffect(() => {
     setPreview(value);
+    setUploadSuccess(!!value);
   }, [value]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -52,21 +53,17 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
     try {
       console.log("Starting upload...");
       const url = await uploadResourceImage(file);
-      console.log("Upload result:", url);
+      console.log("Upload successful, URL:", url);
       
-      if (url) {
-        setPreview(url);
-        onChange(url);
-        setUploadSuccess(true);
-        toast.success("Image uploaded successfully!");
-        console.log("Image upload successful:", url);
-      } else {
-        console.error("Upload failed: No URL returned");
-        toast.error("Upload failed: No URL returned");
-      }
+      setPreview(url);
+      onChange(url);
+      setUploadSuccess(true);
+      toast.success("Image uploaded successfully!");
     } catch (error) {
       console.error("Upload error:", error);
-      toast.error(`Upload failed: ${error}`);
+      const errorMessage = error instanceof Error ? error.message : "Upload failed";
+      toast.error(errorMessage);
+      setUploadSuccess(false);
     } finally {
       setUploading(false);
       // Clear the input so the same file can be selected again if needed
