@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Database } from "@/integrations/supabase/types";
 import { Resource, Review, Comment, User } from "@/types";
@@ -183,30 +182,35 @@ export const updateResource = async (id: string, updates: Partial<ResourceRow>) 
 // Review functions with improved error handling
 export const getResourceReviews = async (resourceId: string) => {
   try {
+    // Try with profiles join first
     const { data, error } = await supabase
       .from('resource_reviews')
       .select(`
         *,
-        profiles!inner(username, display_name)
+        profiles(username, display_name)
       `)
       .eq('resource_id', resourceId)
       .order('created_at', { ascending: false });
     
     if (error) {
-      console.error('Error fetching reviews:', error);
-      // Return empty array instead of throwing to prevent component crashes
-      return [];
+      console.error('Error fetching reviews with profiles:', error);
+      // Fallback: fetch reviews without profiles
+      const { data: fallbackData, error: fallbackError } = await supabase
+        .from('resource_reviews')
+        .select('*')
+        .eq('resource_id', resourceId)
+        .order('created_at', { ascending: false });
+      
+      if (fallbackError) {
+        console.error('Error fetching reviews fallback:', fallbackError);
+        return [];
+      }
+      
+      return (fallbackData || []).map(review => ({ ...review, profiles: null }));
     }
     
-    // Ensure we have valid data with profiles
-    const validData = (data || []).filter(review => 
-      review.profiles && 
-      typeof review.profiles === 'object' && 
-      !('error' in review.profiles)
-    );
-    
-    console.log('Successfully fetched reviews:', validData.length);
-    return validData;
+    console.log('Successfully fetched reviews:', data?.length || 0);
+    return data || [];
   } catch (err) {
     console.error('Unexpected error in getResourceReviews:', err);
     return [];
@@ -267,30 +271,35 @@ export const updateResourceRating = async (resourceId: string) => {
 // Comment functions with improved error handling
 export const getResourceComments = async (resourceId: string) => {
   try {
+    // Try with profiles join first
     const { data, error } = await supabase
       .from('resource_comments')
       .select(`
         *,
-        profiles!inner(username, display_name)
+        profiles(username, display_name)
       `)
       .eq('resource_id', resourceId)
       .order('created_at', { ascending: false });
     
     if (error) {
-      console.error('Error fetching comments:', error);
-      // Return empty array instead of throwing to prevent component crashes
-      return [];
+      console.error('Error fetching comments with profiles:', error);
+      // Fallback: fetch comments without profiles
+      const { data: fallbackData, error: fallbackError } = await supabase
+        .from('resource_comments')
+        .select('*')
+        .eq('resource_id', resourceId)
+        .order('created_at', { ascending: false });
+      
+      if (fallbackError) {
+        console.error('Error fetching comments fallback:', fallbackError);
+        return [];
+      }
+      
+      return (fallbackData || []).map(comment => ({ ...comment, profiles: null }));
     }
     
-    // Ensure we have valid data with profiles
-    const validData = (data || []).filter(comment => 
-      comment.profiles && 
-      typeof comment.profiles === 'object' && 
-      !('error' in comment.profiles)
-    );
-    
-    console.log('Successfully fetched comments:', validData.length);
-    return validData;
+    console.log('Successfully fetched comments:', data?.length || 0);
+    return data || [];
   } catch (err) {
     console.error('Unexpected error in getResourceComments:', err);
     return [];

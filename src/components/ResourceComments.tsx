@@ -25,10 +25,10 @@ interface CommentWithProfile {
   is_pinned: boolean;
   created_at: string;
   updated_at: string;
-  profiles: {
-    username: string;
-    display_name: string;
-  };
+  profiles?: {
+    username?: string;
+    display_name?: string;
+  } | null;
 }
 
 export const ResourceComments = ({ resource }: ResourceCommentsProps) => {
@@ -67,17 +67,22 @@ export const ResourceComments = ({ resource }: ResourceCommentsProps) => {
     return formatDistanceToNow(new Date(dateString), { addSuffix: true });
   };
 
-  // Safe type conversion with fallback
+  // Safe type conversion with better error handling
   const typedComments: CommentWithProfile[] = Array.isArray(commentsData) 
-    ? commentsData.filter((comment): comment is CommentWithProfile => 
-        comment && 
-        typeof comment === 'object' && 
-        'profiles' in comment && 
-        comment.profiles && 
-        typeof comment.profiles === 'object' &&
-        'username' in comment.profiles &&
-        'display_name' in comment.profiles
-      )
+    ? commentsData.map(comment => ({
+        id: comment.id,
+        resource_id: comment.resource_id,
+        user_id: comment.user_id,
+        parent_comment_id: comment.parent_comment_id,
+        content: comment.content,
+        like_count: comment.like_count,
+        is_pinned: comment.is_pinned,
+        created_at: comment.created_at,
+        updated_at: comment.updated_at,
+        profiles: comment.profiles && typeof comment.profiles === 'object' && !('error' in comment.profiles)
+          ? comment.profiles
+          : null
+      }))
     : [];
   
   return (

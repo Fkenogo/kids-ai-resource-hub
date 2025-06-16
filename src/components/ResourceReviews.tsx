@@ -25,10 +25,10 @@ interface ReviewWithProfile {
   helpful_count: number;
   created_at: string;
   updated_at: string;
-  profiles: {
-    username: string;
-    display_name: string;
-  };
+  profiles?: {
+    username?: string;
+    display_name?: string;
+  } | null;
 }
 
 export const ResourceReviews = ({ resource }: ResourceReviewsProps) => {
@@ -40,17 +40,22 @@ export const ResourceReviews = ({ resource }: ResourceReviewsProps) => {
   const [rating, setRating] = useState<number>(0);
   const [hoveredStar, setHoveredStar] = useState<number>(0);
 
-  // Safe type conversion with fallback
+  // Safe type conversion with better error handling
   const typedReviews: ReviewWithProfile[] = Array.isArray(reviewsData) 
-    ? reviewsData.filter((review): review is ReviewWithProfile => 
-        review && 
-        typeof review === 'object' && 
-        'profiles' in review && 
-        review.profiles && 
-        typeof review.profiles === 'object' &&
-        'username' in review.profiles &&
-        'display_name' in review.profiles
-      )
+    ? reviewsData.map(review => ({
+        id: review.id,
+        resource_id: review.resource_id,
+        user_id: review.user_id,
+        rating: review.rating,
+        comment: review.comment,
+        is_verified_purchase: review.is_verified_purchase,
+        helpful_count: review.helpful_count,
+        created_at: review.created_at,
+        updated_at: review.updated_at,
+        profiles: review.profiles && typeof review.profiles === 'object' && !('error' in review.profiles)
+          ? review.profiles
+          : null
+      }))
     : [];
   
   // Check if user has already reviewed this resource
