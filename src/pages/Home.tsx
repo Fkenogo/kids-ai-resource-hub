@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
 import { ResourceGrid } from '@/components/ResourceGrid';
@@ -10,7 +11,6 @@ import { m } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import HeroSection from './home/HeroSection';
 import FeaturedResourcesSection from './home/FeaturedResourcesSection';
-import AllResourcesSection from './home/AllResourcesSection';
 import TopRatedResourcesSection from './home/TopRatedResourcesSection';
 import RecentlyAddedSection from './home/RecentlyAddedSection';
 import AgeRangeQuickFiltersSection from './home/AgeRangeQuickFiltersSection';
@@ -72,46 +72,25 @@ const Home = () => {
   // Limit to 3
   featuredResources = featuredResources.slice(0, 3);
 
-  // All resources except featured
-  const nonFeaturedResources = dbResources.filter(
-    r => !featuredResources.some(fr => fr.id === r.id)
-  );
-
+  // Recently added resources - last 3 only
   const recentResources = [...dbResources]
     .sort((a, b) =>
       new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime()
     )
-    .slice(0, 6);
-  const topRatedResources = [...dbResources]
-    .sort((a, b) => (b.averageRating ?? 0) - (a.averageRating ?? 0))
-    .slice(0, 6);
+    .slice(0, 3);
+
+  // Most popular resources - top 3 by view count
+  const mostPopularResources = [...dbResources]
+    .sort((a, b) => (b.viewCount ?? 0) - (a.viewCount ?? 0))
+    .slice(0, 3);
 
   const featuredBlogPosts = getFeaturedBlogPosts(2);
-  const fadeInUp = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] }
-    }
-  };
-
-  const staggerContainer = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
 
   return (
     <Layout>
       <HeroSection />
       <FeaturedResourcesSection featuredResources={featuredResources} />
-      <AllResourcesSection nonFeaturedResources={nonFeaturedResources} />
-      <TopRatedResourcesSection topRatedResources={topRatedResources} />
+      <TopRatedResourcesSection topRatedResources={mostPopularResources} />
       <RecentlyAddedSection recentResources={recentResources} />
       <AgeRangeQuickFiltersSection />
       <LatestBlogPostsSection featuredBlogPosts={featuredBlogPosts} />

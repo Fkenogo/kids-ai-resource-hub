@@ -12,6 +12,7 @@ import { ResourceEngagement } from './ResourceEngagement';
 import { ResourceComments } from './ResourceComments';
 import { ResourceReviews } from './ResourceReviews';
 import { SocialShare } from './SocialShare';
+import { RelatedResources } from './RelatedResources';
 import { trackResourceView } from '@/services/engagementService';
 
 interface ResourceDetailProps {
@@ -120,7 +121,7 @@ export const ResourceDetail = ({ resource, reviews }: ResourceDetailProps) => {
             
             <div className="flex gap-3 mb-6">
               <Button 
-                className="gap-2" 
+                className="gap-2 bg-primary hover:bg-primary/90" 
                 onClick={() => window.open(resource.url, '_blank')}
               >
                 <ExternalLink className="h-4 w-4" />
@@ -149,22 +150,22 @@ export const ResourceDetail = ({ resource, reviews }: ResourceDetailProps) => {
           <h2 className="text-2xl font-medium mb-6">About this resource</h2>
           
           <Tabs defaultValue="keyFeatures" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-6">
+            <TabsList className="grid w-full grid-cols-3 mb-6 bg-secondary/50">
               <TabsTrigger 
                 value="keyFeatures" 
-                className="text-sm font-medium transition-all duration-300"
+                className="text-sm font-medium transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground"
               >
                 Key Features
               </TabsTrigger>
               <TabsTrigger 
                 value="skillsLearned" 
-                className="text-sm font-medium transition-all duration-300"
+                className="text-sm font-medium transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground"
               >
                 Skills Learned
               </TabsTrigger>
               <TabsTrigger 
                 value="learningOutcomes" 
-                className="text-sm font-medium transition-all duration-300"
+                className="text-sm font-medium transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground"
               >
                 Learning Outcomes
               </TabsTrigger>
@@ -222,6 +223,16 @@ export const ResourceDetail = ({ resource, reviews }: ResourceDetailProps) => {
             Added on {formatDate(resource.dateAdded)}
           </div>
         </div>
+      </m.div>
+      
+      {/* You Might Also Like Section */}
+      <m.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.15 }}
+        className="glass-panel rounded-xl p-6 shadow-medium"
+      >
+        <RelatedResources resource={resource} />
       </m.div>
       
       {/* Reviews Section */}
