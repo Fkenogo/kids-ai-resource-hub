@@ -3,8 +3,9 @@ import { useState } from 'react';
 import { Resource } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Eye, Heart, Share2, Bookmark, MessageSquare } from 'lucide-react';
+import { Eye, Heart, Bookmark, MessageSquare } from 'lucide-react';
 import { m } from 'framer-motion';
+import { SocialShare } from './SocialShare';
 import { 
   toggleResourceLike, 
   isResourceLiked,
@@ -14,8 +15,7 @@ import {
   getResourceSaveCount,
   getResourceViewCount,
   getResourceShareCount,
-  getResourceCommentCount,
-  shareResource
+  getResourceCommentCount
 } from '@/services/engagementService';
 
 interface ResourceEngagementProps {
@@ -29,7 +29,7 @@ export const ResourceEngagement = ({ resource, compact = false }: ResourceEngage
   const [likeCount, setLikeCount] = useState<number>(getResourceLikeCount(resource.id));
   const [saveCount, setSaveCount] = useState<number>(getResourceSaveCount(resource.id));
   const [viewCount] = useState<number>(getResourceViewCount(resource.id));
-  const [shareCount, setShareCount] = useState<number>(getResourceShareCount(resource.id));
+  const [shareCount] = useState<number>(getResourceShareCount(resource.id));
   const [commentCount] = useState<number>(getResourceCommentCount(resource.id));
   
   const handleLike = () => {
@@ -42,11 +42,6 @@ export const ResourceEngagement = ({ resource, compact = false }: ResourceEngage
     const isSaved = toggleResourceSave(resource.id);
     setSaved(isSaved);
     setSaveCount(getResourceSaveCount(resource.id));
-  };
-  
-  const handleShare = () => {
-    shareResource(resource);
-    setShareCount(getResourceShareCount(resource.id));
   };
   
   if (compact) {
@@ -105,20 +100,11 @@ export const ResourceEngagement = ({ resource, compact = false }: ResourceEngage
         )}
       </Button>
       
-      <Button
-        variant="outline"
-        size="sm"
-        className="gap-2"
-        onClick={handleShare}
-      >
-        <Share2 className="h-4 w-4" />
-        Share
-        {shareCount > 0 && (
-          <Badge variant="secondary" className="ml-1 py-0 px-1.5 h-5 text-xs">
-            {shareCount}
-          </Badge>
-        )}
-      </Button>
+      <SocialShare 
+        url={`/resources/${resource.id}`}
+        title={resource.title}
+        description={resource.description}
+      />
       
       <div className="flex items-center gap-2 ml-auto text-sm text-muted-foreground">
         <Eye className="h-4 w-4" />

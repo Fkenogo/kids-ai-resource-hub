@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Resource, Review } from '@/types';
 import { RatingStars } from './RatingStars';
@@ -9,6 +8,8 @@ import { formatDistanceToNow, format } from 'date-fns';
 import { m } from 'framer-motion';
 import { ResourceEngagement } from './ResourceEngagement';
 import { ResourceComments } from './ResourceComments';
+import { ResourceReviews } from './ResourceReviews';
+import { SocialShare } from './SocialShare';
 import { trackResourceView } from '@/services/engagementService';
 
 interface ResourceDetailProps {
@@ -34,9 +35,7 @@ export const ResourceDetail = ({ resource, reviews }: ResourceDetailProps) => {
     return format(new Date(dateString), 'MMMM d, yyyy');
   };
 
-  const formatReviewDate = (dateString: string) => {
-    return formatDistanceToNow(new Date(dateString), { addSuffix: true });
-  };
+  const resourceUrl = `/resources/${resource.id}`;
 
   return (
     <div className="space-y-8">
@@ -103,13 +102,21 @@ export const ResourceDetail = ({ resource, reviews }: ResourceDetailProps) => {
               ))}
             </div>
             
-            <Button 
-              className="gap-2 mb-6" 
-              onClick={() => window.open(resource.url, '_blank')}
-            >
-              <ExternalLink className="h-4 w-4" />
-              Visit Resource
-            </Button>
+            <div className="flex gap-3 mb-6">
+              <Button 
+                className="gap-2" 
+                onClick={() => window.open(resource.url, '_blank')}
+              >
+                <ExternalLink className="h-4 w-4" />
+                Visit Resource
+              </Button>
+              
+              <SocialShare 
+                url={resourceUrl}
+                title={resource.title}
+                description={resource.description}
+              />
+            </div>
             
             <ResourceEngagement resource={resource} />
           </div>
@@ -159,51 +166,24 @@ export const ResourceDetail = ({ resource, reviews }: ResourceDetailProps) => {
         </div>
       </m.div>
       
-      {/* Comments Section */}
+      {/* Reviews Section */}
       <m.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
         className="glass-panel rounded-xl p-6 shadow-medium"
       >
-        <ResourceComments resource={resource} />
+        <ResourceReviews resource={resource} />
       </m.div>
       
+      {/* Comments Section */}
       <m.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
         className="glass-panel rounded-xl p-6 shadow-medium"
       >
-        <h2 className="text-2xl font-medium mb-6">Reviews</h2>
-        
-        {reviews.length > 0 ? (
-          <div className="space-y-6">
-            {reviews.map((review, index) => (
-              <div 
-                key={review.id} 
-                className={`${index !== reviews.length - 1 ? 'pb-6 border-b border-border' : ''}`}
-              >
-                <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <h3 className="font-medium">{review.username}</h3>
-                    <div className="flex items-center mt-1">
-                      <RatingStars rating={review.rating} size="sm" />
-                      <span className="ml-2 text-sm text-muted-foreground">
-                        {formatReviewDate(review.datePosted)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                {review.comment && (
-                  <p className="mt-2">{review.comment}</p>
-                )}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-muted-foreground">No reviews yet</p>
-        )}
+        <ResourceComments resource={resource} />
       </m.div>
     </div>
   );

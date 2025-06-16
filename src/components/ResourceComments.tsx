@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Resource, Comment } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -7,27 +7,43 @@ import { Avatar } from '@/components/ui/avatar';
 import { formatDistanceToNow } from 'date-fns';
 import { MessageSquare } from 'lucide-react';
 import { m } from 'framer-motion';
-import { addResourceComment, getResourceComments } from '@/services/engagementService';
+import { useAuthContext } from '@/components/auth/AuthProvider';
+import { useResourceComments, useCreateComment } from '@/hooks/useSupabaseData';
+import { toast } from 'sonner';
 
 interface ResourceCommentsProps {
   resource: Resource;
 }
 
 export const ResourceComments = ({ resource }: ResourceCommentsProps) => {
-  const [comments, setComments] = useState<Comment[]>(getResourceComments(resource.id));
+  const { isAuthenticated, user } = useAuthContext();
+  const { data: commentsData = [], refetch } = useResourceComments(resource.id);
+  const createCommentMutation = useCreateComment();
   const [commentText, setCommentText] = useState<string>('');
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   
-  const handleSubmitComment = () => {
-    if (!commentText.trim()) return;
+  const handleSubmitComment = async () => {
+    if (!commentText.trim()) {
+      toast.error('Please enter a comment');
+      return;
+    }
+
+    if (!user) {
+      toast.error('Please sign in to comment');
+      return;
+    }
     
-    setIsSubmitting(true);
     try {
-      const newComment = addResourceComment(resource.id, commentText);
-      setComments([newComment, ...comments]);
+      await createCommentMutation.mutateAsync({
+        resource_id: resource.id,
+        user_id: user.id,
+        content: commentText.trim()
+      });
+      
       setCommentText('');
-    } finally {
-      setIsSubmitting(false);
+      refetch();
+    } catch (error) {
+      console.error('Error creating comment:', error);
+      toast.error('Failed to post comment');
     }
   };
   
@@ -45,33 +61,44 @@ export const ResourceComments = ({ resource }: ResourceCommentsProps) => {
       <div className="space-y-4">
         <h3 className="text-xl font-medium flex items-center gap-2">
           <MessageSquare className="h-5 w-5" />
-          Comments ({comments.length})
+          Comments ({commentsData.length})
         </h3>
         
-        <div className="flex gap-4">
-          <div className="flex-grow">
-            <Textarea
-              value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
-              placeholder="Share your thoughts on this resource..."
-              className="min-h-[100px] resize-none"
-            />
+        {isAuthenticated ? (
+          <>
+            <div className="flex gap-4">
+              <div className="flex-grow">
+                <Textarea
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  placeholder="Share your thoughts on this resource..."
+                  className="min-h-[100px] resize-none"
+                />
+              </div>
+            </div>
+            
+            <div className="flex justify-end">
+              <Button 
+                onClick={handleSubmitComment} 
+                disabled={!commentText.trim() || createCommentMutation.isPending}
+              >
+                {createCommentMutation.isPending ? 'Posting...' : 'Post Comment'}
+              </Button>
+            </div>
+          </>
+        ) : (
+          <div className="text-center py-4 bg-muted rounded-lg">
+            <p className="text-muted-foreground mb-2">Sign in to share your thoughts on this resource</p>
+            <Button variant="outline" asChild>
+              <a href="/login">Sign In</a>
+            </Button>
           </div>
-        </div>
-        
-        <div className="flex justify-end">
-          <Button 
-            onClick={handleSubmitComment} 
-            disabled={!commentText.trim() || isSubmitting}
-          >
-            Post Comment
-          </Button>
-        </div>
+        )}
       </div>
       
-      {comments.length > 0 ? (
+      {commentsData.length > 0 ? (
         <div className="space-y-6 pt-4">
-          {comments.map((comment, index) => (
+          {commentsData.map((comment, index) => (
             <m.div 
               key={comment.id}
               className="flex gap-4"
@@ -81,14 +108,17 @@ export const ResourceComments = ({ resource }: ResourceCommentsProps) => {
             >
               <Avatar>
                 <div className="bg-primary text-white w-full h-full flex items-center justify-center text-lg">
-                  {comment.username.charAt(0).toUpperCase()}
+                  {comment.profiles?.display_name?.charAt(0).toUpperCase() || 
+                   comment.profiles?.username?.charAt(0).toUpperCase() || 'U'}
                 </div>
               </Avatar>
               <div className="flex-grow">
                 <div className="flex items-baseline justify-between mb-1">
-                  <h4 className="font-medium">{comment.username}</h4>
+                  <h4 className="font-medium">
+                    {comment.profiles?.display_name || comment.profiles?.username || 'Anonymous'}
+                  </h4>
                   <span className="text-sm text-muted-foreground">
-                    {formatCommentDate(comment.datePosted)}
+                    {formatCommentDate(comment.created_at)}
                   </span>
                 </div>
                 <p className="text-base">{comment.content}</p>
