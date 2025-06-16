@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   getResources, 
@@ -20,9 +21,7 @@ export const useResources = (filters?: ResourceFilters) => {
     queryKey: ['resources', filters],
     queryFn: async () => {
       try {
-        console.log('useResources: calling getResources with filters:', filters);
         const result = await getResources(filters);
-        console.log('useResources: getResources returned:', result);
         return result;
       } catch (err) {
         console.error('useResources error:', err);
@@ -39,9 +38,7 @@ export const useResource = (id: string) => {
     queryKey: ['resource', id],
     queryFn: async () => {
       try {
-        console.log('useResource: calling getResourceById with id:', id);
         const result = await getResourceById(id);
-        console.log('useResource: getResourceById returned:', result);
         return result;
       } catch (err) {
         console.error('useResource error:', err);

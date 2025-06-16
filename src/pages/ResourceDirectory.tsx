@@ -21,18 +21,11 @@ const ResourceDirectory = () => {
 
   const { data: dbResourcesRaw = [], isLoading, error } = useResources();
   
-  console.log('ResourceDirectory: raw data from useResources:', dbResourcesRaw);
-  console.log('ResourceDirectory: isLoading:', isLoading);
-  console.log('ResourceDirectory: error:', error);
-  
   if (error) console.error("ResourceDirectory: resource query error", error);
 
   const dbResources = Array.isArray(dbResourcesRaw)
     ? dbResourcesRaw.map(mapDbResourceToResource).filter(Boolean)
     : [];
-  
-  console.log('ResourceDirectory: transformed resources:', dbResources);
-  console.log('ResourceDirectory: total resources count:', dbResources.length);
   
   const [filters, setFilters] = useState<ResourceFilters>({
     ageRanges: initialAgeRange,
@@ -81,8 +74,6 @@ const ResourceDirectory = () => {
     }
     return true;
   });
-
-  console.log('ResourceDirectory: filtered resources:', filteredResources);
 
   useEffect(() => {
     // If age range filter is applied, disable category grouping

@@ -3,14 +3,11 @@ import { Resource } from '@/types';
 
 // Transform database resource to Resource type
 export const mapDbResourceToResource = (r: any): Resource => {
-  console.log('mapDbResourceToResource - input:', r);
-  
   if (!r) {
-    console.error('mapDbResourceToResource - received null/undefined resource');
     return null as any;
   }
 
-  const transformed = {
+  return {
     id: r.id,
     title: r.title,
     description: r.description,
@@ -34,7 +31,4 @@ export const mapDbResourceToResource = (r: any): Resource => {
     saveCount: r.save_count ?? 0,
     commentCount: r.comment_count ?? 0,
   };
-
-  console.log('mapDbResourceToResource - output:', transformed);
-  return transformed;
 };
