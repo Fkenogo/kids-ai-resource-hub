@@ -14,8 +14,14 @@ const ResourcePage = () => {
 
   const { data: dbResource, isLoading, error } = useResource(id || '');
 
+  console.log('ResourcePage: id:', id);
+  console.log('ResourcePage: raw data from useResource:', dbResource);
+  console.log('ResourcePage: isLoading:', isLoading);
+  console.log('ResourcePage: error:', error);
+
   useEffect(() => {
     if (!isLoading && !dbResource) {
+      console.log('ResourcePage: No resource found, navigating to /resources');
       navigate('/resources', { replace: true });
       return;
     }
@@ -40,6 +46,19 @@ const ResourcePage = () => {
     return null;
   }
 
+  const transformedResource = mapDbResourceToResource(dbResource);
+  console.log('ResourcePage: transformed resource:', transformedResource);
+
+  if (!transformedResource) {
+    return (
+      <Layout>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
+          <p className="text-lg text-muted-foreground">Resource not found</p>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -51,7 +70,7 @@ const ResourcePage = () => {
             </Link>
           </Button>
         </div>
-        <ResourceDetail resource={mapDbResourceToResource(dbResource)} reviews={[]} />
+        <ResourceDetail resource={transformedResource} reviews={[]} />
       </div>
     </Layout>
   );

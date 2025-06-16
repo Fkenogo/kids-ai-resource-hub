@@ -20,12 +20,19 @@ const ResourceDirectory = () => {
     : [];
 
   const { data: dbResourcesRaw = [], isLoading, error } = useResources();
+  
+  console.log('ResourceDirectory: raw data from useResources:', dbResourcesRaw);
+  console.log('ResourceDirectory: isLoading:', isLoading);
+  console.log('ResourceDirectory: error:', error);
+  
   if (error) console.error("ResourceDirectory: resource query error", error);
-  console.log("ResourceDirectory: dbResourcesRaw", dbResourcesRaw);
 
   const dbResources = Array.isArray(dbResourcesRaw)
-    ? dbResourcesRaw.map(mapDbResourceToResource)
+    ? dbResourcesRaw.map(mapDbResourceToResource).filter(Boolean)
     : [];
+  
+  console.log('ResourceDirectory: transformed resources:', dbResources);
+  console.log('ResourceDirectory: total resources count:', dbResources.length);
   
   const [filters, setFilters] = useState<ResourceFilters>({
     ageRanges: initialAgeRange,
@@ -75,6 +82,8 @@ const ResourceDirectory = () => {
     return true;
   });
 
+  console.log('ResourceDirectory: filtered resources:', filteredResources);
+
   useEffect(() => {
     // If age range filter is applied, disable category grouping
     if (filters.ageRanges.length > 0) {
@@ -95,6 +104,16 @@ const ResourceDirectory = () => {
       transition: { duration: 0.6 }
     }
   };
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
+          <p className="text-lg text-muted-foreground">Loading resources...</p>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
