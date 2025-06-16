@@ -59,7 +59,7 @@ export const signIn = async (email: string, password: string) => {
       return { error };
     }
     
-    console.log('SignIn successful:', data);
+    console.log('SignIn successful:', data?.user?.id);
     return { data };
   } catch (err) {
     console.error("Unexpected signIn error:", err);
