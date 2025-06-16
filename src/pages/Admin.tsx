@@ -1,12 +1,12 @@
+
 import { Layout } from '@/components/Layout';
-import { MigrationTool } from '@/components/MigrationTool';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Shield, Database, Users, Package, Image } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Shield, Database, Users, Package } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import React, { useEffect, useState } from 'react';
-import { ResourceImageEditor } from '@/components/ResourceImageEditor';
-import { Button } from '@/components/ui/button';
+import { ResourceManagement } from '@/components/admin/ResourceManagement';
+import { SQLTemplateGenerator } from '@/components/admin/SQLTemplateGenerator';
 
 const Admin = () => {
   // Fetch resource count
@@ -41,25 +41,6 @@ const Admin = () => {
       return count || 0;
     },
   });
-
-  // --- Fetch resources with broken images for manual fix ---
-  const [brokenResources, setBrokenResources] = useState<any[]>([]);
-  const [loadingBroken, setLoadingBroken] = useState(false);
-
-  const fetchBrokenResources = async () => {
-    setLoadingBroken(true);
-    const { data, error } = await supabase
-      .from('resources')
-      .select('id, title, image_url')
-      .filter('image_url', 'like', '/lovable-uploads/%');
-    setBrokenResources(data || []);
-    setLoadingBroken(false);
-  };
-
-  useEffect(() => {
-    fetchBrokenResources();
-    // eslint-disable-next-line
-  }, []);
 
   return (
     <Layout>
@@ -116,34 +97,20 @@ const Admin = () => {
             </Card>
           </div>
 
-          <MigrationTool />
-
-          {/* Manual image re-upload section */}
-          <div className="my-16" id="manage-resource-images">
-            <div className="flex items-center gap-2 mb-6">
-              <Image className="h-6 w-6 text-primary" />
-              <h2 className="text-2xl font-bold">Manage Resource Images</h2>
-            </div>
-            <p className="text-muted-foreground mb-4">
-              The following resources have broken or missing images. Re-upload a new image by using the uploader below and click Save to update.
-            </p>
-            <Button onClick={fetchBrokenResources} disabled={loadingBroken} className="mb-6">
-              {loadingBroken ? "Refreshing..." : "Refresh List"}
-            </Button>
-            {brokenResources.length === 0 ? (
-              <div className="text-green-700">No resources with broken images found.</div>
-            ) : (
-              <div className="grid gap-6">
-                {brokenResources.map((res) => (
-                  <ResourceImageEditor
-                    key={res.id}
-                    resource={res}
-                    onUpdated={fetchBrokenResources}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+          <Tabs defaultValue="resources" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="resources">Resource Management</TabsTrigger>
+              <TabsTrigger value="sql-generator">SQL Generator</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="resources" className="mt-6">
+              <ResourceManagement />
+            </TabsContent>
+            
+            <TabsContent value="sql-generator" className="mt-6">
+              <SQLTemplateGenerator />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </Layout>

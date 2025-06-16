@@ -23,7 +23,6 @@ export const useResources = (filters?: ResourceFilters) => {
       try {
         return await getResources(filters);
       } catch (err) {
-        toast.error('Could not fetch resources');
         console.error('useResources error:', err);
         return [];
       }
@@ -39,7 +38,6 @@ export const useResource = (id: string) => {
       try {
         return await getResourceById(id);
       } catch (err) {
-        toast.error('Could not fetch resource');
         console.error('useResource error:', err);
         return null;
       }
