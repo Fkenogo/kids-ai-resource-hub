@@ -3,11 +3,35 @@ import { Resource } from '@/types';
 import { ResourceGrid } from './ResourceGrid';
 import { useResources } from '@/hooks/useSupabaseData';
 import { Heart } from 'lucide-react';
-import { mapDbResourceToResource } from '@/utils/resourceTransform';
 
 interface RelatedResourcesProps {
   resource: Resource;
 }
+
+const mapDbResourceToResource = (r: any): Resource => ({
+  id: r.id,
+  title: r.title,
+  description: r.description,
+  url: r.url,
+  ageRanges: r.age_ranges,
+  resourceType: r.resource_type,
+  format: r.format ?? undefined,
+  cost: r.cost,
+  learningOutcomes: r.learning_outcomes ?? undefined,
+  skillsAttained: r.skills_attained ?? undefined,
+  keyFeatures: r.key_features ?? undefined,
+  dateAdded: r.created_at,
+  addedBy: r.added_by,
+  averageRating: r.average_rating ?? 0,
+  reviewCount: r.review_count ?? 0,
+  featuredResource: r.is_featured ?? false,
+  imageUrl: r.image_url ?? undefined,
+  viewCount: r.view_count ?? 0,
+  likeCount: r.like_count ?? 0,
+  shareCount: r.share_count ?? 0,
+  saveCount: r.save_count ?? 0,
+  commentCount: r.comment_count ?? 0,
+});
 
 export const RelatedResources = ({ resource }: RelatedResourcesProps) => {
   const { data: dbResourcesRaw = [], isLoading, error } = useResources();
@@ -17,7 +41,7 @@ export const RelatedResources = ({ resource }: RelatedResourcesProps) => {
   }
 
   const dbResources = Array.isArray(dbResourcesRaw)
-    ? dbResourcesRaw.map(mapDbResourceToResource).filter(Boolean)
+    ? dbResourcesRaw.map(mapDbResourceToResource)
     : [];
 
   // Find similar resources based on type and age range
