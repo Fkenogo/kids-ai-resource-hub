@@ -6,7 +6,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Plus, Eye, Star, Users, CheckCircle, XCircle, Image as ImageIcon } from 'lucide-react';
+import { 
+  Pagination, 
+  PaginationContent, 
+  PaginationItem, 
+  PaginationLink, 
+  PaginationNext, 
+  PaginationPrevious 
+} from '@/components/ui/pagination';
+import { Search, Plus, Eye, Star, Users, CheckCircle, XCircle, Image as ImageIcon, Filter } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { ResourceImageEditor } from '@/components/ResourceImageEditor';
@@ -16,10 +24,12 @@ import { ResourceEditDialog } from './ResourceEditDialog';
 export const ResourceManagement = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'approved' | 'pending'>('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const resourcesPerPage = 10;
   const queryClient = useQueryClient();
 
   // Fetch all resources for admin
-  const { data: dbResources = [], isLoading } = useQuery({
+  const { data: allResources = [], isLoading } = useQuery({
     queryKey: ['admin-resources', statusFilter],
     queryFn: async () => {
       let query = supabase.from('resources').select('*').order('created_at', { ascending: false });
@@ -37,10 +47,22 @@ export const ResourceManagement = () => {
   });
 
   // Filter resources based on search
-  const filteredResources = dbResources.filter(resource =>
+  const filteredResources = allResources.filter(resource =>
     resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    resource.description.toLowerCase().includes(searchQuery.toLowerCase())
+    resource.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    resource.resource_type.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredResources.length / resourcesPerPage);
+  const startIndex = (currentPage - 1) * resourcesPerPage;
+  const endIndex = startIndex + resourcesPerPage;
+  const paginatedResources = filteredResources.slice(startIndex, endIndex);
+
+  // Reset to first page when filters change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter]);
 
   // Toggle approval status
   const toggleApprovalMutation = useMutation({
@@ -93,7 +115,7 @@ export const ResourceManagement = () => {
     },
   });
 
-  const resourcesWithoutImages = dbResources.filter(r => !r.image_url || r.image_url.includes('/lovable-uploads/'));
+  const resourcesWithoutImages = allResources.filter(r => !r.image_url || r.image_url.includes('/lovable-uploads/'));
 
   if (isLoading) {
     return <div className="text-center py-8">Loading resources...</div>;
@@ -116,21 +138,27 @@ export const ResourceManagement = () => {
         </TabsList>
 
         <TabsContent value={statusFilter} className="space-y-4">
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-center gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search resources..."
+                placeholder="Search resources by title, description, or type..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
               />
             </div>
-            <AddResourceForm onSuccess={() => queryClient.invalidateQueries({ queryKey: ['admin-resources'] })} />
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="flex items-center gap-1">
+                <Filter className="h-3 w-3" />
+                {filteredResources.length} of {allResources.length}
+              </Badge>
+              <AddResourceForm onSuccess={() => queryClient.invalidateQueries({ queryKey: ['admin-resources'] })} />
+            </div>
           </div>
 
           <div className="grid gap-4">
-            {filteredResources.map((resource) => (
+            {paginatedResources.map((resource) => (
               <Card key={resource.id}>
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between">
@@ -230,6 +258,43 @@ export const ResourceManagement = () => {
                 </CardContent>
               </Card>
             ))}
+          </div>
+
+          {totalPages > 1 && (
+            <Pagination className="mt-6">
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious 
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                  />
+                </PaginationItem>
+                
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <PaginationItem key={page}>
+                    <PaginationLink
+                      onClick={() => setCurrentPage(page)}
+                      isActive={currentPage === page}
+                      className="cursor-pointer"
+                    >
+                      {page}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                
+                <PaginationItem>
+                  <PaginationNext 
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          )}
+
+          <div className="text-sm text-muted-foreground text-center">
+            Showing {paginatedResources.length} of {filteredResources.length} resources
+            {searchQuery && ` matching "${searchQuery}"`}
           </div>
         </TabsContent>
       </Tabs>
