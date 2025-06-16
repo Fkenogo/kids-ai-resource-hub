@@ -18,36 +18,36 @@ export const ResourceImageEditor: React.FC<ResourceImageEditorProps> = ({
   resource,
   onUpdated,
 }) => {
-  const [uploadUrl, setUploadUrl] = useState<string | undefined>(undefined);
+  const [newImageUrl, setNewImageUrl] = useState<string | undefined>(undefined);
   const [saving, setSaving] = useState(false);
 
   const handleImageChange = (url: string) => {
-    console.log("Image uploaded successfully:", url);
-    setUploadUrl(url);
+    console.log("New image uploaded:", url);
+    setNewImageUrl(url);
   };
 
   const handleSave = async () => {
-    if (!uploadUrl) {
+    if (!newImageUrl) {
       toast.error("Please upload an image first");
       return;
     }
     
     setSaving(true);
-    console.log("Saving image URL:", uploadUrl, "for resource:", resource.id);
+    console.log("Saving image URL:", newImageUrl, "for resource:", resource.id);
     
     try {
       const { error } = await supabase
         .from("resources")
-        .update({ image_url: uploadUrl })
+        .update({ image_url: newImageUrl })
         .eq("id", resource.id);
 
       if (error) {
         console.error("Database update error:", error);
         toast.error(`Failed to update image for "${resource.title}": ${error.message}`);
       } else {
-        console.log("Image updated successfully");
+        console.log("Image updated successfully in database");
         toast.success(`Image updated for "${resource.title}"`);
-        setUploadUrl(undefined); // Reset the upload state
+        setNewImageUrl(undefined); // Reset the upload state
         onUpdated?.();
       }
     } catch (err) {
@@ -58,38 +58,50 @@ export const ResourceImageEditor: React.FC<ResourceImageEditorProps> = ({
     }
   };
 
-  // Shows current image or uploaded image preview
-  const previewUrl = uploadUrl || resource.image_url;
-  const hasNewImage = !!uploadUrl;
+  const handleCancel = () => {
+    console.log("Cancelling image upload");
+    setNewImageUrl(undefined);
+  };
+
+  // Show new image if uploaded, otherwise show current image
+  const displayImageUrl = newImageUrl || resource.image_url;
+  const hasNewImage = !!newImageUrl;
 
   return (
     <div className="border rounded-lg p-4 flex flex-col md:flex-row gap-4 items-center">
       <div className="w-32 h-24 flex items-center justify-center bg-muted border rounded overflow-hidden">
-        {previewUrl ? (
+        {displayImageUrl ? (
           <img
-            src={previewUrl}
+            src={displayImageUrl}
             alt={`${resource.title} image`}
-            className="object-contain w-full h-full"
+            className="object-cover w-full h-full"
             onError={(e) => {
-              console.error("Image failed to load:", previewUrl);
+              console.error("Image failed to load:", displayImageUrl);
               e.currentTarget.style.display = 'none';
+            }}
+            onLoad={() => {
+              console.log("Resource image loaded successfully:", displayImageUrl);
             }}
           />
         ) : (
           <span className="text-xs text-gray-500">No image</span>
         )}
       </div>
+      
       <div className="flex-1 w-full">
         <div className="font-semibold mb-2">{resource.title}</div>
         <ImageUploader
-          value={uploadUrl}
+          value={newImageUrl}
           onChange={handleImageChange}
           label="Upload New Image"
         />
         {hasNewImage && (
-          <p className="text-sm text-green-600 mt-2">✓ New image ready to save</p>
+          <p className="text-sm text-green-600 mt-2 flex items-center gap-1">
+            ✓ New image ready to save
+          </p>
         )}
       </div>
+      
       <div className="flex flex-col gap-2">
         <Button
           onClick={handleSave}
@@ -101,7 +113,7 @@ export const ResourceImageEditor: React.FC<ResourceImageEditorProps> = ({
         {hasNewImage && (
           <Button
             variant="outline"
-            onClick={() => setUploadUrl(undefined)}
+            onClick={handleCancel}
             className="w-28"
             disabled={saving}
           >

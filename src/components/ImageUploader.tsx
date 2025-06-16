@@ -1,8 +1,9 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { uploadResourceImage } from "@/services/storageService";
 import { Button } from "@/components/ui/button";
-import { Upload } from "lucide-react";
+import { Upload, CheckCircle, XCircle } from "lucide-react";
+import { toast } from "sonner";
 
 interface ImageUploaderProps {
   value?: string;
@@ -17,6 +18,11 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
 }) => {
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | undefined>(value);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
+
+  useEffect(() => {
+    setPreview(value);
+  }, [value]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -24,15 +30,20 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
 
     console.log("File selected:", file.name, file.size, file.type);
     
+    // Reset previous states
+    setUploadSuccess(false);
+    
     // Validate file type
     if (!file.type.startsWith('image/')) {
       console.error("Invalid file type:", file.type);
+      toast.error("Please select a valid image file");
       return;
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       console.error("File too large:", file.size);
+      toast.error("File size must be less than 5MB");
       return;
     }
 
@@ -46,14 +57,20 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
       if (url) {
         setPreview(url);
         onChange(url);
+        setUploadSuccess(true);
+        toast.success("Image uploaded successfully!");
         console.log("Image upload successful:", url);
       } else {
         console.error("Upload failed: No URL returned");
+        toast.error("Upload failed: No URL returned");
       }
     } catch (error) {
       console.error("Upload error:", error);
+      toast.error(`Upload failed: ${error}`);
     } finally {
       setUploading(false);
+      // Clear the input so the same file can be selected again if needed
+      e.target.value = '';
     }
   };
 
@@ -68,8 +85,22 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
           asChild
         >
           <label className="cursor-pointer flex items-center gap-2">
-            <Upload className="h-4 w-4" />
-            {uploading ? "Uploading..." : label}
+            {uploading ? (
+              <>
+                <div className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
+                Uploading...
+              </>
+            ) : uploadSuccess ? (
+              <>
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                Upload Another
+              </>
+            ) : (
+              <>
+                <Upload className="h-4 w-4" />
+                {label}
+              </>
+            )}
             <input 
               type="file" 
               accept="image/*"
@@ -79,6 +110,13 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
             />
           </label>
         </Button>
+        
+        {uploadSuccess && (
+          <div className="flex items-center gap-1 text-sm text-green-600">
+            <CheckCircle className="h-4 w-4" />
+            Ready to save
+          </div>
+        )}
       </div>
       
       {preview && (
@@ -89,6 +127,10 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
             className="w-40 h-32 rounded object-cover border"
             onError={(e) => {
               console.error("Preview image failed to load:", preview);
+              toast.error("Failed to load image preview");
+            }}
+            onLoad={() => {
+              console.log("Preview image loaded successfully:", preview);
             }}
           />
         </div>
