@@ -4,7 +4,7 @@ import { Resource } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Eye, Heart, Share2, Bookmark, MessageSquare } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { 
   toggleResourceLike, 
   isResourceLiked,
@@ -69,7 +69,7 @@ export const ResourceEngagement = ({ resource, compact = false }: ResourceEngage
   }
   
   return (
-    <motion.div 
+    <m.div 
       className="flex flex-wrap gap-3 md:gap-4"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
@@ -124,6 +124,6 @@ export const ResourceEngagement = ({ resource, compact = false }: ResourceEngage
         <Eye className="h-4 w-4" />
         <span>{viewCount} views</span>
       </div>
-    </motion.div>
+    </m.div>
   );
 };

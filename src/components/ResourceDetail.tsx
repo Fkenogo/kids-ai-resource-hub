@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ExternalLink, Bookmark, Share2 } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { ResourceEngagement } from './ResourceEngagement';
 import { ResourceComments } from './ResourceComments';
 import { trackResourceView } from '@/services/engagementService';
@@ -40,7 +40,7 @@ export const ResourceDetail = ({ resource, reviews }: ResourceDetailProps) => {
 
   return (
     <div className="space-y-8">
-      <motion.div 
+      <m.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -53,6 +53,13 @@ export const ResourceDetail = ({ resource, reviews }: ResourceDetailProps) => {
                 src={resource.imageUrl} 
                 alt={resource.title} 
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  console.error("Resource image failed to load:", resource.imageUrl);
+                  e.currentTarget.style.display = 'none';
+                }}
+                onLoad={() => {
+                  console.log("Resource image loaded successfully:", resource.imageUrl);
+                }}
               />
             ) : (
               <div className="w-full h-full bg-muted flex items-center justify-center">
@@ -107,9 +114,9 @@ export const ResourceDetail = ({ resource, reviews }: ResourceDetailProps) => {
             <ResourceEngagement resource={resource} />
           </div>
         </div>
-      </motion.div>
+      </m.div>
       
-      <motion.div 
+      <m.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
@@ -150,19 +157,19 @@ export const ResourceDetail = ({ resource, reviews }: ResourceDetailProps) => {
             Added on {formatDate(resource.dateAdded)}
           </div>
         </div>
-      </motion.div>
+      </m.div>
       
       {/* Comments Section */}
-      <motion.div 
+      <m.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
         className="glass-panel rounded-xl p-6 shadow-medium"
       >
         <ResourceComments resource={resource} />
-      </motion.div>
+      </m.div>
       
-      <motion.div 
+      <m.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
@@ -197,7 +204,7 @@ export const ResourceDetail = ({ resource, reviews }: ResourceDetailProps) => {
         ) : (
           <p className="text-muted-foreground">No reviews yet</p>
         )}
-      </motion.div>
+      </m.div>
     </div>
   );
 };
