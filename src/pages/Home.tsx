@@ -9,7 +9,7 @@ import { getFeaturedBlogPosts } from '@/data/blogData';
 import { Badge } from '@/components/ui/badge';
 import { m } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
-import HeroSection from './home/HeroSection';
+import EnhancedHeroSection from '../components/EnhancedHeroSection';
 import FeaturedResourcesSection from './home/FeaturedResourcesSection';
 import TopRatedResourcesSection from './home/TopRatedResourcesSection';
 import RecentlyAddedSection from './home/RecentlyAddedSection';
@@ -88,12 +88,22 @@ const Home = () => {
 
   return (
     <Layout>
-      <HeroSection />
-      <FeaturedResourcesSection featuredResources={featuredResources} />
-      <TopRatedResourcesSection topRatedResources={mostPopularResources} />
-      <RecentlyAddedSection recentResources={recentResources} />
-      <AgeRangeQuickFiltersSection />
-      <LatestBlogPostsSection featuredBlogPosts={featuredBlogPosts} />
+      <EnhancedHeroSection />
+      <div className="enhanced-section">
+        <FeaturedResourcesSection featuredResources={featuredResources} />
+      </div>
+      <div className="enhanced-section">
+        <TopRatedResourcesSection topRatedResources={mostPopularResources} />
+      </div>
+      <div className="enhanced-section">
+        <RecentlyAddedSection recentResources={recentResources} />
+      </div>
+      <div className="enhanced-section">
+        <AgeRangeQuickFiltersSection />
+      </div>
+      <div className="enhanced-section">
+        <LatestBlogPostsSection featuredBlogPosts={featuredBlogPosts} />
+      </div>
       <CallToActionSection />
     </Layout>
   );
