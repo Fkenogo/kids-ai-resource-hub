@@ -1,7 +1,6 @@
 
 import { Layout } from '@/components/Layout';
 import { useResources } from '@/hooks/useSupabaseData';
-import { getFeaturedBlogPosts } from '@/data/blogData';
 import { mapDbResourceToResource } from '@/utils/resourceTransform';
 import EnhancedHeroSection from '../components/EnhancedHeroSection';
 import FeaturedResourcesSection from './home/FeaturedResourcesSection';
@@ -53,8 +52,6 @@ const Home = () => {
     .sort((a, b) => (b.viewCount ?? 0) - (a.viewCount ?? 0))
     .slice(0, 3);
 
-  const featuredBlogPosts = getFeaturedBlogPosts(2);
-
   return (
     <Layout>
       <EnhancedHeroSection />
@@ -71,7 +68,7 @@ const Home = () => {
         <AgeRangeQuickFiltersSection />
       </div>
       <div className="enhanced-section">
-        <LatestBlogPostsSection featuredBlogPosts={featuredBlogPosts} />
+        <LatestBlogPostsSection />
       </div>
       <CallToActionSection />
     </Layout>
