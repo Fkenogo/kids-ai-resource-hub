@@ -1,219 +1,179 @@
 
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Layout } from '@/components/Layout';
 import { BlogGrid } from '@/components/BlogGrid';
-import { getRecentBlogPosts } from '@/data/blogData';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
+import { Search } from 'lucide-react';
 import { m } from 'framer-motion';
-import { Search, Mail } from 'lucide-react';
-import { z } from 'zod';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
-import { Card, CardContent } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { toast } from 'sonner';
-
-const subscribeFormSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address" }),
-  name: z.string().min(2, { message: "Please enter your name" }).optional()
-});
+import { getBlogPosts } from '@/services/blogService';
 
 const Blog = () => {
-  const allPosts = getRecentBlogPosts();
   const [searchQuery, setSearchQuery] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [isSubscribed, setIsSubscribed] = useState(false);
-  const [openSubscribeDialog, setOpenSubscribeDialog] = useState(false);
-  const postsPerPage = 9;
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  const form = useForm<z.infer<typeof subscribeFormSchema>>({
-    resolver: zodResolver(subscribeFormSchema),
-    defaultValues: {
-      email: "",
-      name: ""
-    },
+  const { data: posts = [], isLoading } = useQuery({
+    queryKey: ['blog-posts-public'],
+    queryFn: () => getBlogPosts(false), // Only published posts
   });
 
-  const onSubscribe = (data: z.infer<typeof subscribeFormSchema>) => {
-    // This would connect to a real subscription service in production
-    console.log("Subscribing email:", data.email, "Name:", data.name);
-    toast.success("Thanks for subscribing to our blog updates!");
-    setIsSubscribed(true);
-    setOpenSubscribeDialog(false);
-    form.reset();
-  };
+  const categories = [...new Set(posts.map(post => post.category))];
 
-  // Filter posts based on search query
-  const filteredPosts = allPosts.filter(post => 
-    post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    post.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    post.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())) ||
-    post.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredPosts = posts.filter(post => {
+    const matchesSearch = post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         post.excerpt?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         post.content.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = !selectedCategory || post.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
-  // Pagination
-  const indexOfLastPost = currentPage * postsPerPage;
-  const indexOfFirstPost = indexOfLastPost - postsPerPage;
-  const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
-  const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
-
-  const fadeInUp = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
-      transition: { duration: 0.6 }
+  const container = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
     }
   };
 
-  return (
-    <Layout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <m.div
-          initial="hidden"
-          animate="visible"
-          variants={fadeInUp}
-          className="mb-16 text-center"
-        >
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 font-serif">News & Updates</h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Stay informed with the latest articles, guides, and updates on AI education for children.
-          </p>
-        </m.div>
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5 }
+    }
+  };
 
-        <div className="flex flex-col md:flex-row gap-8 mb-16">
-          <div className="w-full md:w-2/3">
-            <div className="mb-8">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
-                <Input
-                  type="text"
-                  placeholder="Search articles by title, tags, or category..."
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    setCurrentPage(1); // Reset to first page on new search
-                  }}
-                  className="pl-10 py-6"
-                />
-              </div>
-            </div>
+  // Transform database posts to match BlogPost interface
+  const transformedPosts = filteredPosts.map(post => ({
+    id: post.id,
+    title: post.title,
+    slug: post.slug,
+    excerpt: post.excerpt || post.content.substring(0, 150) + '...',
+    content: post.content,
+    author: post.profiles?.display_name || post.profiles?.username || 'Admin',
+    category: post.category,
+    tags: post.tags || [],
+    imageUrl: post.image_url,
+    datePublished: post.published_at || post.created_at,
+    readTime: post.read_time || 5,
+    viewCount: post.view_count || 0,
+    featured: post.is_featured || false,
+  }));
 
-            {filteredPosts.length > 0 ? (
-              <>
-                <BlogGrid posts={currentPosts} columns={2} />
-                
-                {totalPages > 1 && (
-                  <div className="mt-12">
-                    <Pagination>
-                      <PaginationContent>
-                        {currentPage > 1 && (
-                          <PaginationItem>
-                            <PaginationPrevious onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} />
-                          </PaginationItem>
-                        )}
-                        
-                        {Array.from({ length: totalPages }).map((_, i) => (
-                          <PaginationItem key={i}>
-                            <PaginationLink 
-                              isActive={currentPage === i + 1}
-                              onClick={() => setCurrentPage(i + 1)}
-                            >
-                              {i + 1}
-                            </PaginationLink>
-                          </PaginationItem>
-                        ))}
-                        
-                        {currentPage < totalPages && (
-                          <PaginationItem>
-                            <PaginationNext onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} />
-                          </PaginationItem>
-                        )}
-                      </PaginationContent>
-                    </Pagination>
-                  </div>
-                )}
-              </>
-            ) : (
-              <div className="text-center py-12">
-                <h3 className="text-xl font-medium mb-2">No articles found</h3>
-                <p className="text-muted-foreground mb-6">Try adjusting your search query</p>
-                <Button onClick={() => setSearchQuery('')}>View All Articles</Button>
-              </div>
-            )}
-          </div>
-
-          <div className="w-full md:w-1/3">
-            <Card className="sticky top-24 bg-secondary/30 border border-secondary p-6 rounded-xl">
-              <CardContent className="p-0 flex flex-col gap-6">
-                <div>
-                  <h3 className="text-2xl font-bold mb-2 font-serif">Subscribe to Updates</h3>
-                  <p className="text-muted-foreground">Get the latest articles delivered right to your inbox</p>
-                </div>
-                
-                {isSubscribed ? (
-                  <div className="text-center p-4 bg-primary/10 rounded-lg">
-                    <p className="font-medium text-primary">Thanks for subscribing!</p>
-                  </div>
-                ) : (
-                  <Button 
-                    onClick={() => setOpenSubscribeDialog(true)}
-                    className="w-full flex items-center justify-center gap-2"
-                  >
-                    <Mail className="h-4 w-4" />
-                    Subscribe to Newsletter
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div className="text-center">Loading...</div>
           </div>
         </div>
+      </Layout>
+    );
+  }
 
-        {/* Subscription Dialog */}
-        <Dialog open={openSubscribeDialog} onOpenChange={setOpenSubscribeDialog}>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-serif">Subscribe to Our Newsletter</DialogTitle>
-              <DialogDescription>
-                Enter your details below to receive our latest articles and updates directly in your inbox.
-              </DialogDescription>
-            </DialogHeader>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubscribe)} className="space-y-4 mt-4">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input placeholder="Your name (optional)" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input placeholder="Your email address" required {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <div className="flex justify-end pt-4">
-                  <Button type="submit">Subscribe</Button>
-                </div>
-              </form>
-            </Form>
-          </DialogContent>
-        </Dialog>
+  return (
+    <Layout>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          {/* Hero Section */}
+          <m.div 
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <h1 className="text-4xl md:text-6xl font-bold gradient-text mb-6">
+              News & Updates
+            </h1>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
+              Stay updated with the latest in AI education, technology trends, and learning resources for kids.
+            </p>
+            
+            {/* Search Bar */}
+            <div className="max-w-md mx-auto relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search articles..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 py-3"
+              />
+            </div>
+          </m.div>
+
+          {/* Category Filter */}
+          {categories.length > 0 && (
+            <m.div 
+              className="flex flex-wrap justify-center gap-2 mb-12"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              <Button
+                variant={selectedCategory === null ? "default" : "outline"}
+                onClick={() => setSelectedCategory(null)}
+                className="mb-2"
+              >
+                All Categories
+              </Button>
+              {categories.map((category) => (
+                <Button
+                  key={category}
+                  variant={selectedCategory === category ? "default" : "outline"}
+                  onClick={() => setSelectedCategory(category)}
+                  className="mb-2"
+                >
+                  {category}
+                </Button>
+              ))}
+            </m.div>
+          )}
+
+          {/* Featured Posts */}
+          {transformedPosts.some(post => post.featured) && (
+            <m.section 
+              className="mb-16"
+              variants={container}
+              initial="hidden"
+              animate="visible"
+            >
+              <m.h2 
+                className="text-3xl font-bold mb-8 text-center"
+                variants={item}
+              >
+                Featured Articles
+              </m.h2>
+              <BlogGrid 
+                posts={transformedPosts.filter(post => post.featured)} 
+                columns={2}
+              />
+            </m.section>
+          )}
+
+          {/* All Posts */}
+          <m.section
+            variants={container}
+            initial="hidden"
+            animate="visible"
+          >
+            <m.h2 
+              className="text-3xl font-bold mb-8 text-center"
+              variants={item}
+            >
+              {selectedCategory ? `${selectedCategory} Articles` : 'All Articles'}
+            </m.h2>
+            <BlogGrid 
+              posts={transformedPosts.filter(post => !post.featured || selectedCategory)} 
+              columns={3} 
+            />
+          </m.section>
+        </div>
       </div>
     </Layout>
   );

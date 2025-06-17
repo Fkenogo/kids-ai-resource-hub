@@ -6,6 +6,7 @@ import { Shield, Database, Users, Package } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { ResourceManagement } from '@/components/admin/ResourceManagement';
+import { BlogManagement } from '@/components/admin/BlogManagement';
 import { SQLTemplateGenerator } from '@/components/admin/SQLTemplateGenerator';
 
 const Admin = () => {
@@ -98,13 +99,18 @@ const Admin = () => {
           </div>
 
           <Tabs defaultValue="resources" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="resources">Resource Management</TabsTrigger>
+              <TabsTrigger value="blog">Blog Management</TabsTrigger>
               <TabsTrigger value="sql-generator">SQL Generator</TabsTrigger>
             </TabsList>
             
             <TabsContent value="resources" className="mt-6">
               <ResourceManagement />
+            </TabsContent>
+            
+            <TabsContent value="blog" className="mt-6">
+              <BlogManagement />
             </TabsContent>
             
             <TabsContent value="sql-generator" className="mt-6">
