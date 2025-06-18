@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,7 +15,7 @@ import {
 } from '@/components/ui/pagination';
 import { Search, Edit, Eye, Star, MessageSquare, CheckCircle, XCircle, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { BlogPostForm } from './BlogPostForm';
+import { EnhancedBlogPostForm } from './EnhancedBlogPostForm';
 import { getBlogPosts, getBlogComments, updateBlogPost, updateBlogComment, deleteBlogPost, deleteBlogComment } from '@/services/blogService';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -117,9 +116,9 @@ export const BlogManagement = () => {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">Blog Management</h2>
-          <p className="text-muted-foreground">Manage blog posts and moderate comments</p>
+          <p className="text-muted-foreground">Create, edit, and manage your blog content with advanced tools</p>
         </div>
-        <BlogPostForm onSuccess={() => queryClient.invalidateQueries({ queryKey: ['blog-posts'] })} />
+        <EnhancedBlogPostForm onSuccess={() => queryClient.invalidateQueries({ queryKey: ['blog-posts'] })} />
       </div>
 
       <Tabs defaultValue="posts" className="w-full">
@@ -186,7 +185,7 @@ export const BlogManagement = () => {
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <BlogPostForm 
+                      <EnhancedBlogPostForm 
                         post={post} 
                         onSuccess={() => queryClient.invalidateQueries({ queryKey: ['blog-posts'] })} 
                       />

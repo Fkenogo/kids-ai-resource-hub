@@ -1,4 +1,3 @@
-
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Layout } from '@/components/Layout';
@@ -11,14 +10,15 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from '@/component
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Calendar, Clock, Eye, ArrowLeft, MessageSquare } from 'lucide-react';
+import { Calendar, Clock, Eye, ArrowLeft, MessageSquare, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { m } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
 import { toast } from 'sonner';
-import { getBlogPostBySlug, getBlogComments, createBlogComment } from '@/services/blogService';
+import { getBlogPostBySlug, getBlogComments, createBlogComment, getBlogPosts } from '@/services/blogService';
 import { getCurrentUser } from '@/services/supabaseService';
 import { useAuthContext } from '@/components/auth/AuthProvider';
+import { SocialShareBar } from '@/components/SocialShareBar';
 import { useState } from 'react';
 
 const commentSchema = z.object({
@@ -37,11 +37,21 @@ const BlogPost = () => {
     enabled: !!slug,
   });
 
+  const { data: allPosts = [] } = useQuery({
+    queryKey: ['blog-posts-navigation'],
+    queryFn: () => getBlogPosts(false),
+  });
+
   const { data: comments = [] } = useQuery({
     queryKey: ['blog-comments', post?.id],
-    queryFn: () => getBlogComments(post!.id, false), // Only approved comments
+    queryFn: () => getBlogComments(post!.id, false),
     enabled: !!post?.id,
   });
+
+  // Find previous and next posts
+  const currentIndex = allPosts.findIndex(p => p.slug === slug);
+  const previousPost = currentIndex > 0 ? allPosts[currentIndex - 1] : null;
+  const nextPost = currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1] : null;
 
   const form = useForm<z.infer<typeof commentSchema>>({
     resolver: zodResolver(commentSchema),
@@ -108,10 +118,19 @@ const BlogPost = () => {
   }
 
   const publishedDate = new Date(post.published_at || post.created_at);
+  const currentUrl = `${window.location.origin}/blog/${post.slug}`;
 
   return (
     <Layout>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        {/* Sticky Social Share Bar */}
+        <SocialShareBar 
+          url={currentUrl}
+          title={post.title}
+          description={post.excerpt}
+          sticky={true}
+        />
+
         <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <m.div
             initial={{ opacity: 0, y: 20 }}
@@ -170,6 +189,11 @@ const BlogPost = () => {
                     </div>
                   </div>
                 </div>
+                <SocialShareBar 
+                  url={currentUrl}
+                  title={post.title}
+                  description={post.excerpt}
+                />
               </div>
             </header>
 
@@ -185,10 +209,32 @@ const BlogPost = () => {
             )}
 
             {/* Content */}
-            <div className="prose prose-lg max-w-none mb-16">
-              {post.content.split('\n').map((paragraph: string, index: number) => (
-                <p key={index} className="mb-4">{paragraph}</p>
-              ))}
+            <div 
+              className="prose prose-lg max-w-none mb-16"
+              dangerouslySetInnerHTML={{ __html: post.content }}
+            />
+
+            {/* Navigation Between Posts */}
+            <div className="flex justify-between items-center mb-16 pb-8 border-b">
+              {previousPost ? (
+                <Link to={`/blog/${previousPost.slug}`} className="flex items-center gap-2 text-primary hover:text-primary/80">
+                  <ChevronLeft className="h-4 w-4" />
+                  <div className="text-left">
+                    <p className="text-sm text-muted-foreground">Previous</p>
+                    <p className="font-medium line-clamp-1">{previousPost.title}</p>
+                  </div>
+                </Link>
+              ) : <div />}
+
+              {nextPost ? (
+                <Link to={`/blog/${nextPost.slug}`} className="flex items-center gap-2 text-primary hover:text-primary/80 text-right">
+                  <div className="text-right">
+                    <p className="text-sm text-muted-foreground">Next</p>
+                    <p className="font-medium line-clamp-1">{nextPost.title}</p>
+                  </div>
+                  <ChevronRight className="h-4 w-4" />
+                </Link>
+              ) : <div />}
             </div>
 
             {/* Comments Section */}
