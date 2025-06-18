@@ -8,13 +8,15 @@ import Table from '@tiptap/extension-table';
 import TableRow from '@tiptap/extension-table-row';
 import TableCell from '@tiptap/extension-table-cell';
 import TableHeader from '@tiptap/extension-table-header';
+import Underline from '@tiptap/extension-underline';
+import TextAlign from '@tiptap/extension-text-align';
 import { Color } from '@tiptap/extension-color';
 import TextStyle from '@tiptap/extension-text-style';
 import FontFamily from '@tiptap/extension-font-family';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { 
-  Bold, Italic, Underline, Strikethrough, Code, 
+  Bold, Italic, Underline as UnderlineIcon, Strikethrough, Code, 
   Heading1, Heading2, Heading3, Quote, List, ListOrdered,
   AlignLeft, AlignCenter, AlignRight, AlignJustify,
   Image as ImageIcon, Link as LinkIcon, Table as TableIcon,
@@ -71,6 +73,10 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
       TableRow,
       TableHeader,
       TableCell,
+      Underline,
+      TextAlign.configure({
+        types: ['heading', 'paragraph'],
+      }),
       Color,
       TextStyle,
       FontFamily,
@@ -189,7 +195,7 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
           size="sm"
           onClick={() => editor.chain().focus().toggleUnderline().run()}
         >
-          <Underline className="h-4 w-4" />
+          <UnderlineIcon className="h-4 w-4" />
         </Button>
         
         <Button
@@ -266,7 +272,7 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
 
         {/* Alignment */}
         <Button
-          variant="ghost"
+          variant={editor.isActive({ textAlign: 'left' }) ? 'default' : 'ghost'}
           size="sm"
           onClick={() => editor.chain().focus().setTextAlign('left').run()}
         >
@@ -274,7 +280,7 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
         </Button>
         
         <Button
-          variant="ghost"
+          variant={editor.isActive({ textAlign: 'center' }) ? 'default' : 'ghost'}
           size="sm"
           onClick={() => editor.chain().focus().setTextAlign('center').run()}
         >
@@ -282,7 +288,7 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
         </Button>
         
         <Button
-          variant="ghost"
+          variant={editor.isActive({ textAlign: 'right' }) ? 'default' : 'ghost'}
           size="sm"
           onClick={() => editor.chain().focus().setTextAlign('right').run()}
         >
@@ -290,7 +296,7 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
         </Button>
         
         <Button
-          variant="ghost"
+          variant={editor.isActive({ textAlign: 'justify' }) ? 'default' : 'ghost'}
           size="sm"
           onClick={() => editor.chain().focus().setTextAlign('justify').run()}
         >
