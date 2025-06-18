@@ -39,11 +39,12 @@ const fonts = [
 ];
 
 const fontSizes = [
-  { label: 'Small', value: '14px' },
+  { label: 'Small', value: '12px' },
   { label: 'Normal', value: '16px' },
-  { label: 'Large', value: '18px' },
-  { label: 'Extra Large', value: '24px' },
-  { label: 'Huge', value: '32px' }
+  { label: 'Medium', value: '18px' },
+  { label: 'Large', value: '24px' },
+  { label: 'Extra Large', value: '32px' },
+  { label: 'Huge', value: '48px' }
 ];
 
 const colors = [
@@ -56,7 +57,9 @@ const colors = [
   '#00FFFF', '#44FFFF', '#66FFFF', '#88FFFF', '#AAFFFF', '#CCFFFF',
   '#FFA500', '#FFB144', '#FFBD66', '#FFC988', '#FFD5AA', '#FFE1CC',
   '#800080', '#9944BB', '#B366DD', '#CC88EE', '#DDAAFF', '#EECCFF',
-  '#008000', '#44AA44', '#66BB66', '#88CC88', '#AADDAA', '#CCEECC'
+  '#008000', '#44AA44', '#66BB66', '#88CC88', '#AADDAA', '#CCEECC',
+  '#8B4513', '#A0522D', '#CD853F', '#DEB887', '#F5DEB3', '#FFEFD5',
+  '#2F4F4F', '#696969', '#708090', '#778899', '#B0C4DE', '#E6E6FA'
 ];
 
 export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEditorProps) => {
@@ -135,7 +138,8 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
 
   const applyFontSize = (size: string) => {
     setFontSize(size);
-    editor.chain().focus().setFontSize(size).run();
+    // Apply font size using TextStyle extension with CSS
+    editor.chain().focus().setMark('textStyle', { fontSize: size }).run();
   };
 
   return (
@@ -172,7 +176,7 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
 
         {/* Font Size */}
         <Select value={fontSize} onValueChange={applyFontSize}>
-          <SelectTrigger className="w-20 h-8">
+          <SelectTrigger className="w-24 h-8">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -194,7 +198,7 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
           <PopoverContent className="w-80">
             <div className="space-y-2">
               <Label>Text Color</Label>
-              <div className="grid grid-cols-10 gap-1">
+              <div className="grid grid-cols-12 gap-1">
                 {colors.map((color) => (
                   <button
                     key={color}
