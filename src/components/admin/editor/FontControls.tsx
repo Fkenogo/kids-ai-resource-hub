@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Type, Palette } from 'lucide-react';
+import { Type, Palette, LineChart } from 'lucide-react';
 
 const fonts = [
   'Inter', 'Arial', 'Georgia', 'Times New Roman', 'Helvetica', 
@@ -20,6 +20,14 @@ const fontSizes = [
   { label: 'Large', value: '24px' },
   { label: 'Extra Large', value: '32px' },
   { label: 'Huge', value: '48px' }
+];
+
+const lineHeights = [
+  { label: 'Tight', value: '1.2' },
+  { label: 'Normal', value: '1.5' },
+  { label: 'Relaxed', value: '1.75' },
+  { label: 'Loose', value: '2' },
+  { label: 'Extra Loose', value: '2.5' }
 ];
 
 const colors = [
@@ -43,10 +51,16 @@ interface FontControlsProps {
 
 export const FontControls = ({ editor }: FontControlsProps) => {
   const [fontSize, setFontSize] = useState('16px');
+  const [lineHeight, setLineHeight] = useState('1.5');
 
   const applyFontSize = (size: string) => {
     setFontSize(size);
     editor.chain().focus().setMark('textStyle', { fontSize: size }).run();
+  };
+
+  const applyLineHeight = (height: string) => {
+    setLineHeight(height);
+    editor.chain().focus().setMark('textStyle', { lineHeight: height }).run();
   };
 
   return (
@@ -92,6 +106,32 @@ export const FontControls = ({ editor }: FontControlsProps) => {
           ))}
         </SelectContent>
       </Select>
+
+      {/* Line Height */}
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="ghost" size="sm" title="Line Height">
+            <LineChart className="h-4 w-4" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-40">
+          <div className="space-y-2">
+            <Label>Line Height</Label>
+            <Select value={lineHeight} onValueChange={applyLineHeight}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {lineHeights.map((height) => (
+                  <SelectItem key={height.value} value={height.value}>
+                    {height.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </PopoverContent>
+      </Popover>
 
       {/* Text Color */}
       <Popover>

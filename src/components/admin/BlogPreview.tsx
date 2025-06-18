@@ -43,10 +43,10 @@ export const BlogPreview = ({ open, onOpenChange, formData }: BlogPreviewProps) 
               </Badge>
             )}
             
-            <h1 className="text-4xl font-bold mb-4">{formData.title || 'Untitled Post'}</h1>
+            <h1 className="text-4xl font-bold mb-4 leading-tight">{formData.title || 'Untitled Post'}</h1>
             
             {formData.excerpt && (
-              <p className="text-xl text-muted-foreground mb-4">{formData.excerpt}</p>
+              <p className="text-xl text-muted-foreground mb-4 leading-relaxed">{formData.excerpt}</p>
             )}
             
             <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-6">
@@ -86,7 +86,7 @@ export const BlogPreview = ({ open, onOpenChange, formData }: BlogPreviewProps) 
           
           <div 
             dangerouslySetInnerHTML={{ __html: formData.content || '<p>No content available...</p>' }}
-            className="prose-headings:font-bold prose-a:text-primary prose-strong:font-semibold"
+            className="prose-headings:font-bold prose-a:text-primary prose-strong:font-semibold prose-p:leading-relaxed prose-li:leading-relaxed [&_p]:mb-4 [&_h1]:mb-6 [&_h2]:mb-4 [&_h3]:mb-4 [&_ul]:mb-4 [&_ol]:mb-4 [&_blockquote]:mb-4"
           />
         </article>
       </DialogContent>

@@ -71,15 +71,19 @@ export const useBlogPostForm = (post?: any, onSuccess?: () => void) => {
       const estimatedTime = Math.max(1, Math.ceil(wordCount / wordsPerMinute));
       
       if (estimatedTime !== formData.read_time) {
-        updateFormData({ read_time: estimatedTime });
+        setFormData(prev => ({ ...prev, read_time: estimatedTime }));
       }
     }
-  }, [formData.content]);
+  }, [formData.content, formData.read_time]);
 
   const mutation = useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: BlogPostFormData & { is_published: boolean }) => {
+      console.log('Saving blog post with data:', data);
+      
       const user = await getCurrentUser();
-      if (!user) throw new Error('User not authenticated');
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
 
       const postData = {
         ...data,
@@ -88,13 +92,18 @@ export const useBlogPostForm = (post?: any, onSuccess?: () => void) => {
         updated_at: new Date().toISOString(),
       };
 
+      console.log('Final post data:', postData);
+
       if (currentPostId) {
+        console.log('Updating existing post:', currentPostId);
         return updateBlogPost(currentPostId, postData);
       } else {
+        console.log('Creating new post');
         return createBlogPost(postData);
       }
     },
     onSuccess: (data) => {
+      console.log('Blog post saved successfully:', data);
       queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
       
       if (!currentPostId) {
@@ -117,19 +126,21 @@ export const useBlogPostForm = (post?: any, onSuccess?: () => void) => {
   });
 
   const updateFormData = (updates: Partial<BlogPostFormData>) => {
+    console.log('Updating form data:', updates);
     setFormData(prev => ({ ...prev, ...updates }));
   };
 
   const handleTitleChange = (value: string) => {
-    setFormData(prev => ({
-      ...prev,
+    const updates: Partial<BlogPostFormData> = {
       title: value,
       ...(autoSlug && { slug: generateSlug(value) })
-    }));
+    };
+    setFormData(prev => ({ ...prev, ...updates }));
   };
 
   const handleAutoSave = () => {
     if ((formData.title || formData.content) && !mutation.isPending) {
+      console.log('Auto-saving draft...');
       mutation.mutate({ ...formData, is_published: false });
     }
   };
@@ -139,6 +150,7 @@ export const useBlogPostForm = (post?: any, onSuccess?: () => void) => {
       toast.error('Please enter a title to save as draft');
       return;
     }
+    console.log('Saving draft manually...');
     mutation.mutate({ ...formData, is_published: false });
   };
 
@@ -147,6 +159,7 @@ export const useBlogPostForm = (post?: any, onSuccess?: () => void) => {
       toast.error('Please fill in title, content, and category before publishing');
       return;
     }
+    console.log('Publishing post...');
     mutation.mutate({ ...formData, is_published: true });
   };
 
@@ -155,6 +168,7 @@ export const useBlogPostForm = (post?: any, onSuccess?: () => void) => {
       toast.error('Please fill in all required fields');
       return;
     }
+    console.log('Updating post...');
     mutation.mutate(formData);
   };
 

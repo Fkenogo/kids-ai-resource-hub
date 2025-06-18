@@ -15,6 +15,39 @@ import TextStyle from '@tiptap/extension-text-style';
 import FontFamily from '@tiptap/extension-font-family';
 import { EditorToolbar } from './editor/EditorToolbar';
 
+// Custom extension for font size and line height
+const FontSize = TextStyle.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      fontSize: {
+        default: null,
+        parseHTML: element => element.style.fontSize,
+        renderHTML: attributes => {
+          if (!attributes.fontSize) {
+            return {}
+          }
+          return {
+            style: `font-size: ${attributes.fontSize}`,
+          }
+        },
+      },
+      lineHeight: {
+        default: null,
+        parseHTML: element => element.style.lineHeight,
+        renderHTML: attributes => {
+          if (!attributes.lineHeight) {
+            return {}
+          }
+          return {
+            style: `line-height: ${attributes.lineHeight}`,
+          }
+        },
+      },
+    }
+  },
+})
+
 interface RichTextEditorProps {
   content: string;
   onChange: (content: string) => void;
@@ -56,7 +89,7 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
         types: ['heading', 'paragraph'],
       }),
       Color,
-      TextStyle,
+      FontSize,
       FontFamily,
     ],
     content,
@@ -65,7 +98,7 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-lg max-w-none focus:outline-none min-h-[300px] p-4 border rounded-md',
+        class: 'prose prose-lg max-w-none focus:outline-none min-h-[300px] p-4 border rounded-md leading-relaxed',
         placeholder: placeholder || 'Start writing your blog post...',
       },
     },
@@ -78,7 +111,12 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
   return (
     <div className="border rounded-lg">
       <EditorToolbar editor={editor} />
-      <EditorContent editor={editor} />
+      <div className="p-4">
+        <EditorContent 
+          editor={editor}
+          className="prose prose-lg max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[300px] [&_.ProseMirror_p]:leading-relaxed [&_.ProseMirror_h1]:leading-tight [&_.ProseMirror_h2]:leading-tight [&_.ProseMirror_h3]:leading-tight"
+        />
+      </div>
     </div>
   );
 };
