@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
@@ -20,11 +20,12 @@ import {
   Heading1, Heading2, Heading3, Quote, List, ListOrdered,
   AlignLeft, AlignCenter, AlignRight, AlignJustify,
   Image as ImageIcon, Link as LinkIcon, Table as TableIcon,
-  Minus, Type, Palette
+  Minus, Type, Palette, Plus, Minus as MinusIcon
 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface RichTextEditorProps {
   content: string;
@@ -34,16 +35,33 @@ interface RichTextEditorProps {
 
 const fonts = [
   'Inter', 'Arial', 'Georgia', 'Times New Roman', 'Helvetica', 
-  'Verdana', 'Roboto', 'Open Sans', 'Lato', 'Montserrat'
+  'Verdana', 'Roboto', 'Open Sans', 'Lato', 'Montserrat', 'Playfair Display'
+];
+
+const fontSizes = [
+  { label: 'Small', value: '14px' },
+  { label: 'Normal', value: '16px' },
+  { label: 'Large', value: '18px' },
+  { label: 'Extra Large', value: '24px' },
+  { label: 'Huge', value: '32px' }
 ];
 
 const colors = [
-  '#000000', '#333333', '#666666', '#999999', '#CCCCCC',
-  '#FF0000', '#FF6600', '#FFCC00', '#33CC33', '#0099CC',
-  '#6633CC', '#CC3399', '#FFFFFF', '#F5F5F5', '#E5E5E5'
+  '#000000', '#333333', '#666666', '#999999', '#CCCCCC', '#FFFFFF',
+  '#FF0000', '#FF4444', '#FF6666', '#FF8888', '#FFAAAA', '#FFCCCC',
+  '#00FF00', '#44FF44', '#66FF66', '#88FF88', '#AAFFAA', '#CCFFCC',
+  '#0000FF', '#4444FF', '#6666FF', '#8888FF', '#AAAAFF', '#CCCCFF',
+  '#FFFF00', '#FFFF44', '#FFFF66', '#FFFF88', '#FFFFAA', '#FFFFCC',
+  '#FF00FF', '#FF44FF', '#FF66FF', '#FF88FF', '#FFAAFF', '#FFCCFF',
+  '#00FFFF', '#44FFFF', '#66FFFF', '#88FFFF', '#AAFFFF', '#CCFFFF',
+  '#FFA500', '#FFB144', '#FFBD66', '#FFC988', '#FFD5AA', '#FFE1CC',
+  '#800080', '#9944BB', '#B366DD', '#CC88EE', '#DDAAFF', '#EECCFF',
+  '#008000', '#44AA44', '#66BB66', '#88CC88', '#AADDAA', '#CCEECC'
 ];
 
 export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEditorProps) => {
+  const [fontSize, setFontSize] = useState('16px');
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -115,6 +133,11 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
     editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
   };
 
+  const applyFontSize = (size: string) => {
+    setFontSize(size);
+    editor.chain().focus().setFontSize(size).run();
+  };
+
   return (
     <div className="border rounded-lg">
       {/* Toolbar */}
@@ -122,14 +145,14 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
         {/* Font Family */}
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" title="Font Family">
               <Type className="h-4 w-4" />
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-48">
             <div className="space-y-2">
               <Label>Font Family</Label>
-              <div className="grid gap-1">
+              <div className="grid gap-1 max-h-64 overflow-y-auto">
                 {fonts.map((font) => (
                   <Button
                     key={font}
@@ -147,25 +170,49 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
           </PopoverContent>
         </Popover>
 
+        {/* Font Size */}
+        <Select value={fontSize} onValueChange={applyFontSize}>
+          <SelectTrigger className="w-20 h-8">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {fontSizes.map((size) => (
+              <SelectItem key={size.value} value={size.value}>
+                {size.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
         {/* Text Color */}
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" title="Text Color">
               <Palette className="h-4 w-4" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-64">
+          <PopoverContent className="w-80">
             <div className="space-y-2">
               <Label>Text Color</Label>
-              <div className="grid grid-cols-5 gap-1">
+              <div className="grid grid-cols-10 gap-1">
                 {colors.map((color) => (
                   <button
                     key={color}
-                    className="w-8 h-8 rounded border border-gray-300"
+                    className="w-6 h-6 rounded border border-gray-300 hover:scale-110 transition-transform"
                     style={{ backgroundColor: color }}
                     onClick={() => editor.chain().focus().setColor(color).run()}
+                    title={color}
                   />
                 ))}
+              </div>
+              <div className="mt-2">
+                <Label htmlFor="custom-color">Custom Color</Label>
+                <Input
+                  id="custom-color"
+                  type="color"
+                  className="w-full h-8"
+                  onChange={(e) => editor.chain().focus().setColor(e.target.value).run()}
+                />
               </div>
             </div>
           </PopoverContent>
@@ -178,6 +225,7 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
           variant={editor.isActive('bold') ? 'default' : 'ghost'}
           size="sm"
           onClick={() => editor.chain().focus().toggleBold().run()}
+          title="Bold"
         >
           <Bold className="h-4 w-4" />
         </Button>
@@ -186,6 +234,7 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
           variant={editor.isActive('italic') ? 'default' : 'ghost'}
           size="sm"
           onClick={() => editor.chain().focus().toggleItalic().run()}
+          title="Italic"
         >
           <Italic className="h-4 w-4" />
         </Button>
@@ -194,6 +243,7 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
           variant={editor.isActive('underline') ? 'default' : 'ghost'}
           size="sm"
           onClick={() => editor.chain().focus().toggleUnderline().run()}
+          title="Underline"
         >
           <UnderlineIcon className="h-4 w-4" />
         </Button>
@@ -202,6 +252,7 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
           variant={editor.isActive('strike') ? 'default' : 'ghost'}
           size="sm"
           onClick={() => editor.chain().focus().toggleStrike().run()}
+          title="Strikethrough"
         >
           <Strikethrough className="h-4 w-4" />
         </Button>
@@ -210,6 +261,7 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
           variant={editor.isActive('code') ? 'default' : 'ghost'}
           size="sm"
           onClick={() => editor.chain().focus().toggleCode().run()}
+          title="Code"
         >
           <Code className="h-4 w-4" />
         </Button>
@@ -221,6 +273,7 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
           variant={editor.isActive('heading', { level: 1 }) ? 'default' : 'ghost'}
           size="sm"
           onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+          title="Heading 1"
         >
           <Heading1 className="h-4 w-4" />
         </Button>
@@ -229,6 +282,7 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
           variant={editor.isActive('heading', { level: 2 }) ? 'default' : 'ghost'}
           size="sm"
           onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+          title="Heading 2"
         >
           <Heading2 className="h-4 w-4" />
         </Button>
@@ -237,6 +291,7 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
           variant={editor.isActive('heading', { level: 3 }) ? 'default' : 'ghost'}
           size="sm"
           onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+          title="Heading 3"
         >
           <Heading3 className="h-4 w-4" />
         </Button>
@@ -248,6 +303,7 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
           variant={editor.isActive('bulletList') ? 'default' : 'ghost'}
           size="sm"
           onClick={() => editor.chain().focus().toggleBulletList().run()}
+          title="Bullet List"
         >
           <List className="h-4 w-4" />
         </Button>
@@ -256,6 +312,7 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
           variant={editor.isActive('orderedList') ? 'default' : 'ghost'}
           size="sm"
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
+          title="Numbered List"
         >
           <ListOrdered className="h-4 w-4" />
         </Button>
@@ -264,6 +321,7 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
           variant={editor.isActive('blockquote') ? 'default' : 'ghost'}
           size="sm"
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
+          title="Quote"
         >
           <Quote className="h-4 w-4" />
         </Button>
@@ -275,6 +333,7 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
           variant={editor.isActive({ textAlign: 'left' }) ? 'default' : 'ghost'}
           size="sm"
           onClick={() => editor.chain().focus().setTextAlign('left').run()}
+          title="Align Left"
         >
           <AlignLeft className="h-4 w-4" />
         </Button>
@@ -283,6 +342,7 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
           variant={editor.isActive({ textAlign: 'center' }) ? 'default' : 'ghost'}
           size="sm"
           onClick={() => editor.chain().focus().setTextAlign('center').run()}
+          title="Align Center"
         >
           <AlignCenter className="h-4 w-4" />
         </Button>
@@ -291,6 +351,7 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
           variant={editor.isActive({ textAlign: 'right' }) ? 'default' : 'ghost'}
           size="sm"
           onClick={() => editor.chain().focus().setTextAlign('right').run()}
+          title="Align Right"
         >
           <AlignRight className="h-4 w-4" />
         </Button>
@@ -299,6 +360,7 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
           variant={editor.isActive({ textAlign: 'justify' }) ? 'default' : 'ghost'}
           size="sm"
           onClick={() => editor.chain().focus().setTextAlign('justify').run()}
+          title="Justify"
         >
           <AlignJustify className="h-4 w-4" />
         </Button>
@@ -306,15 +368,15 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
         <Separator orientation="vertical" className="h-6" />
 
         {/* Media and Elements */}
-        <Button variant="ghost" size="sm" onClick={addImage}>
+        <Button variant="ghost" size="sm" onClick={addImage} title="Insert Image">
           <ImageIcon className="h-4 w-4" />
         </Button>
         
-        <Button variant="ghost" size="sm" onClick={addLink}>
+        <Button variant="ghost" size="sm" onClick={addLink} title="Insert Link">
           <LinkIcon className="h-4 w-4" />
         </Button>
         
-        <Button variant="ghost" size="sm" onClick={insertTable}>
+        <Button variant="ghost" size="sm" onClick={insertTable} title="Insert Table">
           <TableIcon className="h-4 w-4" />
         </Button>
         
@@ -322,6 +384,7 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
           variant="ghost"
           size="sm"
           onClick={() => editor.chain().focus().setHorizontalRule().run()}
+          title="Horizontal Rule"
         >
           <Minus className="h-4 w-4" />
         </Button>
