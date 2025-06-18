@@ -26,6 +26,7 @@ export const EnhancedBlogPostForm = ({ post, onSuccess }: EnhancedBlogPostFormPr
   const [activeTab, setActiveTab] = useState('content');
   const [autoSlug, setAutoSlug] = useState(!post);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [currentPostId, setCurrentPostId] = useState(post?.id || null);
   
   const [formData, setFormData] = useState({
     title: post?.title || '',
@@ -46,7 +47,7 @@ export const EnhancedBlogPostForm = ({ post, onSuccess }: EnhancedBlogPostFormPr
 
   // Auto-save functionality
   useEffect(() => {
-    if (!open || !post) return;
+    if (!open) return;
     
     const autoSaveInterval = setInterval(() => {
       if (formData.title || formData.content) {
@@ -55,7 +56,7 @@ export const EnhancedBlogPostForm = ({ post, onSuccess }: EnhancedBlogPostFormPr
     }, 30000); // Auto-save every 30 seconds
 
     return () => clearInterval(autoSaveInterval);
-  }, [open, formData, post]);
+  }, [open, formData]);
 
   const mutation = useMutation({
     mutationFn: async (data: any) => {
@@ -68,19 +69,31 @@ export const EnhancedBlogPostForm = ({ post, onSuccess }: EnhancedBlogPostFormPr
         slug: data.slug || generateSlug(data.title),
       };
 
-      if (post) {
-        return updateBlogPost(post.id, postData);
+      if (currentPostId) {
+        return updateBlogPost(currentPostId, postData);
       } else {
         return createBlogPost(postData);
       }
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
-      toast.success(post ? 'Post updated successfully' : 'Post created successfully');
+      
+      // Update currentPostId if this was a new post
+      if (!currentPostId) {
+        setCurrentPostId(data.id);
+      }
+      
       setLastSaved(new Date());
-      if (!post) {
-        setOpen(false);
-        onSuccess();
+      
+      // Only close dialog and show success message for publish actions
+      if (data.is_published) {
+        toast.success(post ? 'Post updated successfully' : 'Post created successfully');
+        if (!post) {
+          setOpen(false);
+          onSuccess();
+        }
+      } else {
+        toast.success('Draft saved successfully');
       }
     },
     onError: (error) => {
@@ -90,9 +103,19 @@ export const EnhancedBlogPostForm = ({ post, onSuccess }: EnhancedBlogPostFormPr
   });
 
   const handleAutoSave = () => {
-    if (post && (formData.title || formData.content)) {
+    if (formData.title || formData.content) {
+      // Always save as draft for auto-save
       mutation.mutate({ ...formData, is_published: false });
     }
+  };
+
+  const handleSaveDraft = () => {
+    if (!formData.title) {
+      toast.error('Please enter a title to save as draft');
+      return;
+    }
+    // Explicitly save as draft
+    mutation.mutate({ ...formData, is_published: false });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -239,7 +262,12 @@ export const EnhancedBlogPostForm = ({ post, onSuccess }: EnhancedBlogPostFormPr
 
         <div className="flex justify-between items-center pt-4 border-t">
           <div className="flex items-center gap-2">
-            <Button type="button" variant="outline" onClick={handleAutoSave} disabled={mutation.isPending}>
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={handleSaveDraft} 
+              disabled={mutation.isPending}
+            >
               <Save className="h-4 w-4 mr-2" />
               Save Draft
             </Button>
