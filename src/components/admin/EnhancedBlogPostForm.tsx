@@ -1,21 +1,17 @@
 
-import React, { useState, useEffect } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Eye, Save, FileText } from 'lucide-react';
-import { toast } from 'sonner';
-import { RichTextEditor } from './RichTextEditor';
+import { Plus, FileText } from 'lucide-react';
+import { useBlogPostForm } from '@/hooks/useBlogPostForm';
+import { useAutoSave } from '@/hooks/useAutoSave';
 import { EnhancedSEOFields } from './EnhancedSEOFields';
 import { CategoryTagsManager } from './CategoryTagsManager';
 import { PublishingOptions } from './PublishingOptions';
 import { BlogPreview } from './BlogPreview';
-import { ImageUploader } from '@/components/ImageUploader';
-import { createBlogPost, updateBlogPost, generateSlug } from '@/services/blogService';
-import { getCurrentUser } from '@/services/supabaseService';
+import { BlogFormActions } from './BlogFormActions';
+import { BlogContentTab } from './BlogContentTab';
 
 interface EnhancedBlogPostFormProps {
   post?: any;
@@ -25,167 +21,30 @@ interface EnhancedBlogPostFormProps {
 export const EnhancedBlogPostForm = ({ post, onSuccess }: EnhancedBlogPostFormProps) => {
   const [open, setOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('content');
-  const [autoSlug, setAutoSlug] = useState(!post);
-  const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  const [currentPostId, setCurrentPostId] = useState(post?.id || null);
   const [showPreview, setShowPreview] = useState(false);
   
-  const [formData, setFormData] = useState({
-    title: post?.title || '',
-    slug: post?.slug || '',
-    excerpt: post?.excerpt || '',
-    content: post?.content || '',
-    category: post?.category || '',
-    tags: post?.tags || [],
-    image_url: post?.image_url || '',
-    read_time: post?.read_time || 5,
-    is_featured: post?.is_featured || false,
-    is_published: post?.is_published || false,
-    is_pinned: post?.is_pinned || false,
-    scheduled_date: post?.scheduled_date || '',
+  const {
+    formData,
+    updateFormData,
+    handleTitleChange,
+    handleAutoSave,
+    handleSaveDraft,
+    handlePublish,
+    handleUpdate,
+    autoSlug,
+    lastSaved,
+    currentPostId,
+    isLoading,
+  } = useBlogPostForm(post, () => {
+    setOpen(false);
+    onSuccess();
   });
 
-  const queryClient = useQueryClient();
-
-  // Update formData when post prop changes
-  useEffect(() => {
-    if (post) {
-      setFormData({
-        title: post.title || '',
-        slug: post.slug || '',
-        excerpt: post.excerpt || '',
-        content: post.content || '',
-        category: post.category || '',
-        tags: post.tags || [],
-        image_url: post.image_url || '',
-        read_time: post.read_time || 5,
-        is_featured: post.is_featured || false,
-        is_published: post.is_published || false,
-        is_pinned: post.is_pinned || false,
-        scheduled_date: post.scheduled_date || '',
-      });
-      setCurrentPostId(post.id);
-    }
-  }, [post]);
-
-  // Auto-save functionality
-  useEffect(() => {
-    if (!open) return;
-    
-    const autoSaveInterval = setInterval(() => {
-      if (formData.title || formData.content) {
-        handleAutoSave();
-      }
-    }, 30000); // Auto-save every 30 seconds
-
-    return () => clearInterval(autoSaveInterval);
-  }, [open, formData]);
-
-  const mutation = useMutation({
-    mutationFn: async (data: any) => {
-      const user = await getCurrentUser();
-      if (!user) throw new Error('User not authenticated');
-
-      const postData = {
-        ...data,
-        author_id: user.id,
-        slug: data.slug || generateSlug(data.title),
-        updated_at: new Date().toISOString(),
-      };
-
-      if (currentPostId) {
-        return updateBlogPost(currentPostId, postData);
-      } else {
-        return createBlogPost(postData);
-      }
-    },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
-      
-      // Update currentPostId if this was a new post
-      if (!currentPostId) {
-        setCurrentPostId(data.id);
-      }
-      
-      setLastSaved(new Date());
-      
-      // Show appropriate success message
-      if (data.is_published) {
-        toast.success(currentPostId ? 'Post updated and published successfully' : 'Post created and published successfully');
-        setOpen(false);
-        onSuccess();
-      } else {
-        toast.success('Draft saved successfully');
-      }
-    },
-    onError: (error) => {
-      console.error('Error saving post:', error);
-      toast.error('Failed to save post. Please try again.');
-    },
+  useAutoSave({
+    enabled: open,
+    formData,
+    onAutoSave: handleAutoSave,
   });
-
-  const handleAutoSave = () => {
-    if ((formData.title || formData.content) && !mutation.isPending) {
-      // Always save as draft for auto-save
-      mutation.mutate({ ...formData, is_published: false });
-    }
-  };
-
-  const handleSaveDraft = () => {
-    if (!formData.title.trim()) {
-      toast.error('Please enter a title to save as draft');
-      return;
-    }
-    
-    // Explicitly save as draft
-    mutation.mutate({ ...formData, is_published: false });
-  };
-
-  const handlePublish = () => {
-    if (!formData.title.trim() || !formData.content.trim() || !formData.category.trim()) {
-      toast.error('Please fill in title, content, and category before publishing');
-      return;
-    }
-    
-    // Publish the post
-    mutation.mutate({ ...formData, is_published: true });
-  };
-
-  const handleUpdate = () => {
-    if (!formData.title.trim() || !formData.content.trim() || !formData.category.trim()) {
-      toast.error('Please fill in all required fields');
-      return;
-    }
-    
-    // Update with current publish status
-    mutation.mutate(formData);
-  };
-
-  const handleTitleChange = (value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      title: value,
-      ...(autoSlug && { slug: generateSlug(value) })
-    }));
-  };
-
-  const updateFormData = (updates: Partial<typeof formData>) => {
-    setFormData(prev => ({ ...prev, ...updates }));
-  };
-
-  // Calculate estimated read time based on content
-  useEffect(() => {
-    if (formData.content) {
-      const wordsPerMinute = 200;
-      const textContent = formData.content.replace(/<[^>]*>/g, ''); // Strip HTML
-      const wordCount = textContent.split(/\s+/).filter(word => word.length > 0).length;
-      const estimatedTime = Math.max(1, Math.ceil(wordCount / wordsPerMinute));
-      
-      if (estimatedTime !== formData.read_time) {
-        updateFormData({ read_time: estimatedTime });
-      }
-    }
-  }, [formData.content]);
 
   return (
     <>
@@ -223,38 +82,15 @@ export const EnhancedBlogPostForm = ({ post, onSuccess }: EnhancedBlogPostFormPr
             </TabsList>
 
             <div className="flex-1 overflow-y-auto">
-              <TabsContent value="content" className="space-y-6 p-1">
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="title">Post Title *</Label>
-                    <Input
-                      id="title"
-                      value={formData.title}
-                      onChange={(e) => handleTitleChange(e.target.value)}
-                      placeholder="Enter an engaging title for your blog post"
-                      className="text-lg font-semibold"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <Label>Featured Image</Label>
-                    <ImageUploader
-                      value={formData.image_url}
-                      onChange={(url) => updateFormData({ image_url: url })}
-                      label="Upload featured image for your blog post"
-                    />
-                  </div>
-
-                  <div>
-                    <Label>Content *</Label>
-                    <RichTextEditor
-                      content={formData.content}
-                      onChange={(content) => updateFormData({ content })}
-                      placeholder="Start writing your amazing blog post..."
-                    />
-                  </div>
-                </div>
+              <TabsContent value="content">
+                <BlogContentTab
+                  title={formData.title}
+                  content={formData.content}
+                  imageUrl={formData.image_url}
+                  onTitleChange={handleTitleChange}
+                  onContentChange={(content) => updateFormData({ content })}
+                  onImageChange={(image_url) => updateFormData({ image_url })}
+                />
               </TabsContent>
 
               <TabsContent value="seo" className="space-y-6 p-1">
@@ -263,7 +99,7 @@ export const EnhancedBlogPostForm = ({ post, onSuccess }: EnhancedBlogPostFormPr
                   slug={formData.slug}
                   excerpt={formData.excerpt}
                   content={formData.content}
-                  onTitleChange={(title) => handleTitleChange(title)}
+                  onTitleChange={handleTitleChange}
                   onSlugChange={(slug) => updateFormData({ slug })}
                   onExcerptChange={(excerpt) => updateFormData({ excerpt })}
                   autoSlug={autoSlug}
@@ -296,42 +132,15 @@ export const EnhancedBlogPostForm = ({ post, onSuccess }: EnhancedBlogPostFormPr
             </div>
           </Tabs>
 
-          <div className="flex justify-between items-center pt-4 border-t">
-            <div className="flex items-center gap-2">
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={handleSaveDraft} 
-                disabled={mutation.isPending}
-              >
-                <Save className="h-4 w-4 mr-2" />
-                Save Draft
-              </Button>
-              <Button 
-                type="button" 
-                variant="outline"
-                onClick={() => setShowPreview(true)}
-              >
-                <Eye className="h-4 w-4 mr-2" />
-                Preview
-              </Button>
-            </div>
-            
-            <div className="flex gap-2">
-              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-                Cancel
-              </Button>
-              {post ? (
-                <Button onClick={handleUpdate} disabled={mutation.isPending}>
-                  {mutation.isPending ? 'Updating...' : 'Update Post'}
-                </Button>
-              ) : (
-                <Button onClick={handlePublish} disabled={mutation.isPending}>
-                  {mutation.isPending ? 'Publishing...' : 'Publish Post'}
-                </Button>
-              )}
-            </div>
-          </div>
+          <BlogFormActions
+            isEditing={!!post}
+            isLoading={isLoading}
+            onSaveDraft={handleSaveDraft}
+            onPreview={() => setShowPreview(true)}
+            onCancel={() => setOpen(false)}
+            onPublish={handlePublish}
+            onUpdate={handleUpdate}
+          />
         </DialogContent>
       </Dialog>
 
