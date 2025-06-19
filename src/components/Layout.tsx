@@ -46,7 +46,7 @@ export const Layout = ({ children }: LayoutProps) => {
                 <img 
                   src="/lovable-uploads/b06fc25d-6372-4cd6-ade8-3fc94c11b0b9.png" 
                   alt="Kids AI Resources Icon" 
-                  className="h-16 w-16 object-contain"
+                  className="h-24 w-24 object-contain"
                   style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }}
                 />
                 <div className="hidden sm:block">
