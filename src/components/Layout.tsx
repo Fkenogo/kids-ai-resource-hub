@@ -43,8 +43,16 @@ export const Layout = ({ children }: LayoutProps) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center">
-              <Link to="/" className="flex items-center space-x-2">
-                <span className="text-xl font-bold gradient-text">Kids AI Resources</span>
+              <Link to="/" className="flex items-center space-x-3">
+                <img 
+                  src="/lovable-uploads/cf33db98-fcc1-458b-acf9-a904b0fc38a2.png" 
+                  alt="Kids AI Resources Logo" 
+                  className="h-10 w-auto"
+                />
+                <div className="hidden sm:block">
+                  <div className="text-xl font-bold brand-gradient-text">Kids AI Resources</div>
+                  <div className="text-xs text-brand-secondary">Helping Parents Teach AI</div>
+                </div>
               </Link>
             </div>
             
@@ -53,13 +61,13 @@ export const Layout = ({ children }: LayoutProps) => {
                 <Link key={link.path} to={link.path}>
                   <Button 
                     variant={isActive(link.path) ? "default" : "ghost"}
-                    className="relative"
+                    className="relative hover:bg-brand-purple/10 hover:text-brand-purple transition-colors"
                   >
                     {link.label}
                     {isActive(link.path) && (
                       <m.div
                         layoutId="nav-indicator"
-                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
+                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-gradient"
                         initial={false}
                         transition={{ type: "spring", bounce: 0.25, duration: 0.5 }}
                       />
@@ -73,9 +81,9 @@ export const Layout = ({ children }: LayoutProps) => {
               {isAuthenticated ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="flex items-center gap-2">
-                      <User className="h-4 w-4" />
-                      {user?.email?.split('@')[0] || 'User'}
+                    <Button variant="outline" className="flex items-center gap-2 border-brand-purple/20 hover:bg-brand-purple/5">
+                      <User className="h-4 w-4 text-brand-purple" />
+                      <span className="text-brand-purple">{user?.email?.split('@')[0] || 'User'}</span>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
@@ -87,10 +95,10 @@ export const Layout = ({ children }: LayoutProps) => {
                 </DropdownMenu>
               ) : (
                 <>
-                  <Button variant="outline" asChild>
+                  <Button variant="outline" asChild className="border-brand-purple/20 hover:bg-brand-purple/5 text-brand-purple">
                     <Link to="/login">Login</Link>
                   </Button>
-                  <Button asChild>
+                  <Button asChild className="bg-brand-gradient hover:opacity-90 text-white">
                     <Link to="/signup">Sign Up</Link>
                   </Button>
                 </>
@@ -108,17 +116,24 @@ export const Layout = ({ children }: LayoutProps) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-3 gap-8">
             <div>
-              <h3 className="text-lg font-semibold mb-4">Kids AI Resources</h3>
+              <div className="flex items-center space-x-3 mb-4">
+                <img 
+                  src="/lovable-uploads/cf33db98-fcc1-458b-acf9-a904b0fc38a2.png" 
+                  alt="Kids AI Resources Logo" 
+                  className="h-8 w-auto"
+                />
+                <h3 className="text-lg font-semibold brand-gradient-text">Kids AI Resources</h3>
+              </div>
               <p className="text-muted-foreground">
                 Helping parents discover the best AI learning resources for their children.
               </p>
             </div>
             <div>
-              <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
+              <h3 className="text-lg font-semibold mb-4 text-brand-purple">Quick Links</h3>
               <ul className="space-y-2">
                 {navLinks.map(link => (
                   <li key={link.path}>
-                    <Link to={link.path} className="text-muted-foreground hover:text-foreground transition-colors">
+                    <Link to={link.path} className="text-muted-foreground hover:text-brand-purple transition-colors">
                       {link.label}
                     </Link>
                   </li>
@@ -126,15 +141,15 @@ export const Layout = ({ children }: LayoutProps) => {
               </ul>
             </div>
             <div>
-              <h3 className="text-lg font-semibold mb-4">Legal</h3>
+              <h3 className="text-lg font-semibold mb-4 text-brand-purple">Legal</h3>
               <ul className="space-y-2">
                 <li>
-                  <Link to="/privacy" className="text-muted-foreground hover:text-foreground transition-colors">
+                  <Link to="/privacy" className="text-muted-foreground hover:text-brand-purple transition-colors">
                     Privacy Policy
                   </Link>
                 </li>
                 <li>
-                  <Link to="/terms" className="text-muted-foreground hover:text-foreground transition-colors">
+                  <Link to="/terms" className="text-muted-foreground hover:text-brand-purple transition-colors">
                     Terms of Service
                   </Link>
                 </li>

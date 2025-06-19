@@ -65,7 +65,13 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				// Brand colors from logo
+				'brand-purple': 'hsl(var(--brand-purple))',
+				'brand-teal': 'hsl(var(--brand-teal))',
+				'brand-green': 'hsl(var(--brand-green))',
+				'brand-dark': 'hsl(var(--brand-dark))',
+				'brand-secondary': 'hsl(var(--brand-secondary))',
 			},
 			fontSize: {
 				'display-large': ['4rem', { lineHeight: '1.1', letterSpacing: '-0.02em', fontWeight: '700' }],
