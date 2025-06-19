@@ -43,11 +43,11 @@ export const Layout = ({ children }: LayoutProps) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center">
-              <Link to="/" className="flex items-center space-x-3">
+              <Link to="/" className="flex items-center space-x-4">
                 <img 
-                  src="/lovable-uploads/cf33db98-fcc1-458b-acf9-a904b0fc38a2.png" 
-                  alt="Kids AI Resources Logo" 
-                  className="h-10 w-auto"
+                  src="/lovable-uploads/b06fc25d-6372-4cd6-ade8-3fc94c11b0b9.png" 
+                  alt="Kids AI Resources Icon" 
+                  className="h-12 w-12"
                 />
                 <div className="hidden sm:block">
                   <div className="text-xl font-bold brand-gradient-text">Kids AI Resources</div>
@@ -118,9 +118,9 @@ export const Layout = ({ children }: LayoutProps) => {
             <div>
               <div className="flex items-center space-x-3 mb-4">
                 <img 
-                  src="/lovable-uploads/cf33db98-fcc1-458b-acf9-a904b0fc38a2.png" 
-                  alt="Kids AI Resources Logo" 
-                  className="h-8 w-auto"
+                  src="/lovable-uploads/b06fc25d-6372-4cd6-ade8-3fc94c11b0b9.png" 
+                  alt="Kids AI Resources Icon" 
+                  className="h-10 w-10"
                 />
                 <h3 className="text-lg font-semibold brand-gradient-text">Kids AI Resources</h3>
               </div>
