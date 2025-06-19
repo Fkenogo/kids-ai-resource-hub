@@ -33,15 +33,20 @@ const LatestBlogPostsSection = () => {
   }
 
   return (
-    <section className="py-16">
+    <section className="py-12 md:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl md:text-3xl font-semibold">Latest Articles</h2>
-          <Button variant="outline" asChild>
-            <Link to="/blog">View All</Link>
-          </Button>
+        <div className="text-center mb-8 md:mb-12">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold gradient-text mb-3">Latest Articles</h2>
+          <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
+            Stay updated with the latest insights, tips, and trends in AI education
+          </p>
         </div>
         <BlogGrid posts={transformedPosts} columns={2} />
+        <div className="text-center mt-6 md:mt-8">
+          <Button variant="outline" size="lg" asChild>
+            <Link to="/blog">View All Articles</Link>
+          </Button>
+        </div>
       </div>
     </section>
   );

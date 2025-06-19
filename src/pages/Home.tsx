@@ -55,19 +55,11 @@ const Home = () => {
   return (
     <Layout>
       <EnhancedHeroSection />
-      <div className="enhanced-section">
+      <div className="space-y-16 md:space-y-20">
         <FeaturedResourcesSection featuredResources={featuredResources} />
-      </div>
-      <div className="enhanced-section">
         <TopRatedResourcesSection topRatedResources={mostPopularResources} />
-      </div>
-      <div className="enhanced-section">
         <RecentlyAddedSection recentResources={recentResources} />
-      </div>
-      <div className="enhanced-section">
         <AgeRangeQuickFiltersSection />
-      </div>
-      <div className="enhanced-section">
         <LatestBlogPostsSection />
       </div>
       <CallToActionSection />

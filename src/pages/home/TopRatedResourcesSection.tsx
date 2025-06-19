@@ -10,23 +10,23 @@ interface Props {
 }
 
 const TopRatedResourcesSection = ({ topRatedResources }: Props) => (
-  <section className="py-20 relative overflow-hidden">
+  <section className="py-12 md:py-16 relative overflow-hidden">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
       <m.div 
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         viewport={{ once: true }}
-        className="text-center mb-12"
+        className="text-center mb-8 md:mb-12"
       >
-        <div className="flex items-center justify-center gap-2 mb-4">
-          <TrendingUp className="h-6 w-6 text-orange-600" />
-          <span className="text-orange-600 font-semibold">Trending</span>
+        <div className="flex items-center justify-center gap-2 mb-3">
+          <TrendingUp className="h-5 w-5 text-orange-600" />
+          <span className="text-orange-600 font-semibold text-sm">Trending</span>
         </div>
-        <h2 className="text-3xl md:text-4xl font-bold gradient-text mb-4">
+        <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold gradient-text mb-3">
           Most Popular
         </h2>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+        <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
           The most viewed and loved AI learning resources by our community
         </p>
       </m.div>
@@ -45,7 +45,7 @@ const TopRatedResourcesSection = ({ topRatedResources }: Props) => (
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.4 }}
         viewport={{ once: true }}
-        className="text-center mt-8"
+        className="text-center mt-6 md:mt-8"
       >
         <Button 
           variant="outline" 
