@@ -1,4 +1,5 @@
 
+
 import { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -45,7 +46,7 @@ export const Layout = ({ children }: LayoutProps) => {
             <div className="flex items-center">
               <Link to="/" className="flex items-center space-x-4">
                 <img 
-                  src="/lovable-uploads/f33ffa24-d68a-4003-9d9f-f9dc8236fa82.png" 
+                  src="/lovable-uploads/39242925-198c-4037-a063-fac06d48822d.png" 
                   alt="Kids AI Resources Icon" 
                   className="h-24 w-24 object-contain"
                   style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }}
@@ -119,7 +120,7 @@ export const Layout = ({ children }: LayoutProps) => {
             <div>
               <div className="flex items-center space-x-3 mb-4">
                 <img 
-                  src="/lovable-uploads/f33ffa24-d68a-4003-9d9f-f9dc8236fa82.png" 
+                  src="/lovable-uploads/39242925-198c-4037-a063-fac06d48822d.png" 
                   alt="Kids AI Resources Icon" 
                   className="h-12 w-12 object-contain"
                 />
@@ -165,3 +166,4 @@ export const Layout = ({ children }: LayoutProps) => {
     </div>
   );
 };
+
