@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Database } from "@/integrations/supabase/types";
 import { Resource, Review, Comment, User } from "@/types";
@@ -10,12 +11,17 @@ type CommentRow = Tables['resource_comments']['Row'];
 
 // Auth functions
 export const getCurrentUser = async () => {
-  const { data: { user }, error } = await supabase.auth.getUser();
-  if (error) {
-    console.error('Error getting current user:', error);
+  try {
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error) {
+      console.error('Error getting current user:', error);
+      return null;
+    }
+    return user;
+  } catch (err) {
+    console.error('Unexpected error in getCurrentUser:', err);
     return null;
   }
-  return user;
 };
 
 export const signUp = async (email: string, password: string, metadata?: any) => {

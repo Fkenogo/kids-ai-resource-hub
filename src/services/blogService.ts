@@ -129,3 +129,21 @@ export const generateSlug = (title: string): string => {
     .replace(/[^\w ]+/g, '')
     .replace(/ +/g, '-');
 };
+
+// Get current user with better error handling
+export const getCurrentUserForBlog = async () => {
+  try {
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error) {
+      console.error('Auth error:', error);
+      throw new Error('Authentication failed');
+    }
+    if (!user) {
+      throw new Error('No authenticated user found');
+    }
+    return user;
+  } catch (error) {
+    console.error('Error getting current user:', error);
+    throw error;
+  }
+};

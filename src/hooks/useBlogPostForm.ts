@@ -2,8 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { createBlogPost, updateBlogPost, generateSlug } from '@/services/blogService';
-import { getCurrentUser } from '@/services/supabaseService';
+import { createBlogPost, updateBlogPost, generateSlug, getCurrentUserForBlog } from '@/services/blogService';
 
 interface BlogPostFormData {
   title: string;
@@ -80,26 +79,29 @@ export const useBlogPostForm = (post?: any, onSuccess?: () => void) => {
     mutationFn: async (data: BlogPostFormData & { is_published: boolean }) => {
       console.log('Saving blog post with data:', data);
       
-      const user = await getCurrentUser();
-      if (!user) {
-        throw new Error('User not authenticated');
-      }
+      try {
+        const user = await getCurrentUserForBlog();
+        console.log('User authenticated:', user.id);
 
-      const postData = {
-        ...data,
-        author_id: user.id,
-        slug: data.slug || generateSlug(data.title),
-        updated_at: new Date().toISOString(),
-      };
+        const postData = {
+          ...data,
+          author_id: user.id,
+          slug: data.slug || generateSlug(data.title),
+          updated_at: new Date().toISOString(),
+        };
 
-      console.log('Final post data:', postData);
+        console.log('Final post data:', postData);
 
-      if (currentPostId) {
-        console.log('Updating existing post:', currentPostId);
-        return updateBlogPost(currentPostId, postData);
-      } else {
-        console.log('Creating new post');
-        return createBlogPost(postData);
+        if (currentPostId) {
+          console.log('Updating existing post:', currentPostId);
+          return updateBlogPost(currentPostId, postData);
+        } else {
+          console.log('Creating new post');
+          return createBlogPost(postData);
+        }
+      } catch (authError) {
+        console.error('Authentication failed:', authError);
+        throw new Error('You must be logged in to save blog posts. Please refresh the page and try again.');
       }
     },
     onSuccess: (data) => {
@@ -119,9 +121,10 @@ export const useBlogPostForm = (post?: any, onSuccess?: () => void) => {
         toast.success('Draft saved successfully');
       }
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error('Error saving post:', error);
-      toast.error('Failed to save post. Please try again.');
+      const errorMessage = error?.message || 'Failed to save post. Please try again.';
+      toast.error(errorMessage);
     },
   });
 
