@@ -81,6 +81,7 @@ export type Database = {
           is_published: boolean | null
           published_at: string | null
           read_time: number | null
+          scheduled_date: string | null
           slug: string
           tags: string[] | null
           title: string
@@ -100,6 +101,7 @@ export type Database = {
           is_published?: boolean | null
           published_at?: string | null
           read_time?: number | null
+          scheduled_date?: string | null
           slug: string
           tags?: string[] | null
           title: string
@@ -119,6 +121,7 @@ export type Database = {
           is_published?: boolean | null
           published_at?: string | null
           read_time?: number | null
+          scheduled_date?: string | null
           slug?: string
           tags?: string[] | null
           title?: string

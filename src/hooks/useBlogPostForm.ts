@@ -83,10 +83,16 @@ export const useBlogPostForm = (post?: any, onSuccess?: () => void) => {
         const user = await getCurrentUserForBlog();
         console.log('User authenticated:', user.id);
 
+        // Clean the scheduled_date - convert empty string to null
+        const cleanScheduledDate = data.scheduled_date && data.scheduled_date.trim() !== '' 
+          ? data.scheduled_date 
+          : null;
+
         const postData = {
           ...data,
           author_id: user.id,
           slug: data.slug || generateSlug(data.title),
+          scheduled_date: cleanScheduledDate,
           updated_at: new Date().toISOString(),
         };
 
