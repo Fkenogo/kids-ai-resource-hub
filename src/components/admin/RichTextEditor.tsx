@@ -25,38 +25,57 @@ import { Maximize, Minimize, Search, RotateCcw, RotateCw } from 'lucide-react';
 
 const lowlight = createLowlight(common);
 
-// Enhanced extension for font size and line height with better preservation
+// Enhanced LineHeight extension
+const LineHeight = TextStyle.extend({
+  name: 'lineHeight',
+  
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      lineHeight: {
+        default: null,
+        parseHTML: element => {
+          const lineHeight = element.style.lineHeight;
+          return lineHeight || null;
+        },
+        renderHTML: attributes => {
+          if (!attributes.lineHeight) {
+            return {};
+          }
+          return {
+            style: `line-height: ${attributes.lineHeight}`,
+          };
+        },
+      },
+    };
+  },
+});
+
+// Enhanced extension for font size with better preservation
 const FontSize = TextStyle.extend({
+  name: 'fontSize',
+  
   addAttributes() {
     return {
       ...this.parent?.(),
       fontSize: {
         default: null,
-        parseHTML: element => element.style.fontSize,
+        parseHTML: element => {
+          const fontSize = element.style.fontSize;
+          return fontSize || null;
+        },
         renderHTML: attributes => {
           if (!attributes.fontSize) {
-            return {}
+            return {};
           }
           return {
             style: `font-size: ${attributes.fontSize}`,
-          }
+          };
         },
       },
-      lineHeight: {
-        default: null,
-        parseHTML: element => element.style.lineHeight,
-        renderHTML: attributes => {
-          if (!attributes.lineHeight) {
-            return {}
-          }
-          return {
-            style: `line-height: ${attributes.lineHeight}`,
-          }
-        },
-      },
-    }
+    };
   },
-})
+});
 
 interface RichTextEditorProps {
   content: string;
@@ -74,11 +93,16 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
       StarterKit.configure({
         bulletList: {
           keepMarks: true,
-          keepAttributes: false,
+          keepAttributes: true,
         },
         orderedList: {
           keepMarks: true,
-          keepAttributes: false,
+          keepAttributes: true,
+        },
+        paragraph: {
+          HTMLAttributes: {
+            class: 'editor-paragraph',
+          },
         },
         codeBlock: false, // We'll use CodeBlockLowlight instead
       }),
@@ -109,7 +133,9 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
         types: ['heading', 'paragraph'],
       }),
       Color,
+      TextStyle,
       FontSize,
+      LineHeight,
       FontFamily,
       Highlight.configure({
         multicolor: true,
@@ -135,6 +161,7 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
     content,
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
+      console.log('Editor content updated:', html);
       onChange(html);
       
       // Update word count and read time
@@ -145,7 +172,7 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
     },
     editorProps: {
       attributes: {
-        class: `prose prose-lg max-w-none focus:outline-none min-h-[400px] p-6 ${
+        class: `editor-content focus:outline-none min-h-[400px] p-6 ${
           isFullscreen ? 'min-h-[calc(100vh-200px)]' : ''
         }`,
         'data-placeholder': placeholder || 'Start writing your blog post...',
@@ -220,7 +247,7 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
       <div className={`${isFullscreen ? 'flex-1 overflow-auto' : ''}`}>
         <EditorContent 
           editor={editor}
-          className="prose prose-lg max-w-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:leading-relaxed [&_.ProseMirror_p]:leading-relaxed [&_.ProseMirror_h1]:leading-tight [&_.ProseMirror_h2]:leading-tight [&_.ProseMirror_h3]:leading-tight [&_.ProseMirror_ul]:leading-relaxed [&_.ProseMirror_ol]:leading-relaxed [&_.ProseMirror_li]:leading-relaxed [&_.ProseMirror_blockquote]:leading-relaxed [&_.ProseMirror_pre]:leading-normal"
+          className="editor-wrapper"
         />
       </div>
     </div>

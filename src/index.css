@@ -72,6 +72,72 @@ body {
   font-feature-settings: "rlig" 1, "calt" 1;
 }
 
+/* Enhanced Editor Styles - Preserve line spacing and formatting */
+.editor-wrapper {
+  @apply prose prose-lg max-w-none;
+}
+
+.editor-content {
+  line-height: inherit !important;
+}
+
+.editor-content .ProseMirror {
+  @apply outline-none;
+  line-height: inherit !important;
+}
+
+/* Preserve inline styles for line height and font sizes */
+.editor-content .ProseMirror p {
+  line-height: inherit !important;
+  margin-bottom: 1em;
+}
+
+.editor-content .ProseMirror p[style*="line-height"] {
+  line-height: inherit !important;
+}
+
+.editor-content .ProseMirror span[style*="line-height"] {
+  line-height: inherit !important;
+}
+
+.editor-content .ProseMirror span[style*="font-size"] {
+  font-size: inherit !important;
+}
+
+/* Ensure editor paragraphs maintain spacing */
+.editor-paragraph {
+  margin-bottom: 1em !important;
+  line-height: inherit !important;
+}
+
+/* Override prose styles that interfere with custom formatting */
+.editor-wrapper .prose p {
+  line-height: inherit !important;
+  margin-bottom: 1em !important;
+}
+
+.editor-wrapper .prose h1,
+.editor-wrapper .prose h2,
+.editor-wrapper .prose h3,
+.editor-wrapper .prose h4,
+.editor-wrapper .prose h5,
+.editor-wrapper .prose h6 {
+  line-height: inherit !important;
+}
+
+.editor-wrapper .prose ul,
+.editor-wrapper .prose ol {
+  line-height: inherit !important;
+}
+
+.editor-wrapper .prose li {
+  line-height: inherit !important;
+}
+
+.editor-wrapper .prose blockquote {
+  line-height: inherit !important;
+}
+
 /* Brand-specific styles */
 .brand-gradient-text {
   @apply bg-gradient-to-r from-brand-purple via-brand-teal to-brand-green text-transparent bg-clip-text;
