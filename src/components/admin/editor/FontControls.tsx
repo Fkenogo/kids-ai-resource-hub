@@ -46,8 +46,8 @@ export const FontControls = ({ editor }: FontControlsProps) => {
 
   const handleFontSizeChange = (size: string) => {
     if (size === 'custom') return;
-    // Use the custom command we registered
-    editor.chain().focus().setFontSize(size).run();
+    // Use TextStyle extension to apply font size
+    editor.chain().focus().updateAttributes('textStyle', { fontSize: size }).run();
   };
 
   const handleCustomFontSize = () => {
@@ -55,20 +55,20 @@ export const FontControls = ({ editor }: FontControlsProps) => {
       const size = customFontSize.includes('px') || customFontSize.includes('rem') || customFontSize.includes('em') 
         ? customFontSize 
         : `${customFontSize}px`;
-      editor.chain().focus().setFontSize(size).run();
+      editor.chain().focus().updateAttributes('textStyle', { fontSize: size }).run();
       setCustomFontSize('');
     }
   };
 
   const handleLineHeightChange = (lineHeight: string) => {
     if (lineHeight === 'custom') return;
-    // Use the custom command we registered
-    editor.chain().focus().setLineHeight(lineHeight).run();
+    // Use TextStyle extension to apply line height
+    editor.chain().focus().updateAttributes('textStyle', { lineHeight }).run();
   };
 
   const handleCustomLineHeight = () => {
     if (customLineHeight) {
-      editor.chain().focus().setLineHeight(customLineHeight).run();
+      editor.chain().focus().updateAttributes('textStyle', { lineHeight: customLineHeight }).run();
       setCustomLineHeight('');
     }
   };

@@ -25,74 +25,6 @@ import { Maximize, Minimize, Search, RotateCcw, RotateCw } from 'lucide-react';
 
 const lowlight = createLowlight(common);
 
-// Enhanced LineHeight extension with proper command registration
-const LineHeight = TextStyle.extend({
-  name: 'lineHeight',
-  
-  addAttributes() {
-    return {
-      ...this.parent?.(),
-      lineHeight: {
-        default: null,
-        parseHTML: element => {
-          const lineHeight = element.style.lineHeight;
-          return lineHeight || null;
-        },
-        renderHTML: attributes => {
-          if (!attributes.lineHeight) {
-            return {};
-          }
-          return {
-            style: `line-height: ${attributes.lineHeight}`,
-          };
-        },
-      },
-    };
-  },
-
-  addCommands() {
-    return {
-      setLineHeight: (lineHeight: string) => ({ commands }) => {
-        return commands.updateAttributes('textStyle', { lineHeight });
-      },
-    };
-  },
-});
-
-// Enhanced FontSize extension with proper command registration
-const FontSize = TextStyle.extend({
-  name: 'fontSize',
-  
-  addAttributes() {
-    return {
-      ...this.parent?.(),
-      fontSize: {
-        default: null,
-        parseHTML: element => {
-          const fontSize = element.style.fontSize;
-          return fontSize || null;
-        },
-        renderHTML: attributes => {
-          if (!attributes.fontSize) {
-            return {};
-          }
-          return {
-            style: `font-size: ${attributes.fontSize}`,
-          };
-        },
-      },
-    };
-  },
-
-  addCommands() {
-    return {
-      setFontSize: (fontSize: string) => ({ commands }) => {
-        return commands.updateAttributes('textStyle', { fontSize });
-      },
-    };
-  },
-});
-
 interface RichTextEditorProps {
   content: string;
   onChange: (content: string) => void;
@@ -150,8 +82,6 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
       }),
       Color,
       TextStyle,
-      FontSize,
-      LineHeight,
       FontFamily,
       Highlight.configure({
         multicolor: true,
