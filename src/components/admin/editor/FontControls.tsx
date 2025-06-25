@@ -46,6 +46,7 @@ export const FontControls = ({ editor }: FontControlsProps) => {
 
   const handleFontSizeChange = (size: string) => {
     if (size === 'custom') return;
+    // Use the custom command we registered
     editor.chain().focus().setFontSize(size).run();
   };
 
@@ -61,12 +62,13 @@ export const FontControls = ({ editor }: FontControlsProps) => {
 
   const handleLineHeightChange = (lineHeight: string) => {
     if (lineHeight === 'custom') return;
-    editor.chain().focus().updateAttributes('textStyle', { lineHeight }).run();
+    // Use the custom command we registered
+    editor.chain().focus().setLineHeight(lineHeight).run();
   };
 
   const handleCustomLineHeight = () => {
     if (customLineHeight) {
-      editor.chain().focus().updateAttributes('textStyle', { lineHeight: customLineHeight }).run();
+      editor.chain().focus().setLineHeight(customLineHeight).run();
       setCustomLineHeight('');
     }
   };

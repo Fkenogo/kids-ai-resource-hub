@@ -25,7 +25,7 @@ import { Maximize, Minimize, Search, RotateCcw, RotateCw } from 'lucide-react';
 
 const lowlight = createLowlight(common);
 
-// Enhanced LineHeight extension
+// Enhanced LineHeight extension with proper command registration
 const LineHeight = TextStyle.extend({
   name: 'lineHeight',
   
@@ -49,9 +49,17 @@ const LineHeight = TextStyle.extend({
       },
     };
   },
+
+  addCommands() {
+    return {
+      setLineHeight: (lineHeight: string) => ({ commands }) => {
+        return commands.updateAttributes('textStyle', { lineHeight });
+      },
+    };
+  },
 });
 
-// Enhanced extension for font size with better preservation
+// Enhanced FontSize extension with proper command registration
 const FontSize = TextStyle.extend({
   name: 'fontSize',
   
@@ -72,6 +80,14 @@ const FontSize = TextStyle.extend({
             style: `font-size: ${attributes.fontSize}`,
           };
         },
+      },
+    };
+  },
+
+  addCommands() {
+    return {
+      setFontSize: (fontSize: string) => ({ commands }) => {
+        return commands.updateAttributes('textStyle', { fontSize });
       },
     };
   },
@@ -172,7 +188,7 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
     },
     editorProps: {
       attributes: {
-        class: `editor-content focus:outline-none min-h-[400px] p-6 ${
+        class: `editor-content focus:outline-none min-h-[400px] p-6 preserve-formatting ${
           isFullscreen ? 'min-h-[calc(100vh-200px)]' : ''
         }`,
         'data-placeholder': placeholder || 'Start writing your blog post...',
