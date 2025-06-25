@@ -10,7 +10,8 @@ import { Type, Palette, LineChart } from 'lucide-react';
 
 const fonts = [
   'Inter', 'Arial', 'Georgia', 'Times New Roman', 'Helvetica', 
-  'Verdana', 'Roboto', 'Open Sans', 'Lato', 'Montserrat', 'Playfair Display'
+  'Verdana', 'Roboto', 'Open Sans', 'Lato', 'Montserrat', 
+  'Playfair Display', 'Source Sans Pro', 'Ubuntu', 'Nunito'
 ];
 
 const fontSizes = [
@@ -18,8 +19,9 @@ const fontSizes = [
   { label: 'Normal', value: '16px' },
   { label: 'Medium', value: '18px' },
   { label: 'Large', value: '24px' },
-  { label: 'Extra Large', value: '32px' },
-  { label: 'Huge', value: '48px' }
+  { label: 'X-Large', value: '32px' },
+  { label: 'XX-Large', value: '48px' },
+  { label: 'Custom', value: 'custom' }
 ];
 
 const lineHeights = [
@@ -38,11 +40,7 @@ const colors = [
   '#FFFF00', '#FFFF44', '#FFFF66', '#FFFF88', '#FFFFAA', '#FFFFCC',
   '#FF00FF', '#FF44FF', '#FF66FF', '#FF88FF', '#FFAAFF', '#FFCCFF',
   '#00FFFF', '#44FFFF', '#66FFFF', '#88FFFF', '#AAFFFF', '#CCFFFF',
-  '#FFA500', '#FFB144', '#FFBD66', '#FFC988', '#FFD5AA', '#FFE1CC',
-  '#800080', '#9944BB', '#B366DD', '#CC88EE', '#DDAAFF', '#EECCFF',
-  '#008000', '#44AA44', '#66BB66', '#88CC88', '#AADDAA', '#CCEECC',
-  '#8B4513', '#A0522D', '#CD853F', '#DEB887', '#F5DEB3', '#FFEFD5',
-  '#2F4F4F', '#696969', '#708090', '#778899', '#B0C4DE', '#E6E6FA'
+  '#FFA500', '#FFB144', '#FFBD66', '#FFC988', '#FFD5AA', '#FFE1CC'
 ];
 
 interface FontControlsProps {
@@ -51,11 +49,27 @@ interface FontControlsProps {
 
 export const FontControls = ({ editor }: FontControlsProps) => {
   const [fontSize, setFontSize] = useState('16px');
+  const [customFontSize, setCustomFontSize] = useState('');
   const [lineHeight, setLineHeight] = useState('1.5');
 
   const applyFontSize = (size: string) => {
+    if (size === 'custom') {
+      return; // Let user input custom size
+    }
     setFontSize(size);
     editor.chain().focus().setMark('textStyle', { fontSize: size }).run();
+  };
+
+  const applyCustomFontSize = () => {
+    if (customFontSize) {
+      let sizeValue = customFontSize;
+      // Add px if no unit is specified and it's a number
+      if (/^\d+$/.test(customFontSize)) {
+        sizeValue = customFontSize + 'px';
+      }
+      setFontSize(sizeValue);
+      editor.chain().focus().setMark('textStyle', { fontSize: sizeValue }).run();
+    }
   };
 
   const applyLineHeight = (height: string) => {
@@ -94,18 +108,45 @@ export const FontControls = ({ editor }: FontControlsProps) => {
       </Popover>
 
       {/* Font Size */}
-      <Select value={fontSize} onValueChange={applyFontSize}>
-        <SelectTrigger className="w-24 h-8">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {fontSizes.map((size) => (
-            <SelectItem key={size.value} value={size.value}>
-              {size.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="ghost" size="sm" title="Font Size">
+            <span className="text-xs font-mono">Aa</span>
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-48">
+          <div className="space-y-3">
+            <Label>Font Size</Label>
+            <Select value={fontSize} onValueChange={applyFontSize}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {fontSizes.map((size) => (
+                  <SelectItem key={size.value} value={size.value}>
+                    {size.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            
+            <div className="space-y-2">
+              <Label>Custom Size</Label>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="18px or 1.2rem"
+                  value={customFontSize}
+                  onChange={(e) => setCustomFontSize(e.target.value)}
+                  className="text-sm"
+                />
+                <Button size="sm" onClick={applyCustomFontSize}>
+                  Apply
+                </Button>
+              </div>
+            </div>
+          </div>
+        </PopoverContent>
+      </Popover>
 
       {/* Line Height */}
       <Popover>
