@@ -2,12 +2,13 @@
 import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Shield, Database, Users, Package } from 'lucide-react';
+import { Shield, Database, Users, Package, MessageSquare } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { ResourceManagement } from '@/components/admin/ResourceManagement';
 import { BlogManagement } from '@/components/admin/BlogManagement';
 import { SQLTemplateGenerator } from '@/components/admin/SQLTemplateGenerator';
+import { CommunityManagement } from '@/components/admin/CommunityManagement';
 
 const Admin = () => {
   // Fetch resource count
@@ -43,6 +44,17 @@ const Admin = () => {
     },
   });
 
+  // Fetch community posts count
+  const { data: communityPostsCount } = useQuery({
+    queryKey: ['admin-community-posts-count'],
+    queryFn: async () => {
+      const { count } = await supabase
+        .from('community_posts')
+        .select('*', { count: 'exact', head: true });
+      return count || 0;
+    },
+  });
+
   return (
     <Layout>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -57,7 +69,7 @@ const Admin = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Resources</CardTitle>
@@ -86,6 +98,19 @@ const Admin = () => {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Community Posts</CardTitle>
+                <MessageSquare className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{communityPostsCount ?? 'Loading...'}</div>
+                <p className="text-xs text-muted-foreground">
+                  Community discussions
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Products</CardTitle>
                 <Package className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
@@ -99,14 +124,19 @@ const Admin = () => {
           </div>
 
           <Tabs defaultValue="resources" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="resources">Resource Management</TabsTrigger>
+              <TabsTrigger value="community">Community Management</TabsTrigger>
               <TabsTrigger value="blog">Blog Management</TabsTrigger>
               <TabsTrigger value="sql-generator">SQL Generator</TabsTrigger>
             </TabsList>
             
             <TabsContent value="resources" className="mt-6">
               <ResourceManagement />
+            </TabsContent>
+            
+            <TabsContent value="community" className="mt-6">
+              <CommunityManagement />
             </TabsContent>
             
             <TabsContent value="blog" className="mt-6">

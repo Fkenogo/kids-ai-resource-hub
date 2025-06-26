@@ -1,50 +1,42 @@
 
-import { useState } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import React, { useState } from 'react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { X, Image, Tag } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { X, Plus } from 'lucide-react';
+import { useCreatePost } from '@/hooks/useCommunityData';
 
 interface CreatePostDialogProps {
   open: boolean;
-  onClose: () => void;
+  onOpenChange: (open: boolean) => void;
 }
 
-const categories = [
-  { value: 'getting-started', label: 'Getting Started' },
-  { value: 'age-specific', label: 'Age-Specific' },
-  { value: 'troubleshooting', label: 'Troubleshooting' },
-  { value: 'project-showcase', label: 'Project Showcase' },
-  { value: 'curriculum-ideas', label: 'Curriculum Ideas' },
-  { value: 'resource-requests', label: 'Resource Requests' },
-];
-
-export const CreatePostDialog = ({ open, onClose }: CreatePostDialogProps) => {
+export const CreatePostDialog = ({ open, onOpenChange }: CreatePostDialogProps) => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('');
   const [tags, setTags] = useState<string[]>([]);
-  const [currentTag, setCurrentTag] = useState('');
+  const [tagInput, setTagInput] = useState('');
+  
+  const createPostMutation = useCreatePost();
+
+  const categories = [
+    { value: 'getting-started', label: 'Getting Started' },
+    { value: 'age-specific', label: 'Age-Specific' },
+    { value: 'troubleshooting', label: 'Troubleshooting' },
+    { value: 'project-showcase', label: 'Project Showcase' },
+    { value: 'curriculum-ideas', label: 'Curriculum Ideas' },
+    { value: 'resource-requests', label: 'Resource Requests' },
+  ];
 
   const handleAddTag = () => {
-    if (currentTag.trim() && !tags.includes(currentTag.trim())) {
-      setTags([...tags, currentTag.trim()]);
-      setCurrentTag('');
+    if (tagInput.trim() && !tags.includes(tagInput.trim())) {
+      setTags([...tags, tagInput.trim()]);
+      setTagInput('');
     }
   };
 
@@ -52,10 +44,32 @@ export const CreatePostDialog = ({ open, onClose }: CreatePostDialogProps) => {
     setTags(tags.filter(tag => tag !== tagToRemove));
   };
 
-  const handleSubmit = () => {
-    // Handle post submission here
-    console.log({ title, content, category, tags });
-    onClose();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!title.trim() || !content.trim() || !category) {
+      return;
+    }
+
+    try {
+      await createPostMutation.mutateAsync({
+        title: title.trim(),
+        content: content.trim(),
+        category,
+        tags,
+      });
+
+      // Reset form
+      setTitle('');
+      setContent('');
+      setCategory('');
+      setTags([]);
+      setTagInput('');
+      
+      onOpenChange(false);
+    } catch (error) {
+      console.error('Error creating post:', error);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -66,34 +80,35 @@ export const CreatePostDialog = ({ open, onClose }: CreatePostDialogProps) => {
   };
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Create New Post</DialogTitle>
+          <DialogDescription>
+            Share your knowledge, ask questions, or showcase your projects with the community.
+          </DialogDescription>
         </DialogHeader>
         
-        <div className="space-y-6">
-          {/* Title */}
-          <div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
             <Label htmlFor="title">Title</Label>
             <Input
               id="title"
-              placeholder="What's your question or topic?"
+              placeholder="What's your post about?"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="mt-1"
+              required
             />
           </div>
-          
-          {/* Category */}
-          <div>
-            <Label>Category</Label>
-            <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger className="mt-1">
+
+          <div className="space-y-2">
+            <Label htmlFor="category">Category</Label>
+            <Select value={category} onValueChange={setCategory} required>
+              <SelectTrigger>
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
               <SelectContent>
-                {categories.map(cat => (
+                {categories.map((cat) => (
                   <SelectItem key={cat.value} value={cat.value}>
                     {cat.label}
                   </SelectItem>
@@ -101,49 +116,40 @@ export const CreatePostDialog = ({ open, onClose }: CreatePostDialogProps) => {
               </SelectContent>
             </Select>
           </div>
-          
-          {/* Content */}
-          <div>
+
+          <div className="space-y-2">
             <Label htmlFor="content">Content</Label>
             <Textarea
               id="content"
-              placeholder="Share your question, experience, or project details..."
+              placeholder="Share your thoughts, questions, or showcase your work..."
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              className="mt-1 min-h-32"
+              className="min-h-[120px]"
+              required
             />
           </div>
-          
-          {/* Tags */}
-          <div>
-            <Label>Tags</Label>
-            <div className="flex items-center space-x-2 mt-1">
-              <div className="flex-1 flex items-center space-x-2">
-                <Tag className="h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Add tags (press Enter)"
-                  value={currentTag}
-                  onChange={(e) => setCurrentTag(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                />
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleAddTag}
-              >
-                Add
+
+          <div className="space-y-2">
+            <Label htmlFor="tags">Tags</Label>
+            <div className="flex gap-2">
+              <Input
+                id="tags"
+                placeholder="Add tags (press Enter)"
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                onKeyPress={handleKeyPress}
+              />
+              <Button type="button" size="sm" onClick={handleAddTag}>
+                <Plus className="h-4 w-4" />
               </Button>
             </div>
-            
             {tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-2">
-                {tags.map(tag => (
-                  <Badge key={tag} variant="secondary" className="flex items-center space-x-1">
-                    <span>#{tag}</span>
-                    <X
-                      className="h-3 w-3 cursor-pointer"
+              <div className="flex flex-wrap gap-2">
+                {tags.map((tag) => (
+                  <Badge key={tag} variant="secondary" className="flex items-center gap-1">
+                    {tag}
+                    <X 
+                      className="h-3 w-3 cursor-pointer" 
                       onClick={() => handleRemoveTag(tag)}
                     />
                   </Badge>
@@ -151,34 +157,19 @@ export const CreatePostDialog = ({ open, onClose }: CreatePostDialogProps) => {
               </div>
             )}
           </div>
-          
-          {/* Image Upload */}
-          <div>
-            <Label>Images (Optional)</Label>
-            <div className="mt-1 border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
-              <Image className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-              <p className="text-sm text-muted-foreground">
-                Drag and drop images here, or click to browse
-              </p>
-              <Button variant="outline" size="sm" className="mt-2">
-                Choose Files
-              </Button>
-            </div>
-          </div>
-          
-          {/* Actions */}
-          <div className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={onClose}>
+
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
             <Button 
-              onClick={handleSubmit}
-              disabled={!title.trim() || !content.trim() || !category}
+              type="submit" 
+              disabled={createPostMutation.isPending || !title.trim() || !content.trim() || !category}
             >
-              Create Post
+              {createPostMutation.isPending ? 'Creating...' : 'Create Post'}
             </Button>
-          </div>
-        </div>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
