@@ -20,8 +20,8 @@ import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import Youtube from '@tiptap/extension-youtube';
 import { common, createLowlight } from 'lowlight';
 import { EditorToolbar } from './editor/EditorToolbar';
-import { Button } from '@/components/ui/button';
-import { Maximize, Minimize, Search, RotateCcw, RotateCw } from 'lucide-react';
+import { EditorActions } from './editor/EditorActions';
+import { EditorStats } from './editor/EditorStats';
 
 const lowlight = createLowlight(common);
 
@@ -52,7 +52,7 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
             class: 'editor-paragraph',
           },
         },
-        codeBlock: false, // We'll use CodeBlockLowlight instead
+        codeBlock: false,
       }),
       Image.configure({
         HTMLAttributes: {
@@ -110,11 +110,10 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
       console.log('Editor content updated:', html);
       onChange(html);
       
-      // Update word count and read time
       const text = editor.getText();
       const words = text.trim().split(/\s+/).filter(word => word.length > 0).length;
       setWordCount(words);
-      setReadTime(Math.max(1, Math.ceil(words / 200))); // 200 words per minute
+      setReadTime(Math.max(1, Math.ceil(words / 200)));
     },
     editorProps: {
       attributes: {
@@ -134,60 +133,17 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
     setIsFullscreen(!isFullscreen);
   };
 
-  const clearFormatting = () => {
-    editor.chain().focus().clearNodes().unsetAllMarks().run();
-  };
-
   return (
     <div className={`border rounded-lg ${isFullscreen ? 'fixed inset-4 z-50 bg-white shadow-2xl' : ''}`}>
       <EditorToolbar editor={editor} />
       
-      {/* Editor Actions Bar */}
       <div className="border-b p-2 flex items-center justify-between bg-gray-50">
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => editor.chain().focus().undo().run()}
-            disabled={!editor.can().undo()}
-            title="Undo"
-          >
-            <RotateCcw className="h-4 w-4" />
-          </Button>
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => editor.chain().focus().redo().run()}
-            disabled={!editor.can().redo()}
-            title="Redo"
-          >
-            <RotateCw className="h-4 w-4" />
-          </Button>
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={clearFormatting}
-            title="Clear Formatting"
-          >
-            Clear Format
-          </Button>
-        </div>
-        
-        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-          <span>{wordCount} words</span>
-          <span>{readTime} min read</span>
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggleFullscreen}
-            title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
-          >
-            {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
-          </Button>
-        </div>
+        <EditorActions 
+          editor={editor} 
+          isFullscreen={isFullscreen} 
+          onToggleFullscreen={toggleFullscreen} 
+        />
+        <EditorStats wordCount={wordCount} readTime={readTime} />
       </div>
 
       <div className={`${isFullscreen ? 'flex-1 overflow-auto' : ''}`}>

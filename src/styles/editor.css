@@ -1,0 +1,114 @@
+
+/* Enhanced Editor Styles - Custom typography without prose plugin */
+.editor-wrapper {
+  @apply text-lg max-w-none text-gray-900 dark:text-gray-100;
+  line-height: 1.75;
+}
+
+.editor-content {
+  line-height: inherit !important;
+}
+
+.editor-content .ProseMirror {
+  @apply outline-none;
+  line-height: inherit !important;
+}
+
+/* Custom typography styles to replace prose */
+.editor-content .ProseMirror h1 {
+  @apply text-4xl font-bold mt-8 mb-4 text-gray-900 dark:text-gray-100;
+  line-height: 1.1 !important;
+}
+
+.editor-content .ProseMirror h2 {
+  @apply text-3xl font-bold mt-7 mb-4 text-gray-900 dark:text-gray-100;
+  line-height: 1.2 !important;
+}
+
+.editor-content .ProseMirror h3 {
+  @apply text-2xl font-bold mt-6 mb-3 text-gray-900 dark:text-gray-100;
+  line-height: 1.3 !important;
+}
+
+.editor-content .ProseMirror h4 {
+  @apply text-xl font-semibold mt-5 mb-3 text-gray-900 dark:text-gray-100;
+  line-height: 1.4 !important;
+}
+
+.editor-content .ProseMirror h5 {
+  @apply text-lg font-semibold mt-4 mb-2 text-gray-900 dark:text-gray-100;
+  line-height: 1.5 !important;
+}
+
+.editor-content .ProseMirror h6 {
+  @apply text-base font-semibold mt-4 mb-2 text-gray-900 dark:text-gray-100;
+  line-height: 1.6 !important;
+}
+
+.editor-content .ProseMirror p {
+  @apply mb-4 text-gray-700 dark:text-gray-300;
+  line-height: inherit !important;
+}
+
+.editor-content .ProseMirror ul {
+  @apply list-disc ml-6 mb-4 text-gray-700 dark:text-gray-300;
+  line-height: inherit !important;
+}
+
+.editor-content .ProseMirror ol {
+  @apply list-decimal ml-6 mb-4 text-gray-700 dark:text-gray-300;
+  line-height: inherit !important;
+}
+
+.editor-content .ProseMirror li {
+  @apply mb-1;
+  line-height: inherit !important;
+}
+
+.editor-content .ProseMirror blockquote {
+  @apply border-l-4 border-gray-300 pl-4 italic my-4 text-gray-600 dark:text-gray-400;
+  line-height: inherit !important;
+}
+
+.editor-content .ProseMirror strong {
+  @apply font-bold;
+}
+
+.editor-content .ProseMirror em {
+  @apply italic;
+}
+
+.editor-content .ProseMirror code {
+  @apply bg-gray-100 dark:bg-gray-800 rounded px-1 py-0.5 text-sm font-mono;
+}
+
+.editor-content .ProseMirror pre {
+  @apply bg-gray-100 dark:bg-gray-800 rounded-lg p-4 overflow-x-auto my-4;
+}
+
+.editor-content .ProseMirror pre code {
+  @apply bg-transparent p-0;
+}
+
+.editor-content .ProseMirror a {
+  @apply text-primary underline hover:text-primary/80;
+}
+
+/* Preserve inline styles for line height and font sizes */
+.editor-content .ProseMirror p[style*="line-height"] {
+  line-height: inherit !important;
+}
+
+.editor-content .ProseMirror span[style*="line-height"] {
+  line-height: inherit !important;
+}
+
+.editor-content .ProseMirror span[style*="font-size"] {
+  font-size: inherit !important;
+}
+
+/* Ensure editor paragraphs maintain spacing */
+.editor-paragraph {
+  margin-bottom: 1em !important;
+  line-height: inherit !important;
+}

@@ -1,0 +1,130 @@
+
+/* Enhanced Visual Effects */
+.glass-panel {
+  @apply bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-white/30 dark:border-gray-800/40 shadow-2xl;
+}
+
+.glass-card {
+  @apply bg-white/95 dark:bg-gray-900/90 backdrop-blur-xl border border-white/30 dark:border-gray-800/40 transition-all duration-500 hover:bg-white/[0.98] dark:hover:bg-gray-900/95 shadow-lg hover:shadow-2xl transform hover:-translate-y-1;
+}
+
+.enhanced-section {
+  @apply relative bg-gradient-to-br from-brand-purple/5 to-brand-teal/5 dark:from-brand-purple/10 dark:to-brand-teal/10;
+}
+
+.enhanced-section::before {
+  content: '';
+  @apply absolute inset-0 bg-gradient-to-r from-transparent via-brand-purple/5 to-transparent opacity-50;
+  animation: shimmer 8s ease-in-out infinite;
+}
+
+.gradient-text {
+  @apply brand-gradient-text;
+}
+
+.shadow-soft {
+  box-shadow: 0 4px 20px hsl(var(--brand-purple) / 0.1);
+}
+
+.shadow-medium {
+  box-shadow: 0 8px 30px hsl(var(--brand-purple) / 0.15);
+}
+
+.shadow-strong {
+  box-shadow: 0 20px 60px hsl(var(--brand-purple) / 0.2);
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Enhanced Animations */
+@keyframes shimmer {
+  0%, 100% { transform: translateX(-100%); }
+  50% { transform: translateX(100%); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 20px hsl(var(--brand-purple) / 0.3); }
+  50% { box-shadow: 0 0 40px hsl(var(--brand-purple) / 0.6); }
+}
+
+@keyframes gradient-animation {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: glow 3s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 8s ease-in-out infinite;
+}
+
+.animate-gradient {
+  background-size: 200% auto;
+  animation: gradient-animation 5s ease infinite;
+}
+
+/* Enhanced Interactive Elements */
+.interactive-card {
+  @apply transition-all duration-500 hover:scale-105 hover:rotate-1 hover:shadow-2xl;
+}
+
+.hover-lift {
+  @apply transition-transform duration-300 hover:-translate-y-2;
+}
+
+.hover-glow {
+  @apply transition-all duration-300 hover:shadow-lg hover:shadow-brand-purple/25;
+}
+
+/* Backdrop Effects */
+.backdrop-enhanced {
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+/* Three.js Enhanced Background */
+.three-bg-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.three-bg-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1;
+}
+
+/* Enhanced Hero Section */
+.hero-enhanced {
+  @apply relative min-h-screen bg-gradient-to-br from-brand-purple via-brand-teal to-brand-green text-white overflow-hidden;
+}
+
+.hero-content {
+  @apply relative z-10 flex flex-col min-h-screen;
+}
+
+.hero-main {
+  @apply flex-grow flex items-center justify-center p-6 text-center;
+}
