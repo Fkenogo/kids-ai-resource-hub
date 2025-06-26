@@ -1,137 +1,142 @@
 
-import { useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Heart, MessageCircle, Eye, Share2, Pin } from 'lucide-react';
-import { m } from 'framer-motion';
-import { CommunityPost } from '@/types/community';
+import { Heart, MessageCircle, Eye, Clock, Pin, Plus } from 'lucide-react';
 import { mockCommunityPosts } from '@/data/communityData';
+import { m } from 'framer-motion';
 
-export const CommunityFeed = () => {
-  const [posts] = useState<CommunityPost[]>(mockCommunityPosts);
-  const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
+interface CommunityFeedProps {
+  selectedCategory?: string;
+}
+
+export const CommunityFeed = ({ selectedCategory }: CommunityFeedProps) => {
+  // Filter posts by category - since mockCommunityPosts is empty, this will always be empty
+  const filteredPosts = selectedCategory && selectedCategory !== 'all' 
+    ? mockCommunityPosts.filter(post => post.category === selectedCategory)
+    : mockCommunityPosts;
 
   const handleLike = (postId: string) => {
-    setLikedPosts(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(postId)) {
-        newSet.delete(postId);
-      } else {
-        newSet.add(postId);
-      }
-      return newSet;
-    });
+    console.log('Like post:', postId);
   };
 
-  const getCategoryColor = (category: string) => {
-    const colors = {
-      'getting-started': 'bg-green-100 text-green-800',
-      'age-specific': 'bg-blue-100 text-blue-800',
-      'troubleshooting': 'bg-red-100 text-red-800',
-      'project-showcase': 'bg-purple-100 text-purple-800',
-      'curriculum-ideas': 'bg-yellow-100 text-yellow-800',
-      'resource-requests': 'bg-orange-100 text-orange-800',
-    };
-    return colors[category as keyof typeof colors] || 'bg-gray-100 text-gray-800';
-  };
-
-  const getCategoryLabel = (category: string) => {
-    const labels = {
-      'getting-started': 'Getting Started',
-      'age-specific': 'Age-Specific',
-      'troubleshooting': 'Troubleshooting',
-      'project-showcase': 'Project Showcase',
-      'curriculum-ideas': 'Curriculum Ideas',
-      'resource-requests': 'Resource Requests',
-    };
-    return labels[category as keyof typeof labels] || category;
+  const handleReply = (postId: string) => {
+    console.log('Reply to post:', postId);
   };
 
   return (
     <div className="space-y-6">
-      {posts.map((post, index) => (
-        <m.div
-          key={post.id}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: index * 0.1 }}
-        >
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center space-x-3">
-                  <Avatar>
-                    <AvatarImage src={post.authorAvatar} />
-                    <AvatarFallback>{post.authorName.charAt(0)}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <div className="flex items-center space-x-2">
-                      <h3 className="font-semibold">{post.authorName}</h3>
-                      {post.isSticky && <Pin className="h-4 w-4 text-orange-500" />}
+      {filteredPosts.length === 0 ? (
+        <div className="text-center py-12">
+          <div className="max-w-md mx-auto">
+            <div className="mb-4">
+              <div className="w-16 h-16 mx-auto bg-muted rounded-full flex items-center justify-center">
+                <MessageCircle className="h-8 w-8 text-muted-foreground" />
+              </div>
+            </div>
+            <h3 className="text-lg font-semibold mb-2">No Posts Yet</h3>
+            <p className="text-muted-foreground mb-4">
+              {selectedCategory && selectedCategory !== 'all' 
+                ? `No posts found in the ${selectedCategory.replace('-', ' ')} category.`
+                : 'Be the first to start a conversation in our community!'
+              }
+            </p>
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              Create First Post
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {filteredPosts.map((post, index) => (
+            <m.div
+              key={post.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: index * 0.1 }}
+            >
+              <Card className="hover:shadow-md transition-shadow">
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center space-x-3">
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={post.authorAvatar} />
+                        <AvatarFallback>{post.authorName.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <div className="flex items-center space-x-2">
+                          <h3 className="font-semibold text-lg">{post.title}</h3>
+                          {post.isSticky && (
+                            <Pin className="h-4 w-4 text-blue-500" />
+                          )}
+                        </div>
+                        <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                          <span>{post.authorName}</span>
+                          <span>•</span>
+                          <span>{post.datePosted}</span>
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-sm text-muted-foreground">{post.datePosted}</p>
-                  </div>
-                </div>
-                <Badge className={getCategoryColor(post.category)}>
-                  {getCategoryLabel(post.category)}
-                </Badge>
-              </div>
-            </CardHeader>
-            
-            <CardContent>
-              <h2 className="text-xl font-semibold mb-3">{post.title}</h2>
-              <p className="text-muted-foreground mb-4 line-clamp-3">{post.content}</p>
-              
-              {post.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {post.tags.map(tag => (
-                    <Badge key={tag} variant="secondary" className="text-xs">
-                      #{tag}
+                    <Badge variant="secondary">
+                      {post.category.replace('-', ' ')}
                     </Badge>
-                  ))}
-                </div>
-              )}
-
-              <div className="flex items-center justify-between pt-4 border-t">
-                <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                  <div className="flex items-center space-x-1">
-                    <Eye className="h-4 w-4" />
-                    <span>{post.viewCount}</span>
                   </div>
-                  <div className="flex items-center space-x-1">
-                    <MessageCircle className="h-4 w-4" />
-                    <span>{post.replyCount}</span>
-                  </div>
-                </div>
+                </CardHeader>
                 
-                <div className="flex items-center space-x-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleLike(post.id)}
-                    className={`flex items-center space-x-1 ${
-                      likedPosts.has(post.id) ? 'text-red-600' : ''
-                    }`}
-                  >
-                    <Heart 
-                      className={`h-4 w-4 ${
-                        likedPosts.has(post.id) ? 'fill-current' : ''
-                      }`} 
-                    />
-                    <span>{post.likeCount + (likedPosts.has(post.id) ? 1 : 0)}</span>
-                  </Button>
+                <CardContent>
+                  <p className="text-muted-foreground mb-4 line-clamp-3">
+                    {post.content}
+                  </p>
                   
-                  <Button variant="ghost" size="sm">
-                    <Share2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </m.div>
-      ))}
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {post.tags.map(tag => (
+                      <Badge key={tag} variant="outline" className="text-xs">
+                        #{tag}
+                      </Badge>
+                    ))}
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                      <div className="flex items-center space-x-1">
+                        <Eye className="h-4 w-4" />
+                        <span>{post.viewCount}</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <Clock className="h-4 w-4" />
+                        <span>Last activity {post.lastActivity}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="flex items-center space-x-1"
+                        onClick={() => handleLike(post.id)}
+                      >
+                        <Heart className="h-4 w-4" />
+                        <span>{post.likeCount}</span>
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="flex items-center space-x-1"
+                        onClick={() => handleReply(post.id)}
+                      >
+                        <MessageCircle className="h-4 w-4" />
+                        <span>{post.replyCount}</span>
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </m.div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
