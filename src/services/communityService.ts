@@ -1,46 +1,57 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { CommunityPost, CommunityReply, CommunityUser } from "@/types/community";
+import { CommunityPost, CommunityReply, CommunityUser, CommunityCategory } from "@/types/community";
 
 // Community Posts
 export const getCommunityPosts = async (category?: string) => {
   try {
     let query = supabase
       .from('community_posts')
-      .select(`
-        *,
-        profiles!community_posts_author_id_fkey(username, display_name, avatar_url)
-      `)
+      .select('*')
       .order('created_at', { ascending: false });
 
     if (category && category !== 'all') {
-      query = query.eq('category', category);
+      query = query.eq('category', category as CommunityCategory);
     }
 
-    const { data, error } = await query;
+    const { data: posts, error } = await query;
     
     if (error) {
       console.error('Error fetching community posts:', error);
       return [];
     }
 
-    return data?.map((post): CommunityPost => ({
-      id: post.id,
-      title: post.title,
-      content: post.content,
-      category: post.category,
-      authorId: post.author_id,
-      authorName: post.profiles?.display_name || post.profiles?.username || 'Anonymous',
-      authorAvatar: post.profiles?.avatar_url,
-      datePosted: formatTimeAgo(post.created_at),
-      lastActivity: formatTimeAgo(post.last_activity || post.created_at),
-      viewCount: post.view_count || 0,
-      likeCount: post.like_count || 0,
-      replyCount: post.reply_count || 0,
-      isSticky: post.is_sticky || false,
-      tags: post.tags || [],
-      images: post.images || []
-    })) || [];
+    if (!posts || posts.length === 0) return [];
+
+    // Fetch profiles separately to avoid foreign key issues
+    const authorIds = [...new Set(posts.map(post => post.author_id))];
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, username, display_name, avatar_url')
+      .in('id', authorIds);
+
+    const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
+
+    return posts.map((post): CommunityPost => {
+      const profile = profileMap.get(post.author_id);
+      return {
+        id: post.id,
+        title: post.title,
+        content: post.content,
+        category: post.category,
+        authorId: post.author_id,
+        authorName: profile?.display_name || profile?.username || 'Anonymous',
+        authorAvatar: profile?.avatar_url,
+        datePosted: formatTimeAgo(post.created_at),
+        lastActivity: formatTimeAgo(post.last_activity || post.created_at),
+        viewCount: post.view_count || 0,
+        likeCount: post.like_count || 0,
+        replyCount: post.reply_count || 0,
+        isSticky: post.is_sticky || false,
+        tags: post.tags || [],
+        images: post.images || []
+      };
+    });
   } catch (err) {
     console.error('Unexpected error fetching community posts:', err);
     return [];
@@ -62,7 +73,7 @@ export const createCommunityPost = async (post: {
     .insert({
       title: post.title,
       content: post.content,
-      category: post.category,
+      category: post.category as CommunityCategory,
       author_id: user.data.user.id,
       tags: post.tags || [],
       images: post.images || [],
@@ -83,12 +94,9 @@ export const createCommunityPost = async (post: {
 // Community Replies
 export const getCommunityReplies = async (postId: string) => {
   try {
-    const { data, error } = await supabase
+    const { data: replies, error } = await supabase
       .from('community_replies')
-      .select(`
-        *,
-        profiles!community_replies_author_id_fkey(username, display_name, avatar_url)
-      `)
+      .select('*')
       .eq('post_id', postId)
       .order('created_at', { ascending: true });
 
@@ -97,17 +105,31 @@ export const getCommunityReplies = async (postId: string) => {
       return [];
     }
 
-    return data?.map((reply): CommunityReply => ({
-      id: reply.id,
-      postId: reply.post_id,
-      content: reply.content,
-      authorId: reply.author_id,
-      authorName: reply.profiles?.display_name || reply.profiles?.username || 'Anonymous',
-      authorAvatar: reply.profiles?.avatar_url,
-      datePosted: formatTimeAgo(reply.created_at),
-      likeCount: reply.like_count || 0,
-      parentReplyId: reply.parent_reply_id
-    })) || [];
+    if (!replies || replies.length === 0) return [];
+
+    // Fetch profiles separately
+    const authorIds = [...new Set(replies.map(reply => reply.author_id))];
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, username, display_name, avatar_url')
+      .in('id', authorIds);
+
+    const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
+
+    return replies.map((reply): CommunityReply => {
+      const profile = profileMap.get(reply.author_id);
+      return {
+        id: reply.id,
+        postId: reply.post_id,
+        content: reply.content,
+        authorId: reply.author_id,
+        authorName: profile?.display_name || profile?.username || 'Anonymous',
+        authorAvatar: profile?.avatar_url,
+        datePosted: formatTimeAgo(reply.created_at),
+        likeCount: reply.like_count || 0,
+        parentReplyId: reply.parent_reply_id
+      };
+    });
   } catch (err) {
     console.error('Unexpected error fetching community replies:', err);
     return [];
@@ -137,12 +159,16 @@ export const createCommunityReply = async (reply: {
 
   if (error) throw error;
 
-  // Update post reply count
-  await supabase.rpc('increment', {
-    table_name: 'community_posts',
-    row_id: reply.postId,
-    column_name: 'reply_count'
-  });
+  // Update post reply count manually
+  const { error: updateError } = await supabase
+    .from('community_posts')
+    .update({ 
+      reply_count: supabase.raw('reply_count + 1'),
+      last_activity: new Date().toISOString()
+    })
+    .eq('id', reply.postId);
+
+  if (updateError) console.error('Error updating reply count:', updateError);
 
   return data;
 };
@@ -240,11 +266,14 @@ export const togglePostLike = async (postId: string) => {
   if (existing) {
     // Remove like
     await supabase.from('user_engagements').delete().eq('id', existing.id);
-    await supabase.rpc('decrement', {
-      table_name: 'community_posts',
-      row_id: postId,
-      column_name: 'like_count'
-    });
+    
+    // Decrease like count
+    const { error: decrementError } = await supabase
+      .from('community_posts')
+      .update({ like_count: supabase.raw('like_count - 1') })
+      .eq('id', postId);
+    
+    if (decrementError) console.error('Error decrementing like count:', decrementError);
     return false;
   } else {
     // Add like
@@ -254,11 +283,14 @@ export const togglePostLike = async (postId: string) => {
       target_type: 'community_post',
       engagement_type: 'like'
     });
-    await supabase.rpc('increment', {
-      table_name: 'community_posts',
-      row_id: postId,
-      column_name: 'like_count'
-    });
+    
+    // Increase like count
+    const { error: incrementError } = await supabase
+      .from('community_posts')
+      .update({ like_count: supabase.raw('like_count + 1') })
+      .eq('id', postId);
+    
+    if (incrementError) console.error('Error incrementing like count:', incrementError);
     return true;
   }
 };
