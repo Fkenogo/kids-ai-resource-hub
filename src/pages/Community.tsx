@@ -3,10 +3,10 @@ import { useState } from 'react';
 import { Layout } from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CommunityFeed } from '@/components/community/CommunityFeed';
+import { CommunityFeedReal } from '@/components/community/CommunityFeedReal';
 import { CommunityCategories } from '@/components/community/CommunityCategories';
 import { ProjectShowcase } from '@/components/community/ProjectShowcase';
-import { Leaderboard } from '@/components/community/Leaderboard';
+import { LeaderboardReal } from '@/components/community/LeaderboardReal';
 import { CreatePostDialog } from '@/components/community/CreatePostDialog';
 import { UserProfile } from '@/components/community/UserProfile';
 import { NotificationPanel } from '@/components/community/NotificationPanel';
@@ -17,6 +17,7 @@ const Community = () => {
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [activeTab, setActiveTab] = useState('feed');
+  const [selectedCategory, setSelectedCategory] = useState<string>();
 
   return (
     <Layout>
@@ -65,7 +66,7 @@ const Community = () => {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Left Sidebar - Categories */}
             <div className="lg:col-span-1">
-              <CommunityCategories />
+              <CommunityCategories onCategoryChange={setSelectedCategory} />
             </div>
 
             {/* Main Content Area */}
@@ -87,7 +88,7 @@ const Community = () => {
                 </TabsList>
 
                 <TabsContent value="feed" className="mt-6">
-                  <CommunityFeed />
+                  <CommunityFeedReal selectedCategory={selectedCategory} />
                 </TabsContent>
 
                 <TabsContent value="showcase" className="mt-6">
@@ -95,7 +96,7 @@ const Community = () => {
                 </TabsContent>
 
                 <TabsContent value="leaderboard" className="mt-6">
-                  <Leaderboard />
+                  <LeaderboardReal />
                 </TabsContent>
               </Tabs>
             </div>
