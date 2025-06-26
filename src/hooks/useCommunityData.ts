@@ -8,7 +8,7 @@ import {
   getCommunityUsers,
   getLeaderboard,
   togglePostLike
-} from '@/services/communityService';
+} from '@/services/community';
 import { toast } from 'sonner';
 
 // Posts

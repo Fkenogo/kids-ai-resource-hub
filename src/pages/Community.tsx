@@ -109,12 +109,10 @@ const Community = () => {
         </div>
 
         {/* Dialogs */}
-        {showCreatePost && (
-          <CreatePostDialog 
-            open={showCreatePost} 
-            onClose={() => setShowCreatePost(false)} 
-          />
-        )}
+        <CreatePostDialog 
+          open={showCreatePost} 
+          onOpenChange={setShowCreatePost}
+        />
 
         {showNotifications && (
           <NotificationPanel 
