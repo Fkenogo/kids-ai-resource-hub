@@ -159,11 +159,19 @@ export const createCommunityReply = async (reply: {
 
   if (error) throw error;
 
-  // Update post reply count manually
+  // Update post reply count manually by fetching current count and incrementing
+  const { data: currentPost } = await supabase
+    .from('community_posts')
+    .select('reply_count')
+    .eq('id', reply.postId)
+    .single();
+
+  const newReplyCount = (currentPost?.reply_count || 0) + 1;
+
   const { error: updateError } = await supabase
     .from('community_posts')
     .update({ 
-      reply_count: supabase.raw('reply_count + 1'),
+      reply_count: newReplyCount,
       last_activity: new Date().toISOString()
     })
     .eq('id', reply.postId);
@@ -267,10 +275,18 @@ export const togglePostLike = async (postId: string) => {
     // Remove like
     await supabase.from('user_engagements').delete().eq('id', existing.id);
     
-    // Decrease like count
+    // Get current like count and decrease it
+    const { data: currentPost } = await supabase
+      .from('community_posts')
+      .select('like_count')
+      .eq('id', postId)
+      .single();
+    
+    const newLikeCount = Math.max(0, (currentPost?.like_count || 0) - 1);
+    
     const { error: decrementError } = await supabase
       .from('community_posts')
-      .update({ like_count: supabase.raw('like_count - 1') })
+      .update({ like_count: newLikeCount })
       .eq('id', postId);
     
     if (decrementError) console.error('Error decrementing like count:', decrementError);
@@ -284,10 +300,18 @@ export const togglePostLike = async (postId: string) => {
       engagement_type: 'like'
     });
     
-    // Increase like count
+    // Get current like count and increase it
+    const { data: currentPost } = await supabase
+      .from('community_posts')
+      .select('like_count')
+      .eq('id', postId)
+      .single();
+    
+    const newLikeCount = (currentPost?.like_count || 0) + 1;
+    
     const { error: incrementError } = await supabase
       .from('community_posts')
-      .update({ like_count: supabase.raw('like_count + 1') })
+      .update({ like_count: newLikeCount })
       .eq('id', postId);
     
     if (incrementError) console.error('Error incrementing like count:', incrementError);
