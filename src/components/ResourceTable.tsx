@@ -97,14 +97,21 @@ export const ResourceTable = ({ resources }: ResourceTableProps) => {
 
 function getFormatFromType(type: string): string {
   const formatMap: Record<string, string> = {
-    'online_course': 'Course',
+    'online_courses_platforms': 'Online Course',
     'book': 'Book',
+    'books_reading_materials': 'Book',
     'interactive_tool': 'Interactive Tool',
+    'interactive_tools_apps': 'Interactive Tool',
     'game': 'Game',
+    'ai_powered_games_simulations': 'Game',
     'video': 'Video',
+    'youtube_channels_video_resources': 'Video',
     'tutorial': 'Tutorial',
     'activity': 'Activity',
+    'hands_on_ai_projects_activities': 'Activity',
     'camp': 'Camp',
+    'ai_camps_webinars_live_classes': 'Camp',
+    'online_course': 'Online Course',
     'ai_tool': 'AI Tool',
     'curriculum': 'Curriculum'
   };

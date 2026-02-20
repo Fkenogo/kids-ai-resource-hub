@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Share2, Link, MessageSquare, Send } from 'lucide-react';
+import { logger } from '@/lib/logger';
 
 interface SocialShareBarProps {
   url: string;
@@ -59,7 +60,7 @@ export const SocialShareBar = ({ url, title, description, sticky = false }: Soci
       try {
         await navigator.share(shareData);
       } catch (err) {
-        console.log('Error sharing:', err);
+        logger.debug('Error sharing:', err);
       }
     }
   };

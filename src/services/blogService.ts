@@ -1,125 +1,63 @@
 
-import { supabase } from "@/integrations/supabase/client";
+import {
+  createBlogCommentFromBackend,
+  deleteBlogCommentFromBackend,
+  getBlogCommentsFromBackend,
+  getBlogPostBySlugFromBackend,
+  getBlogPostsFromBackend,
+  updateBlogCommentFromBackend,
+} from "@/services/backend/blog";
+import { getCurrentAuthUser } from "@/services/backend/auth";
+import { createOne, removeOne, updateOne, readOneById } from "@/services/backend/firestoreDb";
+
+type BlogPostPayload = Record<string, unknown> & { id?: string };
+type BlogCommentPayload = {
+  post_id: string;
+  content: string;
+  author_id?: string;
+  is_approved?: boolean;
+  like_count?: number;
+  parent_comment_id?: string | null;
+  created_at?: string;
+};
 
 // Blog Posts
 export const getBlogPosts = async (includeUnpublished = false) => {
-  let query = supabase
-    .from('blog_posts')
-    .select(`
-      *,
-      profiles!blog_posts_author_id_fkey(username, display_name)
-    `)
-    .order('created_at', { ascending: false });
-
-  if (!includeUnpublished) {
-    query = query.eq('is_published', true);
-  }
-
-  const { data, error } = await query;
-  if (error) throw error;
-  return data || [];
+  return getBlogPostsFromBackend(includeUnpublished);
 };
 
 export const getBlogPostBySlug = async (slug: string) => {
-  const { data, error } = await supabase
-    .from('blog_posts')
-    .select(`
-      *,
-      profiles!blog_posts_author_id_fkey(username, display_name)
-    `)
-    .eq('slug', slug)
-    .single();
-
-  if (error) throw error;
-  return data;
+  return getBlogPostBySlugFromBackend(slug);
 };
 
-export const createBlogPost = async (post: any) => {
-  const { data, error } = await supabase
-    .from('blog_posts')
-    .insert(post)
-    .select()
-    .single();
-  
-  if (error) throw error;
-  return data;
+export const createBlogPost = async (post: BlogPostPayload) => {
+  return createOne('blog_posts', post, post.id);
 };
 
-export const updateBlogPost = async (id: string, updates: any) => {
-  const { data, error } = await supabase
-    .from('blog_posts')
-    .update(updates)
-    .eq('id', id)
-    .select()
-    .single();
-  
-  if (error) throw error;
-  return data;
+export const updateBlogPost = async (id: string, updates: Record<string, unknown>) => {
+  await updateOne('blog_posts', id, updates);
+  return readOneById('blog_posts', id);
 };
 
 export const deleteBlogPost = async (id: string) => {
-  const { error } = await supabase
-    .from('blog_posts')
-    .delete()
-    .eq('id', id);
-  
-  if (error) throw error;
+  await removeOne('blog_posts', id);
 };
 
 // Blog Comments
 export const getBlogComments = async (postId?: string, includeUnapproved = false) => {
-  let query = supabase
-    .from('blog_comments')
-    .select(`
-      *,
-      profiles!blog_comments_author_id_fkey(username, display_name),
-      blog_posts!blog_comments_post_id_fkey(title, slug)
-    `)
-    .order('created_at', { ascending: false });
-
-  if (postId) {
-    query = query.eq('post_id', postId);
-  }
-
-  if (!includeUnapproved) {
-    query = query.eq('is_approved', true);
-  }
-
-  const { data, error } = await query;
-  if (error) throw error;
-  return data || [];
+  return getBlogCommentsFromBackend(postId, includeUnapproved);
 };
 
-export const createBlogComment = async (comment: any) => {
-  const { data, error } = await supabase
-    .from('blog_comments')
-    .insert(comment)
-    .select()
-    .single();
-  
-  if (error) throw error;
-  return data;
+export const createBlogComment = async (comment: BlogCommentPayload) => {
+  return createBlogCommentFromBackend(comment);
 };
 
-export const updateBlogComment = async (id: string, updates: any) => {
-  const { data, error } = await supabase
-    .from('blog_comments')
-    .update(updates)
-    .eq('id', id)
-    .select()
-    .single();
-  
-  if (error) throw error;
-  return data;
+export const updateBlogComment = async (id: string, updates: Record<string, unknown>) => {
+  return updateBlogCommentFromBackend(id, updates);
 };
 
 export const deleteBlogComment = async (id: string) => {
-  const { error } = await supabase
-    .from('blog_comments')
-    .delete()
-    .eq('id', id);
-  
-  if (error) throw error;
+  await deleteBlogCommentFromBackend(id);
 };
 
 // Generate slug from title
@@ -133,11 +71,7 @@ export const generateSlug = (title: string): string => {
 // Get current user with better error handling
 export const getCurrentUserForBlog = async () => {
   try {
-    const { data: { user }, error } = await supabase.auth.getUser();
-    if (error) {
-      console.error('Auth error:', error);
-      throw new Error('Authentication failed');
-    }
+    const user = await getCurrentAuthUser();
     if (!user) {
       throw new Error('No authenticated user found');
     }

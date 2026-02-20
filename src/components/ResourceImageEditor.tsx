@@ -3,7 +3,8 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ImageUploader } from "@/components/ImageUploader";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { updateResourceImageAdmin } from "@/services/backend/admin";
+import { logger } from "@/lib/logger";
 
 interface ResourceImageEditorProps {
   resource: {
@@ -22,7 +23,7 @@ export const ResourceImageEditor: React.FC<ResourceImageEditorProps> = ({
   const [saving, setSaving] = useState(false);
 
   const handleImageChange = (url: string) => {
-    console.log("New image uploaded:", url);
+    logger.debug("New image uploaded:", url);
     setNewImageUrl(url);
   };
 
@@ -33,23 +34,14 @@ export const ResourceImageEditor: React.FC<ResourceImageEditorProps> = ({
     }
     
     setSaving(true);
-    console.log("Saving image URL:", newImageUrl, "for resource:", resource.id);
+    logger.debug("Saving image URL:", newImageUrl, "for resource:", resource.id);
     
     try {
-      const { error } = await supabase
-        .from("resources")
-        .update({ image_url: newImageUrl })
-        .eq("id", resource.id);
-
-      if (error) {
-        console.error("Database update error:", error);
-        toast.error(`Failed to update image for "${resource.title}": ${error.message}`);
-      } else {
-        console.log("Image updated successfully in database");
-        toast.success(`Image updated for "${resource.title}"`);
-        setNewImageUrl(undefined); // Reset the upload state
-        onUpdated?.();
-      }
+      await updateResourceImageAdmin(resource.id, newImageUrl);
+      logger.debug("Image updated successfully in database");
+      toast.success(`Image updated for "${resource.title}"`);
+      setNewImageUrl(undefined); // Reset the upload state
+      onUpdated?.();
     } catch (err) {
       console.error("Unexpected error:", err);
       toast.error("An unexpected error occurred");
@@ -59,7 +51,7 @@ export const ResourceImageEditor: React.FC<ResourceImageEditorProps> = ({
   };
 
   const handleCancel = () => {
-    console.log("Cancelling image upload");
+    logger.debug("Cancelling image upload");
     setNewImageUrl(undefined);
   };
 
@@ -76,11 +68,11 @@ export const ResourceImageEditor: React.FC<ResourceImageEditorProps> = ({
             alt={`${resource.title} image`}
             className="object-cover w-full h-full"
             onError={(e) => {
-              console.error("Image failed to load:", displayImageUrl);
+              logger.error("Image failed to load:", displayImageUrl);
               e.currentTarget.style.display = 'none';
             }}
             onLoad={() => {
-              console.log("Resource image loaded successfully:", displayImageUrl);
+              logger.debug("Resource image loaded successfully:", displayImageUrl);
             }}
           />
         ) : (

@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Heart, MessageCircle, Eye, Clock, Pin, Plus } from 'lucide-react';
 import { mockCommunityPosts } from '@/data/communityData';
 import { m } from 'framer-motion';
+import { logger } from '@/lib/logger';
 
 interface CommunityFeedProps {
   selectedCategory?: string;
@@ -18,11 +19,11 @@ export const CommunityFeed = ({ selectedCategory }: CommunityFeedProps) => {
     : mockCommunityPosts;
 
   const handleLike = (postId: string) => {
-    console.log('Like post:', postId);
+    logger.debug('Like post:', postId);
   };
 
   const handleReply = (postId: string) => {
-    console.log('Reply to post:', postId);
+    logger.debug('Reply to post:', postId);
   };
 
   return (

@@ -4,6 +4,7 @@ import { uploadResourceImage } from "@/services/storageService";
 import { Button } from "@/components/ui/button";
 import { Upload, CheckCircle, XCircle } from "lucide-react";
 import { toast } from "sonner";
+import { logger } from "@/lib/logger";
 
 interface ImageUploaderProps {
   value?: string;
@@ -29,21 +30,21 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    console.log("File selected:", file.name, file.size, file.type);
+    logger.debug("File selected:", file.name, file.size, file.type);
     
     // Reset previous states
     setUploadSuccess(false);
     
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      console.error("Invalid file type:", file.type);
+      logger.error("Invalid file type:", file.type);
       toast.error("Please select a valid image file");
       return;
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      console.error("File too large:", file.size);
+      logger.error("File too large:", file.size);
       toast.error("File size must be less than 5MB");
       return;
     }
@@ -51,16 +52,16 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
     setUploading(true);
     
     try {
-      console.log("Starting upload...");
+      logger.debug("Starting upload...");
       const url = await uploadResourceImage(file);
-      console.log("Upload successful, URL:", url);
+      logger.debug("Upload successful, URL:", url);
       
       setPreview(url);
       onChange(url);
       setUploadSuccess(true);
       toast.success("Image uploaded successfully!");
     } catch (error) {
-      console.error("Upload error:", error);
+      logger.error("Upload error:", error);
       const errorMessage = error instanceof Error ? error.message : "Upload failed";
       toast.error(errorMessage);
       setUploadSuccess(false);
@@ -123,11 +124,11 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
             alt="Preview"
             className="w-40 h-32 rounded object-cover border"
             onError={(e) => {
-              console.error("Preview image failed to load:", preview);
+              logger.error("Preview image failed to load:", preview);
               toast.error("Failed to load image preview");
             }}
             onLoad={() => {
-              console.log("Preview image loaded successfully:", preview);
+              logger.debug("Preview image loaded successfully:", preview);
             }}
           />
         </div>

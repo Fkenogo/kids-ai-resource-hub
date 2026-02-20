@@ -25,7 +25,7 @@ const Shopping = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
 
   const applyFilters = (newFilters: FilterType) => {
-    let filtered = products.filter(product => {
+    const filtered = products.filter(product => {
       // Category filter
       if (newFilters.categories.length > 0 && !newFilters.categories.includes(product.category)) {
         return false;

@@ -5,7 +5,7 @@ import { Layout } from '@/components/Layout';
 import { ResourceDetail } from '@/components/ResourceDetail';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
-import { useResource } from '@/hooks/useSupabaseData';
+import { useResource } from '@/hooks/useBackendData';
 import { mapDbResourceToResource } from '@/utils/resourceTransform';
 
 const ResourcePage = () => {

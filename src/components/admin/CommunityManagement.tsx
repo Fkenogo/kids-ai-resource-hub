@@ -34,7 +34,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useCommunityPosts, useCommunityReplies } from '@/hooks/useCommunityData';
-import { supabase } from '@/integrations/supabase/client';
+import { deleteCommunityPost, deleteCommunityReply, setCommunityPostLocked, setCommunityPostSticky } from '@/services/backend/admin';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -58,12 +58,7 @@ export const CommunityManagement = () => {
 
   const handleToggleSticky = async (postId: string, isSticky: boolean) => {
     try {
-      const { error } = await supabase
-        .from('community_posts')
-        .update({ is_sticky: !isSticky })
-        .eq('id', postId);
-
-      if (error) throw error;
+      await setCommunityPostSticky(postId, !isSticky);
       
       queryClient.invalidateQueries({ queryKey: ['community-posts'] });
       toast.success(isSticky ? 'Post unpinned' : 'Post pinned');
@@ -75,12 +70,7 @@ export const CommunityManagement = () => {
 
   const handleToggleLock = async (postId: string, isLocked: boolean) => {
     try {
-      const { error } = await supabase
-        .from('community_posts')
-        .update({ is_locked: !isLocked })
-        .eq('id', postId);
-
-      if (error) throw error;
+      await setCommunityPostLocked(postId, !isLocked);
       
       queryClient.invalidateQueries({ queryKey: ['community-posts'] });
       toast.success(isLocked ? 'Post unlocked' : 'Post locked');
@@ -95,20 +85,10 @@ export const CommunityManagement = () => {
 
     try {
       if (deleteTarget.type === 'post') {
-        const { error } = await supabase
-          .from('community_posts')
-          .delete()
-          .eq('id', deleteTarget.id);
-
-        if (error) throw error;
+        await deleteCommunityPost(deleteTarget.id);
         queryClient.invalidateQueries({ queryKey: ['community-posts'] });
       } else {
-        const { error } = await supabase
-          .from('community_replies')
-          .delete()
-          .eq('id', deleteTarget.id);
-
-        if (error) throw error;
+        await deleteCommunityReply(deleteTarget.id);
         queryClient.invalidateQueries({ queryKey: ['community-replies'] });
       }
 
@@ -270,9 +250,9 @@ export const CommunityManagement = () => {
                               <Pin className="h-4 w-4 mr-2" />
                               {post.isSticky ? 'Unpin' : 'Pin'} Post
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleToggleLock(post.id, false)}>
+                            <DropdownMenuItem onClick={() => handleToggleLock(post.id, post.isLocked)}>
                               <Lock className="h-4 w-4 mr-2" />
-                              Lock Post
+                              {post.isLocked ? 'Unlock' : 'Lock'} Post
                             </DropdownMenuItem>
                             <DropdownMenuItem 
                               className="text-destructive"

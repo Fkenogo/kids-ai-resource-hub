@@ -1,14 +1,40 @@
 
 import { Resource } from '@/types';
+import { formatTagsToStorage, normalizeResourceType, parseFormatTags } from '@/utils/resourceTaxonomy';
 
-export const mapDbResourceToResource = (r: any): Resource => ({
+type DbResource = {
+  id: string;
+  title: string;
+  description: string;
+  url: string;
+  age_ranges: Resource['ageRanges'];
+  resource_type: Resource['resourceType'];
+  format?: Resource['format'];
+  cost: Resource['cost'];
+  learning_outcomes?: string[];
+  skills_attained?: string[];
+  key_features?: string[];
+  created_at: string;
+  added_by?: string;
+  average_rating?: number;
+  review_count?: number;
+  is_featured?: boolean;
+  image_url?: string;
+  view_count?: number;
+  like_count?: number;
+  share_count?: number;
+  save_count?: number;
+  comment_count?: number;
+};
+
+export const mapDbResourceToResource = (r: DbResource): Resource => ({
   id: r.id,
   title: r.title,
   description: r.description,
   url: r.url,
   ageRanges: r.age_ranges,
-  resourceType: r.resource_type,
-  format: r.format ?? undefined,
+  resourceType: normalizeResourceType(r.resource_type),
+  format: formatTagsToStorage(parseFormatTags(r.format)) || undefined,
   cost: r.cost,
   learningOutcomes: r.learning_outcomes ?? undefined,
   skillsAttained: r.skills_attained ?? undefined,

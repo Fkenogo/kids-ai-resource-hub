@@ -221,7 +221,7 @@ const EnhancedHeroSection = () => {
               <Button 
                 variant="outline" 
                 size="lg" 
-                className="border-purple-400 text-purple-200 hover:bg-purple-600/20 hover:text-white px-8 py-4 text-lg font-semibold rounded-full backdrop-blur-sm transform hover:scale-105 transition-all duration-300"
+                className="bg-white/95 border-white text-purple-700 hover:bg-purple-100 hover:text-purple-800 px-8 py-4 text-lg font-semibold rounded-full backdrop-blur-sm transform hover:scale-105 transition-all duration-300"
                 asChild
               >
                 <Link to="/about">Learn More</Link>

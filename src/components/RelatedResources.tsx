@@ -1,7 +1,7 @@
 
 import { Resource } from '@/types';
 import { ResourceGrid } from './ResourceGrid';
-import { useResources } from '@/hooks/useSupabaseData';
+import { useResources } from '@/hooks/useBackendData';
 import { mapDbResourceToResource } from '@/utils/resourceTransform';
 import { Heart } from 'lucide-react';
 

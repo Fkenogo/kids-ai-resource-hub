@@ -1,16 +1,20 @@
 
 import React, { createContext, useContext } from 'react';
-import { Session } from '@supabase/supabase-js';
 import { useAuth } from '@/hooks/useAuth';
+import type { BackendAuthSession, BackendAuthUser } from '@/services/backend/auth';
 
 interface AuthContextType {
-  user: any;
-  session: Session | null;
-  profile: any;
+  user: BackendAuthUser | null;
+  session: BackendAuthSession;
+  profile: Record<string, unknown> | null;
   loading: boolean;
-  signUp: (email: string, password: string, metadata?: any) => Promise<any>;
-  signIn: (email: string, password: string) => Promise<any>;
-  signOut: () => Promise<any>;
+  signUp: (
+    email: string,
+    password: string,
+    metadata?: { display_name?: string; username?: string },
+  ) => Promise<unknown>;
+  signIn: (email: string, password: string) => Promise<unknown>;
+  signOut: () => Promise<unknown>;
   isAuthenticated: boolean;
 }
 

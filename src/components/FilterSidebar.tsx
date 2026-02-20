@@ -7,6 +7,7 @@ import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, X } from 'lucide-react';
+import { DEFAULT_FORMAT_OPTIONS, RESOURCE_TYPE_OPTIONS, getResourceTypeLabel } from '@/utils/resourceTaxonomy';
 
 interface FilterSidebarProps {
   filters: ResourceFilters;
@@ -23,16 +24,10 @@ export const FilterSidebar = ({ filters, onFiltersChange }: FilterSidebarProps) 
     { value: '14-17', label: 'Ages 14-17' },
   ];
 
-  const resourceTypeOptions: { value: ResourceType; label: string }[] = [
-    { value: 'online_course', label: 'Online Course' },
-    { value: 'book', label: 'Book' },
-    { value: 'interactive_tool', label: 'Interactive Tool' },
-    { value: 'game', label: 'Game' },
-    { value: 'video', label: 'Video' },
-    { value: 'tutorial', label: 'Tutorial' },
-    { value: 'activity', label: 'Activity' },
-    { value: 'camp', label: 'Camp' },
-  ];
+  const resourceTypeOptions: { value: ResourceType; label: string }[] = RESOURCE_TYPE_OPTIONS.map((option) => ({
+    value: option.value,
+    label: option.label,
+  }));
 
   const costTypeOptions: { value: CostType; label: string }[] = [
     { value: 'free', label: 'Free' },
@@ -65,6 +60,14 @@ export const FilterSidebar = ({ filters, onFiltersChange }: FilterSidebarProps) 
     onFiltersChange({ ...filters, costTypes: newCostTypes });
   };
 
+  const handleFormatChange = (value: string, checked: boolean) => {
+    const newFormats = checked
+      ? [...filters.formats, value]
+      : filters.formats.filter((format) => format !== value);
+
+    onFiltersChange({ ...filters, formats: newFormats });
+  };
+
   const handleRecentlyAddedChange = (checked: boolean) => {
     onFiltersChange({ ...filters, recentlyAdded: checked });
   };
@@ -92,6 +95,7 @@ export const FilterSidebar = ({ filters, onFiltersChange }: FilterSidebarProps) 
     onFiltersChange({
       ageRanges: [],
       resourceTypes: [],
+      formats: [],
       costTypes: [],
       minRating: 0,
       recentlyAdded: false,
@@ -102,6 +106,7 @@ export const FilterSidebar = ({ filters, onFiltersChange }: FilterSidebarProps) 
   const hasActiveFilters = 
     filters.ageRanges.length > 0 || 
     filters.resourceTypes.length > 0 || 
+    filters.formats.length > 0 ||
     filters.costTypes.length > 0 || 
     filters.minRating > 0 || 
     filters.recentlyAdded || 
@@ -165,7 +170,30 @@ export const FilterSidebar = ({ filters, onFiltersChange }: FilterSidebarProps) 
                   htmlFor={`age-${option.value}`}
                   className="text-sm cursor-pointer"
                 >
-                  {option.label}
+                  {getResourceTypeLabel(option.value)}
+                </Label>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <h3 className="text-lg font-medium mb-3">Format</h3>
+          <div className="space-y-2">
+            {DEFAULT_FORMAT_OPTIONS.map((option) => (
+              <div key={option} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`format-${option}`}
+                  checked={filters.formats.includes(option)}
+                  onCheckedChange={(checked) =>
+                    handleFormatChange(option, checked as boolean)
+                  }
+                />
+                <Label
+                  htmlFor={`format-${option}`}
+                  className="text-sm cursor-pointer"
+                >
+                  {option}
                 </Label>
               </div>
             ))}

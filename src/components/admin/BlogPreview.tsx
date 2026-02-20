@@ -86,7 +86,7 @@ export const BlogPreview = ({ open, onOpenChange, formData }: BlogPreviewProps) 
           
           <div 
             dangerouslySetInnerHTML={{ __html: formData.content || '<p>No content available...</p>' }}
-            className="prose-headings:font-bold prose-a:text-primary prose-strong:font-semibold prose-p:leading-relaxed prose-li:leading-relaxed [&_p]:mb-4 [&_h1]:mb-6 [&_h2]:mb-4 [&_h3]:mb-4 [&_ul]:mb-4 [&_ol]:mb-4 [&_blockquote]:mb-4"
+            className="article-content prose-headings:font-bold prose-a:text-primary prose-strong:font-semibold prose-p:leading-relaxed prose-li:leading-relaxed [&_p]:mb-4 [&_h1]:mb-6 [&_h2]:mb-4 [&_h3]:mb-4 [&_ul]:mb-4 [&_ol]:mb-4 [&_blockquote]:mb-4"
           />
         </article>
       </DialogContent>

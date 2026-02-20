@@ -1,22 +1,28 @@
 
 import { useState, useEffect } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
-import { getCurrentUser, signUp, signIn, signOut, getProfile } from '@/services/supabaseService';
+import { signUp, signIn, signOut, getProfile } from '@/services/backendService';
+import {
+  getCurrentAuthSession,
+  onAuthStateChangedBackend,
+  resolveDataUserId,
+  type BackendAuthSession,
+  type BackendAuthUser,
+} from '@/services/backend/auth';
+import { logger } from '@/lib/logger';
 
 export const useAuth = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [profile, setProfile] = useState<any>(null);
+  const [user, setUser] = useState<BackendAuthUser | null>(null);
+  const [session, setSession] = useState<BackendAuthSession>(null);
+  const [profile, setProfile] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let mounted = true;
 
     // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    const subscription = onAuthStateChangedBackend(
       async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.id);
+        logger.debug('Auth state changed:', event, session?.user?.id);
         
         if (!mounted) return;
 
@@ -28,7 +34,8 @@ export const useAuth = () => {
           setTimeout(async () => {
             if (!mounted) return;
             try {
-              const userProfile = await getProfile(session.user.id);
+              const profileUserId = (await resolveDataUserId(session.user)) || session.user.id;
+              const userProfile = await getProfile(profileUserId);
               if (mounted) {
                 setProfile(userProfile);
               }
@@ -50,15 +57,13 @@ export const useAuth = () => {
     );
 
     // THEN check for existing session
-    const getInitialSession = async () => {
+    const loadInitialSession = async () => {
       if (!mounted) return;
       
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) {
-          console.error('Error getting session:', error);
-        } else if (session && mounted) {
-          console.log('Initial session found:', session.user?.id);
+        const session = await getCurrentAuthSession();
+        if (session && mounted) {
+          logger.debug('Initial session found:', session.user?.id);
           setSession(session);
           setUser(session.user);
           
@@ -66,7 +71,8 @@ export const useAuth = () => {
           setTimeout(async () => {
             if (!mounted) return;
             try {
-              const userProfile = await getProfile(session.user.id);
+              const profileUserId = (await resolveDataUserId(session.user)) || session.user.id;
+              const userProfile = await getProfile(profileUserId);
               if (mounted) {
                 setProfile(userProfile);
               }
@@ -84,7 +90,7 @@ export const useAuth = () => {
       }
     };
 
-    getInitialSession();
+    loadInitialSession();
 
     return () => {
       mounted = false;

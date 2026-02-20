@@ -5,9 +5,9 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
 const AgeRangeQuickFiltersSection = () => (
-  <section className="py-12 md:py-16 bg-gradient-to-br from-purple-50/50 to-indigo-50/50 dark:from-purple-950/20 dark:to-indigo-950/20">
+  <section className="py-8 md:py-10 bg-gradient-to-br from-slate-100 via-purple-50 to-indigo-100 dark:from-purple-950/20 dark:to-indigo-950/20">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="text-center mb-8 md:mb-12">
+      <div className="text-center mb-6 md:mb-8">
         <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold gradient-text mb-3">Browse by Age Group</h2>
         <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
           Find age-appropriate AI learning resources tailored for different developmental stages
@@ -17,7 +17,7 @@ const AgeRangeQuickFiltersSection = () => (
         {['5-7', '8-10', '11-13', '14-17'].map((ageRange) => (
           <Link key={ageRange} to={`/resources?age=${ageRange}`} className="block">
             <m.div 
-              className="glass-card rounded-xl p-4 md:p-6 h-full flex flex-col items-center justify-center text-center shadow-soft hover:shadow-medium transition-all duration-300"
+              className="glass-card rounded-xl p-4 md:p-6 h-full flex flex-col items-center justify-center text-center border border-white/70 bg-white/90 shadow-md hover:shadow-lg transition-all duration-300"
               whileHover={{ y: -5, transition: { duration: 0.2 } }}
             >
               <h3 className="text-lg md:text-xl font-semibold mb-2">Ages {ageRange}</h3>

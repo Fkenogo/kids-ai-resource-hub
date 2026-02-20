@@ -1,15 +1,23 @@
 
 import React, { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { generatePlaceholderSvg } from "@/utils/generatePlaceholderSvg";
 import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/Layout";
+import { useAdminAccess } from "@/hooks/useAdminAccess";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link } from "react-router-dom";
+import {
+  getBrokenResourceImagesFromBackend,
+  updateResourceImageUrlFromBackend,
+} from "@/services/backend/resources";
+import { uploadResourceImage } from "@/services/storageService";
 
 /**
  * Admin page to batch assign placeholder images to resources with broken/legacy image urls.
  */
 const AdminPlaceholderMigration = () => {
-  const [resources, setResources] = useState<any[]>([]);
+  const { isAuthenticated, hasAccess, isCheckingAccess } = useAdminAccess();
+  const [resources, setResources] = useState<Array<{ id: string; title: string; image_url: string }>>([]);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState("");
   const [done, setDone] = useState(false);
@@ -22,48 +30,31 @@ const AdminPlaceholderMigration = () => {
     setErrors([]);
     setProgress("Finding broken images...");
     // Look for any resources with image_url LIKE '/lovable-uploads/%'
-    const { data, error } = await supabase
-      .from("resources")
-      .select("id, title, image_url")
-      .filter("image_url", "like", "/lovable-uploads/%");
-    if (error) {
-      setProgress(error.message);
+    try {
+      const data = await getBrokenResourceImagesFromBackend();
+      setResources(data || []);
       setLoading(false);
-      return;
+      setProgress(
+        data && data.length > 0
+          ? `${data.length} resources found with broken images.`
+          : "No resources with broken images found."
+      );
+    } catch (error: unknown) {
+      setProgress(error instanceof Error ? error.message : "Failed to fetch resources");
+      setLoading(false);
     }
-    setResources(data || []);
-    setLoading(false);
-    setProgress(
-      data && data.length > 0
-        ? `${data.length} resources found with broken images.`
-        : "No resources with broken images found."
-    );
   }
 
   // Upload svg string as a file
-  async function uploadSvgForResource(resource: any) {
+  async function uploadSvgForResource(resource: { id: string; title: string }) {
     const svgDataUrl = generatePlaceholderSvg(resource.title);
     // Convert data URL to blob
     const res = await fetch(svgDataUrl);
     const blob = await res.blob();
     const fileName = `placeholder-${resource.id}.svg`;
 
-    // Upload to Supabase
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from("resource-images")
-      .upload(fileName, blob, {
-        contentType: "image/svg+xml",
-        upsert: true,
-        cacheControl: "3600"
-      });
-    if (uploadError) {
-      throw new Error(uploadError.message);
-    }
-    // Get public URL
-    const { data: urlData } = supabase.storage
-      .from("resource-images")
-      .getPublicUrl(uploadData.path);
-    return urlData?.publicUrl ?? null;
+    const file = new File([blob], fileName, { type: "image/svg+xml" });
+    return uploadResourceImage(file);
   }
 
   // Assign placeholders to all in list
@@ -80,20 +71,19 @@ const AdminPlaceholderMigration = () => {
         const url = await uploadSvgForResource(res);
         if (url) {
           // Update resource
-          const { error } = await supabase
-            .from("resources")
-            .update({ image_url: url })
-            .eq("id", res.id);
-          if (!error) {
+          try {
+            await updateResourceImageUrlFromBackend(res.id, url);
             updated++;
-          } else {
-            errorList.push(`Update failed for "${res.title}": ${error.message}`);
+          } catch (updateError: unknown) {
+            const message = updateError instanceof Error ? updateError.message : String(updateError);
+            errorList.push(`Update failed for "${res.title}": ${message}`);
           }
         } else {
           errorList.push(`Upload SVG failed for "${res.title}"`);
         }
-      } catch (e: any) {
-        errorList.push(`Error uploading for "${res.title}": ${e?.message || e}`);
+      } catch (e: unknown) {
+        const message = e instanceof Error ? e.message : String(e);
+        errorList.push(`Error uploading for "${res.title}": ${message}`);
       }
     }
     setProgress(`Done. Placeholders assigned to ${updated} resource${updated !== 1 ? "s" : ""}.`);
@@ -102,6 +92,46 @@ const AdminPlaceholderMigration = () => {
     setErrors(errorList);
     // Refresh list
     fetchResources();
+  }
+
+  if (isCheckingAccess) {
+    return (
+      <Layout>
+        <div className="max-w-2xl mx-auto p-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>Checking access</CardTitle>
+              <CardDescription>Verifying admin permissions...</CardDescription>
+            </CardHeader>
+          </Card>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!isAuthenticated || !hasAccess) {
+    return (
+      <Layout>
+        <div className="max-w-2xl mx-auto p-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>Access denied</CardTitle>
+              <CardDescription>You need an admin or moderator account to run this migration.</CardDescription>
+            </CardHeader>
+            <CardContent className="flex gap-3">
+              {!isAuthenticated ? (
+                <Button asChild>
+                  <Link to="/login">Log in</Link>
+                </Button>
+              ) : null}
+              <Button variant="outline" asChild>
+                <Link to="/">Go to home</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </Layout>
+    );
   }
 
   return (

@@ -86,7 +86,7 @@ export const ResourceGrid = ({
             <h2 className="text-2xl font-bold mb-4">
               {categoryBy === 'ageRange' ? `Ages ${category} (${getCategoryDescription(category)})` : category}
             </h2>
-            <div className={`grid ${getColumnClass()} gap-6`}>
+            <div className={`grid ${getColumnClass()} gap-4`}>
               {categoryResources.map((resource, index) => (
                 <ResourceCard key={resource.id} resource={resource} index={index} />
               ))}
@@ -94,7 +94,7 @@ export const ResourceGrid = ({
           </div>
         ))
       ) : (
-        <div className={`grid ${getColumnClass()} gap-6`}>
+        <div className={`grid ${getColumnClass()} gap-4`}>
           {resources.map((resource, index) => (
             <ResourceCard key={resource.id} resource={resource} index={index} />
           ))}

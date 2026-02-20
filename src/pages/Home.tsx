@@ -1,18 +1,20 @@
 
+import { Suspense, lazy } from 'react';
 import { Layout } from '@/components/Layout';
-import { useResources } from '@/hooks/useSupabaseData';
+import { useResources } from '@/hooks/useBackendData';
+import { logger } from '@/lib/logger';
 import { mapDbResourceToResource } from '@/utils/resourceTransform';
 import EnhancedHeroSection from '../components/EnhancedHeroSection';
 import FeaturedResourcesSection from './home/FeaturedResourcesSection';
-import TopRatedResourcesSection from './home/TopRatedResourcesSection';
-import RecentlyAddedSection from './home/RecentlyAddedSection';
-import AgeRangeQuickFiltersSection from './home/AgeRangeQuickFiltersSection';
-import LatestBlogPostsSection from './home/LatestBlogPostsSection';
-import CallToActionSection from './home/CallToActionSection';
+const TopRatedResourcesSection = lazy(() => import('./home/TopRatedResourcesSection'));
+const RecentlyAddedSection = lazy(() => import('./home/RecentlyAddedSection'));
+const AgeRangeQuickFiltersSection = lazy(() => import('./home/AgeRangeQuickFiltersSection'));
+const LatestBlogPostsSection = lazy(() => import('./home/LatestBlogPostsSection'));
+const CallToActionSection = lazy(() => import('./home/CallToActionSection'));
 
 const Home = () => {
-  const { data: dbResourcesRaw = [], isLoading, error } = useResources();
-  if (error) console.error("Home: resource query error", error);
+  const { data: dbResourcesRaw = [], error } = useResources();
+  if (error) logger.error('Home: resource query error', error);
 
   const dbResources = Array.isArray(dbResourcesRaw)
     ? dbResourcesRaw.map(mapDbResourceToResource)
@@ -55,14 +57,18 @@ const Home = () => {
   return (
     <Layout>
       <EnhancedHeroSection />
-      <div className="space-y-16 md:space-y-20">
+      <div className="space-y-8 md:space-y-10">
         <FeaturedResourcesSection featuredResources={featuredResources} />
-        <TopRatedResourcesSection topRatedResources={mostPopularResources} />
-        <RecentlyAddedSection recentResources={recentResources} />
-        <AgeRangeQuickFiltersSection />
-        <LatestBlogPostsSection />
+        <Suspense fallback={<div className="px-4 text-sm text-muted-foreground">Loading sections...</div>}>
+          <TopRatedResourcesSection topRatedResources={mostPopularResources} />
+          <RecentlyAddedSection recentResources={recentResources} />
+          <AgeRangeQuickFiltersSection />
+          <LatestBlogPostsSection />
+        </Suspense>
       </div>
-      <CallToActionSection />
+      <Suspense fallback={null}>
+        <CallToActionSection />
+      </Suspense>
     </Layout>
   );
 };

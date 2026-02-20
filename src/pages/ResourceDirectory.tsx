@@ -2,37 +2,15 @@ import { useState, useEffect } from 'react';
 import { Layout } from '@/components/Layout';
 import { ResourceGrid } from '@/components/ResourceGrid';
 import { FilterSidebar } from '@/components/FilterSidebar';
-import { useResources } from '@/hooks/useSupabaseData';
+import { useResources } from '@/hooks/useBackendData';
 import { ResourceFilters, DisplayMode, AgeRange } from '@/types';
 import { useLocation } from 'react-router-dom';
 import { m } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Grid2x2, List } from 'lucide-react';
-
-const mapDbResourceToResource = (r: any): import('@/types').Resource => ({
-  id: r.id,
-  title: r.title,
-  description: r.description,
-  url: r.url,
-  ageRanges: r.age_ranges,
-  resourceType: r.resource_type,
-  format: r.format ?? undefined,
-  cost: r.cost,
-  learningOutcomes: r.learning_outcomes ?? undefined,
-  skillsAttained: r.skills_attained ?? undefined,
-  keyFeatures: r.key_features ?? undefined,
-  dateAdded: r.created_at,
-  addedBy: r.added_by,
-  averageRating: r.average_rating ?? 0,
-  reviewCount: r.review_count ?? 0,
-  featuredResource: r.is_featured ?? false,
-  imageUrl: r.image_url ?? undefined,
-  viewCount: r.view_count ?? 0,
-  likeCount: r.like_count ?? 0,
-  shareCount: r.share_count ?? 0,
-  saveCount: r.save_count ?? 0,
-  commentCount: r.comment_count ?? 0,
-});
+import { mapDbResourceToResource } from '@/utils/resourceTransform';
+import { logger } from '@/lib/logger';
+import { parseFormatTags } from '@/utils/resourceTaxonomy';
 
 const ResourceDirectory = () => {
   const location = useLocation();
@@ -43,8 +21,8 @@ const ResourceDirectory = () => {
     : [];
 
   const { data: dbResourcesRaw = [], isLoading, error } = useResources();
-  if (error) console.error("ResourceDirectory: resource query error", error);
-  console.log("ResourceDirectory: dbResourcesRaw", dbResourcesRaw);
+  if (error) logger.error("ResourceDirectory: resource query error", error);
+  logger.debug("ResourceDirectory: dbResourcesRaw", dbResourcesRaw);
 
   const dbResources = Array.isArray(dbResourcesRaw)
     ? dbResourcesRaw.map(mapDbResourceToResource)
@@ -53,6 +31,7 @@ const ResourceDirectory = () => {
   const [filters, setFilters] = useState<ResourceFilters>({
     ageRanges: initialAgeRange,
     resourceTypes: [],
+    formats: [],
     costTypes: [],
     minRating: 0,
     recentlyAdded: false,
@@ -70,6 +49,13 @@ const ResourceDirectory = () => {
     // Filter by resourceTypes
     if (filters.resourceTypes.length > 0 && !filters.resourceTypes.includes(resource.resourceType)) {
       return false;
+    }
+    // Filter by formats
+    if (filters.formats.length > 0) {
+      const resourceFormats = parseFormatTags(resource.format);
+      if (!resourceFormats.some((format) => filters.formats.includes(format))) {
+        return false;
+      }
     }
     // Filter by costTypes
     if (filters.costTypes.length > 0 && !filters.costTypes.includes(resource.cost)) {

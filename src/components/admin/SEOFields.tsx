@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Search, Link, FileText } from 'lucide-react';
+import type { BadgeProps } from '@/components/ui/badge';
 
 interface SEOFieldsProps {
   title: string;
@@ -43,6 +44,13 @@ export const SEOFields = ({
     return { color: 'success', text: 'Good' };
   };
 
+  const toBadgeVariant = (color: string): BadgeProps['variant'] => {
+    if (color === 'warning') return 'secondary';
+    if (color === 'success') return 'success';
+    if (color === 'destructive') return 'destructive';
+    return 'secondary';
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -62,7 +70,7 @@ export const SEOFields = ({
               Meta Title
             </Label>
             <div className="flex items-center gap-2">
-              <Badge variant={getTitleStatus().color as any}>
+              <Badge variant={toBadgeVariant(getTitleStatus().color)}>
                 {getTitleStatus().text}
               </Badge>
               <span className="text-sm text-muted-foreground">
@@ -107,7 +115,7 @@ export const SEOFields = ({
           <div className="flex items-center justify-between">
             <Label htmlFor="seo-excerpt">Meta Description</Label>
             <div className="flex items-center gap-2">
-              <Badge variant={getExcerptStatus().color as any}>
+              <Badge variant={toBadgeVariant(getExcerptStatus().color)}>
                 {getExcerptStatus().text}
               </Badge>
               <span className="text-sm text-muted-foreground">

@@ -12,12 +12,37 @@ import { Plus, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { ImageUploader } from '@/components/ImageUploader';
 import { createBlogPost, updateBlogPost, generateSlug } from '@/services/blogService';
-import { getCurrentUser } from '@/services/supabaseService';
+import { getCurrentUser } from '@/services/backendService';
 
 interface BlogPostFormProps {
-  post?: any;
+  post?: {
+    id: string;
+    title?: string;
+    slug?: string;
+    excerpt?: string;
+    content?: string;
+    category?: string;
+    tags?: string[];
+    image_url?: string;
+    read_time?: number;
+    is_featured?: boolean;
+    is_published?: boolean;
+  };
   onSuccess: () => void;
 }
+
+type BlogPostFormData = {
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  category: string;
+  tags: string[];
+  image_url: string;
+  read_time: number;
+  is_featured: boolean;
+  is_published: boolean;
+};
 
 const categories = [
   'AI Education',
@@ -30,7 +55,7 @@ const categories = [
 
 export const BlogPostForm = ({ post, onSuccess }: BlogPostFormProps) => {
   const [open, setOpen] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<BlogPostFormData>({
     title: post?.title || '',
     slug: post?.slug || '',
     excerpt: post?.excerpt || '',
@@ -48,7 +73,7 @@ export const BlogPostForm = ({ post, onSuccess }: BlogPostFormProps) => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: BlogPostFormData) => {
       const user = await getCurrentUser();
       if (!user) throw new Error('User not authenticated');
 

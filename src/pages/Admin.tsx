@@ -1,59 +1,84 @@
 
+import { Suspense, lazy } from 'react';
 import { Layout } from '@/components/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Shield, Database, Users, Package, MessageSquare } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { ResourceManagement } from '@/components/admin/ResourceManagement';
-import { BlogManagement } from '@/components/admin/BlogManagement';
-import { SQLTemplateGenerator } from '@/components/admin/SQLTemplateGenerator';
-import { CommunityManagement } from '@/components/admin/CommunityManagement';
+import { useAdminAccess } from '@/hooks/useAdminAccess';
+import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
+import { getAdminCounts } from '@/services/backend/admin';
+
+const ResourceManagement = lazy(() =>
+  import('@/components/admin/ResourceManagement').then((module) => ({
+    default: module.ResourceManagement,
+  })),
+);
+const CommunityManagement = lazy(() =>
+  import('@/components/admin/CommunityManagement').then((module) => ({
+    default: module.CommunityManagement,
+  })),
+);
+const BlogManagement = lazy(() =>
+  import('@/components/admin/BlogManagement').then((module) => ({
+    default: module.BlogManagement,
+  })),
+);
+const SQLTemplateGenerator = lazy(() =>
+  import('@/components/admin/SQLTemplateGenerator').then((module) => ({
+    default: module.SQLTemplateGenerator,
+  })),
+);
 
 const Admin = () => {
-  // Fetch resource count
-  const { data: resourceCount } = useQuery({
-    queryKey: ['admin-resource-count'],
-    queryFn: async () => {
-      const { count } = await supabase
-        .from('resources')
-        .select('*', { count: 'exact', head: true });
-      return count || 0;
-    },
+  const { isAuthenticated, hasAccess, isCheckingAccess } = useAdminAccess();
+
+  const { data: counts } = useQuery({
+    queryKey: ['admin-counts'],
+    enabled: hasAccess,
+    queryFn: getAdminCounts,
   });
 
-  // Fetch product count
-  const { data: productCount } = useQuery({
-    queryKey: ['admin-product-count'],
-    queryFn: async () => {
-      const { count } = await supabase
-        .from('products')
-        .select('*', { count: 'exact', head: true });
-      return count || 0;
-    },
-  });
+  if (isCheckingAccess) {
+    return (
+      <Layout>
+        <div className="max-w-4xl mx-auto p-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>Checking access</CardTitle>
+              <CardDescription>Verifying admin permissions...</CardDescription>
+            </CardHeader>
+          </Card>
+        </div>
+      </Layout>
+    );
+  }
 
-  // Fetch user count
-  const { data: userCount } = useQuery({
-    queryKey: ['admin-user-count'],
-    queryFn: async () => {
-      const { count } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true });
-      return count || 0;
-    },
-  });
-
-  // Fetch community posts count
-  const { data: communityPostsCount } = useQuery({
-    queryKey: ['admin-community-posts-count'],
-    queryFn: async () => {
-      const { count } = await supabase
-        .from('community_posts')
-        .select('*', { count: 'exact', head: true });
-      return count || 0;
-    },
-  });
+  if (!isAuthenticated || !hasAccess) {
+    return (
+      <Layout>
+        <div className="max-w-4xl mx-auto p-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>Access denied</CardTitle>
+              <CardDescription>You need an admin or moderator account to open this page.</CardDescription>
+            </CardHeader>
+            <CardContent className="flex gap-3">
+              {!isAuthenticated ? (
+                <Button asChild>
+                  <Link to="/login">Log in</Link>
+                </Button>
+              ) : null}
+              <Button variant="outline" asChild>
+                <Link to="/">Go to home</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -76,7 +101,7 @@ const Admin = () => {
                 <Database className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{resourceCount ?? 'Loading...'}</div>
+                <div className="text-2xl font-bold">{counts?.resources ?? 'Loading...'}</div>
                 <p className="text-xs text-muted-foreground">
                   Educational resources in database
                 </p>
@@ -89,7 +114,7 @@ const Admin = () => {
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{userCount ?? 'Loading...'}</div>
+                <div className="text-2xl font-bold">{counts?.users ?? 'Loading...'}</div>
                 <p className="text-xs text-muted-foreground">
                   Registered users
                 </p>
@@ -102,7 +127,7 @@ const Admin = () => {
                 <MessageSquare className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{communityPostsCount ?? 'Loading...'}</div>
+                <div className="text-2xl font-bold">{counts?.communityPosts ?? 'Loading...'}</div>
                 <p className="text-xs text-muted-foreground">
                   Community discussions
                 </p>
@@ -115,7 +140,7 @@ const Admin = () => {
                 <Package className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{productCount ?? 'Loading...'}</div>
+                <div className="text-2xl font-bold">{counts?.products ?? 'Loading...'}</div>
                 <p className="text-xs text-muted-foreground">
                   Available for purchase
                 </p>
@@ -130,22 +155,24 @@ const Admin = () => {
               <TabsTrigger value="blog">Blog Management</TabsTrigger>
               <TabsTrigger value="sql-generator">SQL Generator</TabsTrigger>
             </TabsList>
-            
-            <TabsContent value="resources" className="mt-6">
-              <ResourceManagement />
-            </TabsContent>
-            
-            <TabsContent value="community" className="mt-6">
-              <CommunityManagement />
-            </TabsContent>
-            
-            <TabsContent value="blog" className="mt-6">
-              <BlogManagement />
-            </TabsContent>
-            
-            <TabsContent value="sql-generator" className="mt-6">
-              <SQLTemplateGenerator />
-            </TabsContent>
+
+            <Suspense fallback={<div className="mt-6 text-sm text-muted-foreground">Loading admin module...</div>}>
+              <TabsContent value="resources" className="mt-6">
+                <ResourceManagement />
+              </TabsContent>
+
+              <TabsContent value="community" className="mt-6">
+                <CommunityManagement />
+              </TabsContent>
+
+              <TabsContent value="blog" className="mt-6">
+                <BlogManagement />
+              </TabsContent>
+
+              <TabsContent value="sql-generator" className="mt-6">
+                <SQLTemplateGenerator />
+              </TabsContent>
+            </Suspense>
           </Tabs>
         </div>
       </div>

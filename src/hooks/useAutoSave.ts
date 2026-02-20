@@ -1,36 +1,39 @@
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { logger } from '@/lib/logger';
 
 interface UseAutoSaveProps {
   enabled: boolean;
-  formData: any;
+  formData: Record<string, unknown>;
   onAutoSave: () => void;
   interval?: number;
 }
 
 export const useAutoSave = ({ enabled, formData, onAutoSave, interval = 30000 }: UseAutoSaveProps) => {
+  const lastSnapshotRef = useRef<string>('');
+
   useEffect(() => {
-    // Temporarily disable auto-save to prevent authentication errors
     if (!enabled) {
-      console.log('Auto-save disabled');
       return;
     }
-    
-    console.log('Auto-save feature temporarily disabled to prevent authentication issues');
-    
-    // TODO: Re-enable once authentication is stable
-    // const autoSaveInterval = setInterval(() => {
-    //   if (formData.title || formData.content) {
-    //     console.log('Auto-save triggered - content exists');
-    //     onAutoSave();
-    //   } else {
-    //     console.log('Auto-save skipped - no content');
-    //   }
-    // }, interval);
 
-    // return () => {
-    //   console.log('Cleaning up auto-save interval');
-    //   clearInterval(autoSaveInterval);
-    // };
+    const autoSaveInterval = setInterval(() => {
+      const snapshot = JSON.stringify(formData);
+      const hasContent = Boolean(
+        (formData.title as string | undefined)?.trim() ||
+          (formData.content as string | undefined)?.trim(),
+      );
+
+      if (!hasContent) return;
+      if (snapshot === lastSnapshotRef.current) return;
+
+      lastSnapshotRef.current = snapshot;
+      logger.debug('Auto-saving draft...');
+      onAutoSave();
+    }, interval);
+
+    return () => {
+      clearInterval(autoSaveInterval);
+    };
   }, [enabled, formData, onAutoSave, interval]);
 };

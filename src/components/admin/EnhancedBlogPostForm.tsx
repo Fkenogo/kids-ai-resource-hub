@@ -14,7 +14,21 @@ import { BlogFormActions } from './BlogFormActions';
 import { BlogContentTab } from './BlogContentTab';
 
 interface EnhancedBlogPostFormProps {
-  post?: any;
+  post?: {
+    id: string;
+    title?: string;
+    slug?: string;
+    excerpt?: string;
+    content?: string;
+    category?: string;
+    tags?: string[];
+    image_url?: string;
+    read_time?: number;
+    is_featured?: boolean;
+    is_published?: boolean;
+    is_pinned?: boolean;
+    scheduled_date?: string;
+  };
   onSuccess: () => void;
 }
 

@@ -11,6 +11,8 @@ import { m } from 'framer-motion';
 import { Separator } from '@/components/ui/separator';
 import { Github, Phone, Facebook } from 'lucide-react';
 import { useAuthContext } from '@/components/auth/AuthProvider';
+import { signInWithOAuthProvider } from '@/services/backend/auth';
+import { logger } from '@/lib/logger';
 
 const Signup = () => {
   const [username, setUsername] = useState('');
@@ -37,7 +39,7 @@ const Signup = () => {
 
     setIsLoading(true);
 
-    console.log('Attempting signup for:', email);
+    logger.debug('Attempting signup for:', email);
 
     try {
       const { data, error } = await signUp(email, password, {
@@ -59,13 +61,13 @@ const Signup = () => {
         
         toast.error(errorMessage);
       } else if (data?.user) {
-        console.log('Signup successful for user:', data.user.id);
+        logger.debug('Signup successful for user:', data.user.id);
         toast.success('Account created! Check your email to confirm your address.');
         navigate('/login');
       } else {
         toast.error('Account creation failed. No user data received.');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Unexpected signup error:', err);
       toast.error('An unexpected error occurred. Please try again.');
     }
@@ -73,25 +75,20 @@ const Signup = () => {
     setIsLoading(false);
   };
 
-  // Real Supabase social authentication
+  // OAuth authentication through backend auth adapter
   const handleSocialSignup = async (provider: 'google' | 'github') => {
     setIsLoading(true);
-    const { supabase } = await import('@/integrations/supabase/client');
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: window.location.origin + '/',
-        }
-      });
+      const { error } = await signInWithOAuthProvider(provider);
       if (error) {
         console.error(`${provider} auth error:`, error);
-        toast.error(`Failed to sign up with ${provider}: ${error.message}`);
+        const message = error instanceof Error ? error.message : String(error);
+        toast.error(`Failed to sign up with ${provider}: ${message}`);
       }
-      // The redirect will happen if successful
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(`${provider} auth unexpected error:`, err);
-      toast.error(`Failed to sign up with ${provider}: ${err.message || err}`);
+      const message = err instanceof Error ? err.message : String(err);
+      toast.error(`Failed to sign up with ${provider}: ${message}`);
     }
     setIsLoading(false);
   };

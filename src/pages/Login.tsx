@@ -10,6 +10,7 @@ import { useAuthContext } from '@/components/auth/AuthProvider';
 import { toast } from 'sonner';
 import { m } from 'framer-motion';
 import { useEffect } from 'react';
+import { logger } from '@/lib/logger';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -21,7 +22,7 @@ const Login = () => {
   // Redirect if already authenticated
   useEffect(() => {
     if (!loading && isAuthenticated) {
-      console.log('User already authenticated, redirecting to home...');
+      logger.debug('User already authenticated, redirecting to home...');
       navigate('/');
     }
   }, [isAuthenticated, loading, navigate]);
@@ -32,7 +33,7 @@ const Login = () => {
     if (isLoading) return; // Prevent double submission
     
     setIsLoading(true);
-    console.log('Attempting login for:', email);
+    logger.debug('Attempting login for:', email);
 
     try {
       const { data, error } = await signIn(email, password);
@@ -54,7 +55,7 @@ const Login = () => {
         toast.error(errorMessage);
         setIsLoading(false);
       } else if (data?.user) {
-        console.log('Login successful for user:', data.user.id);
+        logger.debug('Login successful for user:', data.user.id);
         toast.success('Login successful!');
         // Don't set loading to false here - let the auth state change handle navigation
         // The useEffect above will handle the redirect when isAuthenticated becomes true
@@ -63,7 +64,7 @@ const Login = () => {
         toast.error('Login failed. No user data received.');
         setIsLoading(false);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Unexpected login error:', err);
       toast.error('An unexpected error occurred. Please try again.');
       setIsLoading(false);

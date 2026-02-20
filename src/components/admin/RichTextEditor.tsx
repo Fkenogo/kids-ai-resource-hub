@@ -22,6 +22,7 @@ import { common, createLowlight } from 'lowlight';
 import { EditorToolbar } from './editor/EditorToolbar';
 import { EditorActions } from './editor/EditorActions';
 import { EditorStats } from './editor/EditorStats';
+import { logger } from '@/lib/logger';
 
 const lowlight = createLowlight(common);
 
@@ -107,7 +108,7 @@ export const RichTextEditor = ({ content, onChange, placeholder }: RichTextEdito
     content,
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
-      console.log('Editor content updated:', html);
+      logger.debug('Editor content updated:', html);
       onChange(html);
       
       const text = editor.getText();

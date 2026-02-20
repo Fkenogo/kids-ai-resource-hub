@@ -6,32 +6,47 @@ import { Badge } from '@/components/ui/badge';
 import { Heart, MessageCircle, ExternalLink, Plus } from 'lucide-react';
 import { m } from 'framer-motion';
 import { useState } from 'react';
+import { logger } from '@/lib/logger';
+
+interface ShowcaseProject {
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+  tool: string;
+  author: string;
+  authorAvatar?: string;
+  age: string;
+  tags?: string[];
+  likes: number;
+  comments: number;
+}
 
 export const ProjectShowcase = () => {
   const [showSubmitForm, setShowSubmitForm] = useState(false);
 
   // No dummy data - will be populated with real user projects
-  const projects: any[] = [];
+  const projects: ShowcaseProject[] = [];
 
   const handleSubmitProject = () => {
     setShowSubmitForm(true);
     // TODO: Implement project submission functionality
-    console.log('Submit project clicked');
+    logger.debug('Submit project clicked');
   };
 
   const handleLike = (projectId: string) => {
     // TODO: Implement like functionality
-    console.log('Like clicked for project:', projectId);
+    logger.debug('Like clicked for project:', projectId);
   };
 
   const handleComment = (projectId: string) => {
     // TODO: Implement comment functionality
-    console.log('Comment clicked for project:', projectId);
+    logger.debug('Comment clicked for project:', projectId);
   };
 
   const handleViewDetails = (projectId: string) => {
     // TODO: Implement view details functionality
-    console.log('View details clicked for project:', projectId);
+    logger.debug('View details clicked for project:', projectId);
   };
 
   return (

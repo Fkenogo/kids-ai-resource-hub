@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { createBlogPost, updateBlogPost, generateSlug, getCurrentUserForBlog } from '@/services/blogService';
+import { logger } from '@/lib/logger';
 
 interface BlogPostFormData {
   title: string;
@@ -19,7 +20,11 @@ interface BlogPostFormData {
   scheduled_date: string;
 }
 
-export const useBlogPostForm = (post?: any, onSuccess?: () => void) => {
+interface ExistingBlogPost extends Partial<BlogPostFormData> {
+  id: string;
+}
+
+export const useBlogPostForm = (post?: ExistingBlogPost, onSuccess?: () => void) => {
   const [formData, setFormData] = useState<BlogPostFormData>({
     title: post?.title || '',
     slug: post?.slug || '',
@@ -77,11 +82,9 @@ export const useBlogPostForm = (post?: any, onSuccess?: () => void) => {
 
   const mutation = useMutation({
     mutationFn: async (data: BlogPostFormData & { is_published: boolean }) => {
-      console.log('Saving blog post with data:', data);
-      
       try {
         const user = await getCurrentUserForBlog();
-        console.log('User authenticated:', user.id);
+        logger.debug('Saving blog post for user:', user.id);
 
         // Clean the scheduled_date - convert empty string to null
         const cleanScheduledDate = data.scheduled_date && data.scheduled_date.trim() !== '' 
@@ -96,13 +99,9 @@ export const useBlogPostForm = (post?: any, onSuccess?: () => void) => {
           updated_at: new Date().toISOString(),
         };
 
-        console.log('Final post data:', postData);
-
         if (currentPostId) {
-          console.log('Updating existing post:', currentPostId);
           return updateBlogPost(currentPostId, postData);
         } else {
-          console.log('Creating new post');
           return createBlogPost(postData);
         }
       } catch (authError) {
@@ -111,7 +110,6 @@ export const useBlogPostForm = (post?: any, onSuccess?: () => void) => {
       }
     },
     onSuccess: (data) => {
-      console.log('Blog post saved successfully:', data);
       queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
       
       if (!currentPostId) {
@@ -127,15 +125,14 @@ export const useBlogPostForm = (post?: any, onSuccess?: () => void) => {
         toast.success('Draft saved successfully');
       }
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       console.error('Error saving post:', error);
-      const errorMessage = error?.message || 'Failed to save post. Please try again.';
+      const errorMessage = error instanceof Error ? error.message : 'Failed to save post. Please try again.';
       toast.error(errorMessage);
     },
   });
 
   const updateFormData = (updates: Partial<BlogPostFormData>) => {
-    console.log('Updating form data:', updates);
     setFormData(prev => ({ ...prev, ...updates }));
   };
 
@@ -149,7 +146,6 @@ export const useBlogPostForm = (post?: any, onSuccess?: () => void) => {
 
   const handleAutoSave = () => {
     if ((formData.title || formData.content) && !mutation.isPending) {
-      console.log('Auto-saving draft...');
       mutation.mutate({ ...formData, is_published: false });
     }
   };
@@ -159,7 +155,6 @@ export const useBlogPostForm = (post?: any, onSuccess?: () => void) => {
       toast.error('Please enter a title to save as draft');
       return;
     }
-    console.log('Saving draft manually...');
     mutation.mutate({ ...formData, is_published: false });
   };
 
@@ -168,7 +163,6 @@ export const useBlogPostForm = (post?: any, onSuccess?: () => void) => {
       toast.error('Please fill in title, content, and category before publishing');
       return;
     }
-    console.log('Publishing post...');
     mutation.mutate({ ...formData, is_published: true });
   };
 
@@ -177,7 +171,6 @@ export const useBlogPostForm = (post?: any, onSuccess?: () => void) => {
       toast.error('Please fill in all required fields');
       return;
     }
-    console.log('Updating post...');
     mutation.mutate(formData);
   };
 

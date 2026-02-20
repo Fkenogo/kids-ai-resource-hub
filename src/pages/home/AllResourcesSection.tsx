@@ -2,9 +2,10 @@
 import { ResourceGrid } from "@/components/ResourceGrid";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { Resource } from "@/types";
 
 interface Props {
-  nonFeaturedResources: any[];
+  nonFeaturedResources: Resource[];
 }
 
 const AllResourcesSection = ({ nonFeaturedResources }: Props) => (

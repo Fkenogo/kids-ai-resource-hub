@@ -8,7 +8,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { MessageSquare } from 'lucide-react';
 import { m } from 'framer-motion';
 import { useAuthContext } from '@/components/auth/AuthProvider';
-import { useResourceComments, useCreateComment } from '@/hooks/useSupabaseData';
+import { useResourceComments, useCreateComment } from '@/hooks/useBackendData';
 import { toast } from 'sonner';
 
 interface ResourceCommentsProps {

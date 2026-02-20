@@ -47,7 +47,7 @@ export const BlogGrid = ({ posts, columns = 3, compact = false }: BlogGridProps)
 
   return (
     <m.div 
-      className={`grid ${gridCols[columns]} gap-8`}
+      className={`grid ${gridCols[columns]} gap-4`}
       variants={container}
       initial="hidden"
       animate="visible"

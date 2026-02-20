@@ -11,7 +11,7 @@ import {
   toggleEngagement,
   getUserEngagements,
   trackView
-} from '@/services/supabaseService';
+} from '@/services/backendService';
 import { ResourceFilters } from '@/types';
 import { toast } from 'sonner';
 

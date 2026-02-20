@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { runFullMigration, migrateResourceData, migrateProductData } from '@/services/migration/migrators';
+import { migrateResourceData, migrateProductData } from '@/services/migration/migrators';
 import { toast } from 'sonner';
 import { Database, Upload, Package, Users, CheckCircle, AlertCircle } from 'lucide-react';
 
@@ -42,10 +42,10 @@ export const MigrationTool = () => {
       updateStatus(10, 'Preparing migration...');
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      updateStatus(30, 'Migrating resources (16 items)...');
+      updateStatus(30, 'Migrating resources...');
       await migrateResourceData();
       
-      updateStatus(70, 'Migrating products (6 items)...');
+      updateStatus(70, 'Migrating products...');
       await migrateProductData();
       
       updateStatus(90, 'Finalizing migration...');
@@ -58,7 +58,7 @@ export const MigrationTool = () => {
         completed: true
       });
 
-      toast.success('Full migration completed successfully! All 22 items migrated.');
+      toast.success('Full migration completed successfully.');
     } catch (error) {
       console.error('Migration failed:', error);
       setMigrationStatus({
@@ -81,7 +81,7 @@ export const MigrationTool = () => {
     });
 
     try {
-      updateStatus(50, 'Transferring 16 AI learning resources...');
+      updateStatus(50, 'Transferring baseline AI learning resources...');
       await migrateResourceData();
       
       setMigrationStatus({
@@ -91,7 +91,7 @@ export const MigrationTool = () => {
         completed: true
       });
 
-      toast.success('Resource data migrated successfully! 16 resources transferred.');
+      toast.success('Resource data migrated successfully.');
     } catch (error) {
       console.error('Resource migration failed:', error);
       setMigrationStatus({
@@ -114,7 +114,7 @@ export const MigrationTool = () => {
     });
 
     try {
-      updateStatus(50, 'Transferring 6 product catalog items...');
+      updateStatus(50, 'Transferring product catalog items...');
       await migrateProductData();
       
       setMigrationStatus({
@@ -124,7 +124,7 @@ export const MigrationTool = () => {
         completed: true
       });
 
-      toast.success('Product data migrated successfully! 6 products transferred.');
+      toast.success('Product data migrated successfully.');
     } catch (error) {
       console.error('Product migration failed:', error);
       setMigrationStatus({
@@ -156,7 +156,7 @@ export const MigrationTool = () => {
             Data Migration Tool
           </CardTitle>
           <CardDescription>
-            Transfer mock data to Supabase database: 16 AI learning resources and 6 e-commerce products.
+            Seed baseline Firestore data from local fixtures.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -203,7 +203,7 @@ export const MigrationTool = () => {
             >
               <Upload className="h-6 w-6" />
               <span>Migrate Resources</span>
-              <small className="text-xs text-gray-500">16 items</small>
+              <small className="text-xs text-gray-500">baseline set</small>
             </Button>
             
             <Button
@@ -214,7 +214,7 @@ export const MigrationTool = () => {
             >
               <Package className="h-6 w-6" />
               <span>Migrate Products</span>
-              <small className="text-xs text-gray-500">6 items</small>
+              <small className="text-xs text-gray-500">catalog set</small>
             </Button>
             
             <Button
@@ -236,7 +236,7 @@ export const MigrationTool = () => {
               className="w-full h-12"
               size="lg"
             >
-              {migrationStatus.isRunning ? 'Migrating...' : 'Run Full Migration (22 items)'}
+              {migrationStatus.isRunning ? 'Migrating...' : 'Run Full Migration'}
             </Button>
           </div>
 
@@ -244,9 +244,9 @@ export const MigrationTool = () => {
           <div className="text-sm text-gray-600 bg-blue-50 p-4 rounded-lg">
             <h4 className="font-medium mb-2">Migration Plan:</h4>
             <ol className="list-decimal list-inside space-y-1">
-              <li>Click "Migrate Resources" to transfer 16 AI learning resources</li>
-              <li>Click "Migrate Products" to transfer 6 e-commerce products</li>
-              <li>Or use "Run Full Migration" to transfer all data at once</li>
+              <li>Click "Migrate Resources" to seed baseline AI learning resources</li>
+              <li>Click "Migrate Products" to seed baseline product catalog data</li>
+              <li>Or use "Run Full Migration" to seed both at once</li>
               <li>Visit the resource directory and shopping pages to verify data</li>
             </ol>
           </div>

@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { m } from "framer-motion";
 
 const CallToActionSection = () => (
-  <section className="py-16 md:py-20 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 text-white mt-16 md:mt-20">
+  <section className="py-14 md:py-16 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 text-white mt-8 md:mt-10">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
       <m.div
         initial={{ opacity: 0, y: 30 }}
@@ -29,7 +29,7 @@ const CallToActionSection = () => (
           <Button 
             variant="outline" 
             size="lg" 
-            className="border-white text-white hover:bg-white/10 font-semibold px-8 py-4 rounded-full backdrop-blur-sm transform hover:scale-105 transition-all duration-300"
+            className="bg-white/15 text-white border-white/70 hover:bg-white hover:text-purple-700 font-semibold px-8 py-4 rounded-full backdrop-blur-sm transform hover:scale-105 transition-all duration-300"
             asChild
           >
             <Link to="/resources">Browse Resources</Link>

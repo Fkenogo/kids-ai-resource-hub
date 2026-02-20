@@ -16,14 +16,25 @@ import { m } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
 import { toast } from 'sonner';
 import { getBlogPostBySlug, getBlogComments, createBlogComment, getBlogPosts } from '@/services/blogService';
-import { getCurrentUser } from '@/services/supabaseService';
+import { getCurrentUser } from '@/services/backendService';
 import { useAuthContext } from '@/components/auth/AuthProvider';
 import { SocialShareBar } from '@/components/SocialShareBar';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { sanitizeHtml } from '@/lib/sanitizeHtml';
 
 const commentSchema = z.object({
   content: z.string().min(3, { message: "Comment must be at least 3 characters long" })
 });
+
+interface BlogCommentItem {
+  id: string;
+  content: string;
+  created_at: string;
+  profiles?: {
+    display_name?: string;
+    username?: string;
+  } | null;
+}
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -42,11 +53,13 @@ const BlogPost = () => {
     queryFn: () => getBlogPosts(false),
   });
 
-  const { data: comments = [] } = useQuery({
+  const { data: comments = [] } = useQuery<BlogCommentItem[]>({
     queryKey: ['blog-comments', post?.id],
-    queryFn: () => getBlogComments(post!.id, false),
+    queryFn: async () => (await getBlogComments(post!.id, false)) as BlogCommentItem[],
     enabled: !!post?.id,
   });
+
+  const sanitizedContent = useMemo(() => sanitizeHtml(post?.content || ''), [post?.content]);
 
   // Find previous and next posts
   const currentIndex = allPosts.findIndex(p => p.slug === slug);
@@ -210,8 +223,8 @@ const BlogPost = () => {
 
             {/* Content */}
             <div 
-              className="prose prose-lg max-w-none mb-16"
-              dangerouslySetInnerHTML={{ __html: post.content }}
+              className="article-content prose prose-lg max-w-none mb-16"
+              dangerouslySetInnerHTML={{ __html: sanitizedContent }}
             />
 
             {/* Navigation Between Posts */}
@@ -289,7 +302,7 @@ const BlogPost = () => {
               {/* Comments List */}
               {comments.length > 0 && (
                 <div className="space-y-6">
-                  {comments.map((comment: any) => (
+                  {comments.map((comment) => (
                     <Card key={comment.id}>
                       <CardContent className="pt-6">
                         <div className="flex gap-4">
@@ -302,7 +315,7 @@ const BlogPost = () => {
                             <div className="flex justify-between items-start mb-2">
                               <div>
                                 <h4 className="font-medium">
-                                  {comment.profiles?.display_name || comment.profiles?.username}
+                                  {comment.profiles?.display_name || comment.profiles?.username || 'Anonymous'}
                                 </h4>
                                 <p className="text-sm text-muted-foreground">
                                   {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}

@@ -14,6 +14,8 @@ import { ResourceReviews } from './ResourceReviews';
 import { SocialShare } from './SocialShare';
 import { RelatedResources } from './RelatedResources';
 import { trackResourceView } from '@/services/engagementService';
+import { logger } from '@/lib/logger';
+import { getResourceTypeLabel } from '@/utils/resourceTaxonomy';
 
 interface ResourceDetailProps {
   resource: Resource;
@@ -25,10 +27,6 @@ export const ResourceDetail = ({ resource, reviews }: ResourceDetailProps) => {
   useEffect(() => {
     trackResourceView(resource.id);
   }, [resource.id]);
-
-  const getResourceTypeLabel = (type: string) => {
-    return type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-  };
 
   const getCostLabel = (cost: string) => {
     return cost.charAt(0).toUpperCase() + cost.slice(1);
@@ -70,11 +68,11 @@ export const ResourceDetail = ({ resource, reviews }: ResourceDetailProps) => {
                 alt={resource.title} 
                 className="w-full h-full object-cover"
                 onError={(e) => {
-                  console.error("Resource image failed to load:", resource.imageUrl);
+                  logger.error("Resource image failed to load:", resource.imageUrl);
                   e.currentTarget.style.display = 'none';
                 }}
                 onLoad={() => {
-                  console.log("Resource image loaded successfully:", resource.imageUrl);
+                  logger.debug("Resource image loaded successfully:", resource.imageUrl);
                 }}
               />
             ) : (

@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Search, Link, FileText, TrendingUp, CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
+import type { BadgeProps } from '@/components/ui/badge';
 
 interface EnhancedSEOFieldsProps {
   title: string;
@@ -94,6 +95,13 @@ export const EnhancedSEOFields = ({
   const contentAnalysis = getContentAnalysis();
   const seoScore = getSEOScore();
 
+  const toBadgeVariant = (color: string): BadgeProps['variant'] => {
+    if (color === 'warning') return 'secondary';
+    if (color === 'success') return 'success';
+    if (color === 'destructive') return 'destructive';
+    return 'secondary';
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -161,7 +169,7 @@ export const EnhancedSEOFields = ({
                 Meta Title
               </Label>
               <div className="flex items-center gap-2">
-                <Badge variant={titleStatus.color as any}>
+                <Badge variant={toBadgeVariant(titleStatus.color)}>
                   {titleStatus.text}
                 </Badge>
                 <span className="text-sm text-muted-foreground">
@@ -188,7 +196,7 @@ export const EnhancedSEOFields = ({
                 URL Slug
               </Label>
               <div className="flex items-center gap-2">
-                <Badge variant={slugStatus.color as any}>
+                <Badge variant={toBadgeVariant(slugStatus.color)}>
                   {slugStatus.text}
                 </Badge>
                 <span className="text-sm text-muted-foreground">
@@ -211,7 +219,7 @@ export const EnhancedSEOFields = ({
             <div className="flex items-center justify-between">
               <Label htmlFor="seo-excerpt">Meta Description</Label>
               <div className="flex items-center gap-2">
-                <Badge variant={excerptStatus.color as any}>
+                <Badge variant={toBadgeVariant(excerptStatus.color)}>
                   {excerptStatus.text}
                 </Badge>
                 <span className="text-sm text-muted-foreground">

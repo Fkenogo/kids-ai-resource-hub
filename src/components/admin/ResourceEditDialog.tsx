@@ -8,47 +8,80 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Edit, X } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { updateResourceAdmin } from '@/services/backend/admin';
 import { toast } from 'sonner';
 import { ImageUploader } from '@/components/ImageUploader';
+import { CostType, ResourceType } from '@/types';
+import { DEFAULT_FORMAT_OPTIONS, RESOURCE_TYPE_OPTIONS, formatTagsToStorage, getResourceTypeLabel, normalizeResourceType, parseFormatTags } from '@/utils/resourceTaxonomy';
 
 interface ResourceEditDialogProps {
-  resource: any;
+  resource: {
+    id: string;
+    title?: string;
+    description?: string;
+    url?: string;
+    age_ranges?: string[];
+    resource_type?: string;
+    cost?: string;
+    format?: string;
+    learning_outcomes?: string[];
+    skills_attained?: string[];
+    key_features?: string[];
+    image_url?: string;
+  };
   onUpdated: () => void;
 }
 
+type ResourceEditFormData = {
+  title: string;
+  description: string;
+  url: string;
+  age_ranges: string[];
+  resource_type: string;
+  cost: string;
+  format_tags: string[];
+  learning_outcomes: string[];
+  skills_attained: string[];
+  key_features: string[];
+  image_url: string;
+};
+
 const ageRangeOptions = ['5-7', '8-10', '11-13', '14-17'];
-const resourceTypeOptions = [
-  'online_course', 'book', 'interactive_tool', 'game', 'video', 
-  'tutorial', 'activity', 'camp', 'ai_tool', 'curriculum'
-];
 const costOptions = ['free', 'paid', 'subscription', 'freemium'];
 
 export const ResourceEditDialog = ({ resource, onUpdated }: ResourceEditDialogProps) => {
   const [open, setOpen] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ResourceEditFormData>({
     title: resource.title || '',
     description: resource.description || '',
     url: resource.url || '',
     age_ranges: resource.age_ranges || [],
-    resource_type: resource.resource_type || '',
+    resource_type: normalizeResourceType(resource.resource_type || ''),
     cost: resource.cost || '',
-    format: resource.format || '',
+    format_tags: parseFormatTags(resource.format || ''),
     learning_outcomes: resource.learning_outcomes || [],
     skills_attained: resource.skills_attained || [],
     key_features: resource.key_features || [],
     image_url: resource.image_url || '',
   });
+  const [resourceTypeOptions, setResourceTypeOptions] = useState<ResourceType[]>(
+    Array.from(new Set([...RESOURCE_TYPE_OPTIONS.map((option) => option.value), formData.resource_type as ResourceType].filter(Boolean))),
+  );
+  const [customResourceType, setCustomResourceType] = useState('');
+  const [formatOptions, setFormatOptions] = useState<string[]>(
+    Array.from(new Set([...DEFAULT_FORMAT_OPTIONS, ...formData.format_tags])),
+  );
+  const [customFormatTag, setCustomFormatTag] = useState('');
 
   const queryClient = useQueryClient();
 
   const updateResourceMutation = useMutation({
-    mutationFn: async (updates: any) => {
-      const { error } = await supabase
-        .from('resources')
-        .update({ ...updates, updated_at: new Date().toISOString() })
-        .eq('id', resource.id);
-      if (error) throw error;
+    mutationFn: async (updates: ResourceEditFormData) => {
+      const { format_tags, ...rest } = updates;
+      await updateResourceAdmin(resource.id, {
+        ...rest,
+        format: formatTagsToStorage(format_tags),
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-resources'] });
@@ -78,6 +111,40 @@ export const ResourceEditDialog = ({ resource, onUpdated }: ResourceEditDialogPr
         ? prev.age_ranges.filter(range => range !== ageRange)
         : [...prev.age_ranges, ageRange]
     }));
+  };
+
+  const addCustomResourceType = () => {
+    const value = customResourceType.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_');
+    if (!value) return;
+    if (!resourceTypeOptions.includes(value)) {
+      setResourceTypeOptions((prev) => [...prev, value]);
+    }
+    setFormData((prev) => ({ ...prev, resource_type: value }));
+    setCustomResourceType('');
+  };
+
+  const toggleFormatTag = (tag: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      format_tags: prev.format_tags.includes(tag)
+        ? prev.format_tags.filter((currentTag) => currentTag !== tag)
+        : [...prev.format_tags, tag],
+    }));
+  };
+
+  const addCustomFormatTag = () => {
+    const value = customFormatTag.trim();
+    if (!value) return;
+    if (!formatOptions.includes(value)) {
+      setFormatOptions((prev) => [...prev, value]);
+    }
+    setFormData((prev) => ({
+      ...prev,
+      format_tags: prev.format_tags.includes(value)
+        ? prev.format_tags
+        : [...prev.format_tags, value],
+    }));
+    setCustomFormatTag('');
   };
 
   const arrayFieldToString = (field: string[]) => field?.join(', ') || '';
@@ -145,9 +212,9 @@ export const ResourceEditDialog = ({ resource, onUpdated }: ResourceEditDialogPr
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium">Resource Type *</label>
-                <Select 
+                <Select
                   value={formData.resource_type} 
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, resource_type: value }))}
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, resource_type: value as ResourceType }))}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select type" />
@@ -155,18 +222,28 @@ export const ResourceEditDialog = ({ resource, onUpdated }: ResourceEditDialogPr
                   <SelectContent>
                     {resourceTypeOptions.map(type => (
                       <SelectItem key={type} value={type}>
-                        {type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                        {getResourceTypeLabel(type)}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                <div className="mt-2 flex gap-2">
+                  <Input
+                    value={customResourceType}
+                    onChange={(e) => setCustomResourceType(e.target.value)}
+                    placeholder="Add custom resource type"
+                  />
+                  <Button type="button" variant="outline" onClick={addCustomResourceType}>
+                    Add
+                  </Button>
+                </div>
               </div>
 
               <div>
                 <label className="text-sm font-medium">Cost *</label>
-                <Select 
+                <Select
                   value={formData.cost} 
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, cost: value }))}
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, cost: value as CostType }))}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select cost" />
@@ -184,11 +261,29 @@ export const ResourceEditDialog = ({ resource, onUpdated }: ResourceEditDialogPr
 
             <div>
               <label className="text-sm font-medium">Format</label>
-              <Input
-                value={formData.format}
-                onChange={(e) => setFormData(prev => ({ ...prev, format: e.target.value }))}
-                placeholder="e.g., Video, Interactive Tool, Course"
-              />
+              <div className="mt-2 flex flex-wrap gap-2">
+                {formatOptions.map((tag) => (
+                  <Badge
+                    key={tag}
+                    variant={formData.format_tags.includes(tag) ? "default" : "outline"}
+                    className="cursor-pointer"
+                    onClick={() => toggleFormatTag(tag)}
+                  >
+                    {formData.format_tags.includes(tag) ? <X className="h-3 w-3 mr-1" /> : null}
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+              <div className="mt-2 flex gap-2">
+                <Input
+                  value={customFormatTag}
+                  onChange={(e) => setCustomFormatTag(e.target.value)}
+                  placeholder="Add custom format tag"
+                />
+                <Button type="button" variant="outline" onClick={addCustomFormatTag}>
+                  Add
+                </Button>
+              </div>
             </div>
 
             <div>

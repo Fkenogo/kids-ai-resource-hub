@@ -15,11 +15,12 @@ import {
   PaginationPrevious 
 } from '@/components/ui/pagination';
 import { Search, Plus, Eye, Star, Users, CheckCircle, XCircle, Image as ImageIcon, Filter } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { deleteResource, getAdminResources, setResourceApproval, setResourceFeatured } from '@/services/backend/admin';
 import { toast } from 'sonner';
 import { ResourceImageEditor } from '@/components/ResourceImageEditor';
 import { AddResourceForm } from './AddResourceForm';
 import { ResourceEditDialog } from './ResourceEditDialog';
+import { getResourceTypeLabel } from '@/utils/resourceTaxonomy';
 
 export const ResourceManagement = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -32,17 +33,7 @@ export const ResourceManagement = () => {
   const { data: allResources = [], isLoading } = useQuery({
     queryKey: ['admin-resources', statusFilter],
     queryFn: async () => {
-      let query = supabase.from('resources').select('*').order('created_at', { ascending: false });
-      
-      if (statusFilter === 'approved') {
-        query = query.eq('is_approved', true);
-      } else if (statusFilter === 'pending') {
-        query = query.eq('is_approved', false);
-      }
-      
-      const { data, error } = await query;
-      if (error) throw error;
-      return data || [];
+      return getAdminResources(statusFilter);
     },
   });
 
@@ -67,11 +58,7 @@ export const ResourceManagement = () => {
   // Toggle approval status
   const toggleApprovalMutation = useMutation({
     mutationFn: async ({ id, isApproved }: { id: string; isApproved: boolean }) => {
-      const { error } = await supabase
-        .from('resources')
-        .update({ is_approved: !isApproved })
-        .eq('id', id);
-      if (error) throw error;
+      await setResourceApproval(id, !isApproved);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-resources'] });
@@ -85,11 +72,7 @@ export const ResourceManagement = () => {
   // Toggle featured status
   const toggleFeaturedMutation = useMutation({
     mutationFn: async ({ id, isFeatured }: { id: string; isFeatured: boolean }) => {
-      const { error } = await supabase
-        .from('resources')
-        .update({ is_featured: !isFeatured })
-        .eq('id', id);
-      if (error) throw error;
+      await setResourceFeatured(id, !isFeatured);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-resources'] });
@@ -103,8 +86,7 @@ export const ResourceManagement = () => {
   // Delete resource
   const deleteResourceMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('resources').delete().eq('id', id);
-      if (error) throw error;
+      await deleteResource(id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-resources'] });
@@ -130,7 +112,7 @@ export const ResourceManagement = () => {
         </div>
       </div>
 
-      <Tabs value={statusFilter} onValueChange={(value) => setStatusFilter(value as any)} className="w-full">
+      <Tabs value={statusFilter} onValueChange={(value) => setStatusFilter(value as 'all' | 'approved' | 'pending')} className="w-full">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="all">All Resources</TabsTrigger>
           <TabsTrigger value="approved">Approved</TabsTrigger>
@@ -209,7 +191,7 @@ export const ResourceManagement = () => {
                           <Users className="h-3 w-3" />
                           {resource.review_count || 0} reviews
                         </span>
-                        <span>Type: {resource.resource_type}</span>
+                        <span>Type: {getResourceTypeLabel(resource.resource_type)}</span>
                         <span>Cost: {resource.cost}</span>
                       </div>
                     </div>

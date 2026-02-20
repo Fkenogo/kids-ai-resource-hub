@@ -8,7 +8,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { Star, StarIcon } from 'lucide-react';
 import { m } from 'framer-motion';
 import { useAuthContext } from '@/components/auth/AuthProvider';
-import { useResourceReviews, useCreateReview } from '@/hooks/useSupabaseData';
+import { useResourceReviews, useCreateReview } from '@/hooks/useBackendData';
 import { toast } from 'sonner';
 
 interface ResourceReviewsProps {

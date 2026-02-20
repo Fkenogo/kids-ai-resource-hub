@@ -9,25 +9,40 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Plus, X } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { createResourceAdmin } from '@/services/backend/admin';
 import { toast } from 'sonner';
 import { AgeRange, ResourceType, CostType } from '@/types';
 import { ImageUploader } from '@/components/ImageUploader';
+import { DEFAULT_FORMAT_OPTIONS, RESOURCE_TYPE_OPTIONS, formatTagsToStorage, getResourceTypeLabel } from '@/utils/resourceTaxonomy';
 
 interface AddResourceFormProps {
   onSuccess: () => void;
 }
 
+type AddResourceFormData = {
+  title: string;
+  description: string;
+  url: string;
+  resource_type: ResourceType;
+  cost: CostType;
+  age_ranges: AgeRange[];
+  format_tags: string[];
+  learning_outcomes: string[];
+  skills_attained: string[];
+  key_features: string[];
+  image_url: string;
+};
+
 export const AddResourceForm = ({ onSuccess }: AddResourceFormProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<AddResourceFormData>({
     title: '',
     description: '',
     url: '',
     resource_type: '' as ResourceType,
     cost: '' as CostType,
     age_ranges: [] as AgeRange[],
-    format: '',
+    format_tags: [],
     learning_outcomes: [] as string[],
     skills_attained: [] as string[],
     key_features: [] as string[],
@@ -37,15 +52,21 @@ export const AddResourceForm = ({ onSuccess }: AddResourceFormProps) => {
   const [newOutcome, setNewOutcome] = useState('');
   const [newSkill, setNewSkill] = useState('');
   const [newFeature, setNewFeature] = useState('');
+  const [resourceTypeOptions, setResourceTypeOptions] = useState<ResourceType[]>(
+    RESOURCE_TYPE_OPTIONS.map((option) => option.value),
+  );
+  const [customResourceType, setCustomResourceType] = useState('');
+  const [formatOptions, setFormatOptions] = useState<string[]>([...DEFAULT_FORMAT_OPTIONS]);
+  const [customFormatTag, setCustomFormatTag] = useState('');
 
   const createResourceMutation = useMutation({
-    mutationFn: async (data: any) => {
-      const { error } = await supabase.from('resources').insert({
-        ...data,
+    mutationFn: async (data: AddResourceFormData) => {
+      const { format_tags, ...rest } = data;
+      await createResourceAdmin({
+        ...rest,
+        format: formatTagsToStorage(format_tags),
         added_by: 'admin',
-        is_approved: true,
       });
-      if (error) throw error;
     },
     onSuccess: () => {
       toast.success('Resource added successfully');
@@ -57,7 +78,7 @@ export const AddResourceForm = ({ onSuccess }: AddResourceFormProps) => {
         resource_type: '' as ResourceType,
         cost: '' as CostType,
         age_ranges: [] as AgeRange[],
-        format: '',
+        format_tags: [],
         learning_outcomes: [],
         skills_attained: [],
         key_features: [],
@@ -103,6 +124,40 @@ export const AddResourceForm = ({ onSuccess }: AddResourceFormProps) => {
         ? prev.age_ranges.filter(a => a !== age)
         : [...prev.age_ranges, age]
     }));
+  };
+
+  const addCustomResourceType = () => {
+    const value = customResourceType.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_');
+    if (!value) return;
+    if (!resourceTypeOptions.includes(value)) {
+      setResourceTypeOptions((prev) => [...prev, value]);
+    }
+    setFormData((prev) => ({ ...prev, resource_type: value }));
+    setCustomResourceType('');
+  };
+
+  const toggleFormatTag = (tag: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      format_tags: prev.format_tags.includes(tag)
+        ? prev.format_tags.filter((currentTag) => currentTag !== tag)
+        : [...prev.format_tags, tag],
+    }));
+  };
+
+  const addCustomFormatTag = () => {
+    const value = customFormatTag.trim();
+    if (!value) return;
+    if (!formatOptions.includes(value)) {
+      setFormatOptions((prev) => [...prev, value]);
+    }
+    setFormData((prev) => ({
+      ...prev,
+      format_tags: prev.format_tags.includes(value)
+        ? prev.format_tags
+        : [...prev.format_tags, value],
+    }));
+    setCustomFormatTag('');
   };
 
   if (!isOpen) {
@@ -171,18 +226,23 @@ export const AddResourceForm = ({ onSuccess }: AddResourceFormProps) => {
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="online_course">Online Course</SelectItem>
-                  <SelectItem value="book">Book</SelectItem>
-                  <SelectItem value="interactive_tool">Interactive Tool</SelectItem>
-                  <SelectItem value="game">Game</SelectItem>
-                  <SelectItem value="video">Video</SelectItem>
-                  <SelectItem value="tutorial">Tutorial</SelectItem>
-                  <SelectItem value="activity">Activity</SelectItem>
-                  <SelectItem value="camp">Camp</SelectItem>
-                  <SelectItem value="ai_tool">AI Tool</SelectItem>
-                  <SelectItem value="curriculum">Curriculum</SelectItem>
+                  {resourceTypeOptions.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {getResourceTypeLabel(type)}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
+              <div className="flex gap-2">
+                <Input
+                  value={customResourceType}
+                  onChange={(e) => setCustomResourceType(e.target.value)}
+                  placeholder="Add custom resource type"
+                />
+                <Button type="button" variant="outline" onClick={addCustomResourceType}>
+                  Add
+                </Button>
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -201,13 +261,30 @@ export const AddResourceForm = ({ onSuccess }: AddResourceFormProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="format">Format</Label>
-              <Input
-                id="format"
-                value={formData.format}
-                onChange={(e) => setFormData(prev => ({ ...prev, format: e.target.value }))}
-                placeholder="e.g., Video, Interactive"
-              />
+              <Label>Format</Label>
+              <div className="flex flex-wrap gap-2">
+                {formatOptions.map((tag) => (
+                  <Badge
+                    key={tag}
+                    variant={formData.format_tags.includes(tag) ? "default" : "outline"}
+                    className="cursor-pointer"
+                    onClick={() => toggleFormatTag(tag)}
+                  >
+                    {formData.format_tags.includes(tag) ? <X className="h-3 w-3 mr-1" /> : null}
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <Input
+                  value={customFormatTag}
+                  onChange={(e) => setCustomFormatTag(e.target.value)}
+                  placeholder="Add custom format tag"
+                />
+                <Button type="button" variant="outline" onClick={addCustomFormatTag}>
+                  Add
+                </Button>
+              </div>
             </div>
           </div>
 
