@@ -46,7 +46,7 @@ export const SQLTemplateGenerator = () => {
 
     const ageRanges = formData.age_ranges.length > 0
       ? `ARRAY[${formData.age_ranges.map(age => `'${age}'`).join(', ')}]`
-      : `ARRAY['5-7', '8-10', '11-13', '14-17']`;
+      : `ARRAY['4-7', '8-10', '11-13', '14-17']`;
 
     return `INSERT INTO public.resources (
   title,
@@ -196,7 +196,7 @@ export const SQLTemplateGenerator = () => {
         <div className="space-y-2">
           <Label>Age Ranges (leave empty for all ages)</Label>
           <div className="flex flex-wrap gap-2">
-            {(['5-7', '8-10', '11-13', '14-17'] as AgeRange[]).map((age) => (
+            {(['4-7', '8-10', '11-13', '14-17'] as AgeRange[]).map((age) => (
               <Badge
                 key={age}
                 variant={formData.age_ranges.includes(age) ? "default" : "outline"}

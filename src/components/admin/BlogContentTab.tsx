@@ -2,7 +2,7 @@
 import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { RichTextEditor } from './RichTextEditor';
+import { EnhancedRichTextEditor } from './editor/EnhancedRichTextEditor';
 import { ImageUploader } from '@/components/ImageUploader';
 
 interface BlogContentTabProps {
@@ -48,7 +48,7 @@ export const BlogContentTab = ({
 
         <div>
           <Label>Content *</Label>
-          <RichTextEditor
+          <EnhancedRichTextEditor
             content={content}
             onChange={onContentChange}
             placeholder="Start writing your amazing blog post..."

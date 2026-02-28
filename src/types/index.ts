@@ -1,5 +1,5 @@
 
-export type AgeRange = '5-7' | '8-10' | '11-13' | '14-17';
+export type AgeRange = '4-7' | '8-10' | '11-13' | '14-17';
 
 export type ResourceType = 
   | 'online_courses_platforms'
@@ -22,32 +22,46 @@ export type Format =
   | 'Tutorial'
   | 'Activity'
   | 'Camp'
+  | 'Live Class'
+  | 'Webinar'
+  | 'App'
+  | 'Web Tool'
+  | 'Worksheet'
   | string;
 
+// Firestore-compatible Resource type (snake_case)
 export interface Resource {
+  // Core fields
   id: string;
   title: string;
   description: string;
   url: string;
-  ageRanges: AgeRange[];
-  resourceType: ResourceType;
+  age_ranges: AgeRange[];
+  resource_type: ResourceType;
   format?: Format;
   cost: CostType;
-  learningOutcomes?: string[];
-  skillsAttained?: string[];
-  keyFeatures?: string[];
-  dateAdded: string;
-  addedBy: string;
-  averageRating: number;
-  reviewCount: number;
-  featuredResource: boolean;
-  imageUrl?: string;
+  
+  // Content fields
+  learning_outcomes?: string[];
+  skills_attained?: string[];
+  key_features?: string[];
+  
+  // Metadata
+  image_url?: string;
+  added_by: string;
+  is_approved: boolean;
+  created_at: string;
+  updated_at: string;
+  
   // Engagement metrics
-  viewCount: number;
-  likeCount: number;
-  shareCount: number;
-  saveCount: number;
-  commentCount: number;
+  average_rating: number;
+  review_count: number;
+  featured_resource: boolean;
+  view_count: number;
+  like_count: number;
+  share_count: number;
+  save_count: number;
+  comment_count: number;
 }
 
 export interface User {

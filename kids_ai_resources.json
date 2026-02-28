@@ -1,0 +1,1930 @@
+{
+  "resources": [
+
+    {
+      "title": "Code.org AI Foundations",
+      "description": "A free, beginner-friendly course offering an accessible introduction to AI concepts through engaging coding activities. Specifically designed for younger learners to grasp AI basics in a fun, interactive way.",
+      "url": "https://code.org/ai",
+      "ageRanges": ["8-10"],
+      "resourceType": "online_courses_platforms",
+      "format": "Online Course",
+      "cost": "free",
+      "learningOutcomes": [
+        "Children learn fundamental AI concepts while developing coding skills",
+        "Students create mini-games and interactive projects applying AI principles"
+      ],
+      "skillsAttained": [
+        "Computational thinking",
+        "Logical reasoning",
+        "Problem-solving through AI-related coding exercises",
+        "Basic programming concepts"
+      ],
+      "keyFeatures": [
+        "Interactive coding puzzles",
+        "Fun challenges that motivate students to apply AI principles",
+        "No sign-up required to start",
+        "Free and school-ready"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": true
+    },
+
+    {
+      "title": "Create & Learn AI Explorers",
+      "description": "A structured online course introducing young learners to AI through engaging, hands-on projects. Live instructor-led classes provide real-time guidance across beginner to advanced levels.",
+      "url": "https://www.create-learn.us/live-class/ai-explorers",
+      "ageRanges": ["8-10", "11-13"],
+      "resourceType": "online_courses_platforms",
+      "format": "Online Course",
+      "cost": "paid",
+      "learningOutcomes": [
+        "Children build their own AI projects",
+        "Students understand AI ethics and responsible use",
+        "Solid foundation gained for further AI exploration"
+      ],
+      "skillsAttained": [
+        "Basic AI coding",
+        "Image recognition technology",
+        "Principles of chatbot design",
+        "Ethical considerations in AI"
+      ],
+      "keyFeatures": [
+        "Live instructor-led classes",
+        "Interactive challenges and projects",
+        "Small group settings",
+        "Beginner to advanced learning paths"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "Codingal – AI Genius for Kids",
+      "description": "Live online classes focused on AI coding projects across a wide age range. Mentor-guided sessions provide personalized attention and a structured approach to AI learning through practical application.",
+      "url": "https://www.codingal.com/courses/ai-and-machine-learning/",
+      "ageRanges": ["4-7", "8-10", "11-13", "14-17"],
+      "resourceType": "online_courses_platforms",
+      "format": "Online Course",
+      "cost": "paid",
+      "learningOutcomes": [
+        "Participants gain tangible AI coding skills",
+        "Students work on real-world style projects under expert mentorship"
+      ],
+      "skillsAttained": [
+        "Programming skills related to AI",
+        "Creativity through innovative AI applications"
+      ],
+      "keyFeatures": [
+        "Mentor-guided learning",
+        "Step-by-step projects",
+        "Personalized progress tracking",
+        "Session recordings available"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "Tynker AI Coding",
+      "description": "A platform offering over 5,000 coding lessons — from Minecraft modding to AI and advanced coding. Tynker integrates AI concepts into gamified programming lessons, making it one of the most comprehensive kid-friendly coding platforms available.",
+      "url": "https://www.tynker.com/",
+      "ageRanges": ["8-10", "11-13", "14-17"],
+      "resourceType": "online_courses_platforms",
+      "format": "Online Course",
+      "cost": "paid",
+      "learningOutcomes": [
+        "Students develop practical AI-based projects using Python",
+        "Hands-on experience applying AI principles in games and apps"
+      ],
+      "skillsAttained": [
+        "Python programming",
+        "AI application design",
+        "Game development",
+        "Computational thinking"
+      ],
+      "keyFeatures": [
+        "Gamified AI-driven lessons",
+        "Age-appropriate AI concepts",
+        "Minecraft integration",
+        "Wide skill progression from beginner to advanced"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "Kubrio AI Learning",
+      "description": "A unique, gamified AI learning platform tailored for teenagers. Kubrio focuses on fostering creativity through project-based learning, allowing students to explore AI's potential in storytelling and game development.",
+      "url": "https://www.kubrio.com/",
+      "ageRanges": ["14-17"],
+      "resourceType": "online_courses_platforms",
+      "format": "Online Course",
+      "cost": "paid",
+      "learningOutcomes": [
+        "Students learn AI concepts through hands-on storytelling",
+        "Deeper understanding of AI's creative possibilities in game development"
+      ],
+      "skillsAttained": [
+        "AI creativity",
+        "Logical thinking",
+        "Project-based learning methodologies",
+        "AI applied to art and games"
+      ],
+      "keyFeatures": [
+        "Project-based and self-paced",
+        "Gamified AI environment",
+        "Storytelling and game development focus",
+        "Highly interactive"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "AIClub",
+      "description": "A comprehensive machine learning platform for teens offering structured progression from basic to advanced topics. Students work with real-world datasets and participate in community discussions.",
+      "url": "https://corp.aiclub.world/",
+      "ageRanges": ["11-13", "14-17"],
+      "resourceType": "online_courses_platforms",
+      "format": "Online Course",
+      "cost": "paid",
+      "learningOutcomes": [
+        "Strong foundation in data science",
+        "Python proficiency for AI",
+        "Comprehensive understanding of machine learning principles",
+        "Ability to perform data analysis"
+      ],
+      "skillsAttained": [
+        "Python programming",
+        "Data analysis",
+        "Machine learning model development",
+        "Feature engineering",
+        "Data science foundations"
+      ],
+      "keyFeatures": [
+        "Interactive lessons",
+        "Real-world datasets",
+        "Community discussions for peer learning",
+        "Systematic curriculum from foundational to advanced ML"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "Scratch (MIT)",
+      "description": "The world's largest free online coding community for kids, developed by MIT. A foundational tool for computational thinking with AI extensions available through ML for Kids and ScratchX. Users can create and explore AI-integrated projects in a safe, creative community.",
+      "url": "https://scratch.mit.edu/",
+      "ageRanges": ["4-7", "8-10", "11-13", "14-17"],
+      "resourceType": "online_courses_platforms",
+      "format": "Interactive Tool",
+      "cost": "free",
+      "learningOutcomes": [
+        "Ability to create interactive media",
+        "Strong programming foundation",
+        "Readiness for advanced AI concepts"
+      ],
+      "skillsAttained": [
+        "Computational thinking",
+        "Logic and problem-solving",
+        "Basic programming",
+        "Foundational skills for AI understanding"
+      ],
+      "keyFeatures": [
+        "Block-based visual programming",
+        "Massive active community",
+        "AI extensions available via ML for Kids",
+        "Supports stories, games, and animations",
+        "Completely free"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": true
+    },
+
+    {
+      "title": "Khan Academy – Khanmigo AI Tutor",
+      "description": "Khanmigo is Khan Academy's AI-powered tutor that guides students through subjects using the Socratic method — asking questions rather than giving answers. It teaches students about AI through conversation in a safe, educator-reviewed environment.",
+      "url": "https://www.khanacademy.org/khan-labs",
+      "ageRanges": ["4-7", "8-10", "11-13", "14-17"],
+      "resourceType": "online_courses_platforms",
+      "format": "Interactive Tool",
+      "cost": "free",
+      "learningOutcomes": [
+        "Deeper understanding of subjects through Socratic AI method",
+        "Practical experience interacting responsibly with AI systems"
+      ],
+      "skillsAttained": [
+        "Critical thinking",
+        "Self-directed learning",
+        "Understanding of how AI tutors work",
+        "Subject mastery across K-12 curriculum"
+      ],
+      "keyFeatures": [
+        "Socratic AI tutoring method",
+        "Covers all K-12 subjects including AI concepts",
+        "Parental controls",
+        "School-approved and safe",
+        "Available 24/7"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": true
+    },
+
+    {
+      "title": "LittleLit AI",
+      "description": "An AI academy for kids focused on creative projects. LittleLit offers over a thousand activities integrating AI for writing stories, composing songs, and creating artwork — making AI learning fun through imaginative, artistic contexts.",
+      "url": "https://www.littlelit.ai/",
+      "ageRanges": ["4-7", "8-10", "11-13"],
+      "resourceType": "online_courses_platforms",
+      "format": "Interactive Tool",
+      "cost": "paid",
+      "learningOutcomes": [
+        "Ability to use AI as a creative partner",
+        "Understanding of AI's potential in art and language"
+      ],
+      "skillsAttained": [
+        "AI application in creative fields",
+        "Storytelling",
+        "Music composition",
+        "Digital art",
+        "Understanding of how AI generates creative content"
+      ],
+      "keyFeatures": [
+        "1,000+ AI creative projects",
+        "Writing, music, and art AI tools",
+        "Project-based learning",
+        "Designed specifically for children"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "Microsoft Copilot for Education",
+      "description": "Microsoft's AI assistant integrated into the education ecosystem. Through school Microsoft 365 accounts, students explore AI-assisted learning, research, and creativity within a safe, monitored environment while also learning responsible AI use.",
+      "url": "https://www.microsoft.com/en-us/ai/education",
+      "ageRanges": ["11-13", "14-17"],
+      "resourceType": "online_courses_platforms",
+      "format": "Interactive Tool",
+      "cost": "free",
+      "learningOutcomes": [
+        "Students understand how AI assists professional work",
+        "Development of responsible AI habits early in life"
+      ],
+      "skillsAttained": [
+        "AI-assisted writing and research",
+        "Responsible AI use",
+        "Digital literacy",
+        "Productivity with AI tools"
+      ],
+      "keyFeatures": [
+        "Integrated with Microsoft 365 (Word, PowerPoint, Teams)",
+        "Educator guardrails",
+        "AI literacy curriculum from Microsoft",
+        "Safe school-monitored environment"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "CodeMonkey",
+      "description": "A game-based platform teaching children to code using CoffeeScript and Python through interactive puzzles. Builds the computational thinking and algorithmic reasoning that underpins AI understanding.",
+      "url": "https://www.codemonkey.com/",
+      "ageRanges": ["8-10", "11-13"],
+      "resourceType": "online_courses_platforms",
+      "format": "Game",
+      "cost": "paid",
+      "learningOutcomes": [
+        "Development of coding proficiency",
+        "Strong logical thinking skills applicable to AI concepts"
+      ],
+      "skillsAttained": [
+        "Python and CoffeeScript coding",
+        "Computational thinking",
+        "Problem-solving",
+        "Algorithmic reasoning foundational to AI"
+      ],
+      "keyFeatures": [
+        "Game-based puzzles",
+        "Real programming languages (Python, CoffeeScript)",
+        "Covers algorithms and logic",
+        "School and home plans available"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "ABCs of Artificial Intelligence",
+      "description": "Introduces young children to the vocabulary of Artificial Intelligence in a playful, engaging way. Uses colorful illustrations and simple language to make new AI terms accessible to early readers.",
+      "url": "https://newbookrecommendation.com/books-on-ai-for-kids-an-essential-guide-for-young-learners/",
+      "ageRanges": ["4-7"],
+      "resourceType": "books_reading_materials",
+      "format": "Book",
+      "cost": "paid",
+      "learningOutcomes": [
+        "Young learners become familiar with basic AI vocabulary",
+        "Early foundation laid for future AI understanding"
+      ],
+      "skillsAttained": [
+        "Reading skills",
+        "Comprehension of AI-related vocabulary",
+        "Early STEM literacy"
+      ],
+      "keyFeatures": [
+        "Richly illustrated",
+        "Simple age-appropriate language",
+        "AI vocabulary introduction",
+        "Ideal read-aloud for parents and children"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "Artificial Intelligence for Babies",
+      "description": "Introduces very young children to fundamental AI concepts using easy-to-understand language and bright, engaging illustrations. Aims to spark early curiosity about technology and how machines learn.",
+      "url": "https://www.amazon.com/Artificial-Intelligence-Babies-Baby-University/dp/1492671207",
+      "ageRanges": ["4-7"],
+      "resourceType": "books_reading_materials",
+      "format": "Book",
+      "cost": "paid",
+      "learningOutcomes": [
+        "Fosters curiosity in technology",
+        "Gentle introduction to the core ideas behind artificial intelligence"
+      ],
+      "skillsAttained": [
+        "Pattern recognition (foundational AI skill)",
+        "Early STEM literacy",
+        "Basic AI awareness"
+      ],
+      "keyFeatures": [
+        "Interactive format",
+        "Vibrant visuals",
+        "Simple explanations",
+        "Encourages engagement with parents"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "STEM Starters for Kids: AI Activity Book",
+      "description": "An interactive activity book for older elementary and middle school children covering AI, algorithms, and robotics through puzzles and hands-on projects designed to make learning engaging and fun.",
+      "url": "https://a.co/d/9B8m0JD",
+      "ageRanges": ["8-10", "11-13"],
+      "resourceType": "books_reading_materials",
+      "format": "Book",
+      "cost": "paid",
+      "learningOutcomes": [
+        "Better understanding of AI and related STEM concepts",
+        "Practical skills through activities and challenges"
+      ],
+      "skillsAttained": [
+        "Problem-solving",
+        "Critical thinking",
+        "Foundational understanding of AI and algorithms",
+        "Introduction to robotics concepts"
+      ],
+      "keyFeatures": [
+        "Highly interactive",
+        "Covers AI, algorithms, and robotics",
+        "Puzzles and hands-on projects",
+        "Curriculum aligned"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "A Kids Book About AI by Neha Shukla",
+      "description": "Simplifies the world of AI for children with a particular focus on ethical considerations and responsible technology use. Uses a conversational tone that engages young readers and emphasizes real-world relevance.",
+      "url": "https://akidsbookabout.com/",
+      "ageRanges": ["8-10", "11-13"],
+      "resourceType": "books_reading_materials",
+      "format": "Book",
+      "cost": "paid",
+      "learningOutcomes": [
+        "Readers gain understanding of AI's impact on society",
+        "Understanding of the importance of using technology responsibly"
+      ],
+      "skillsAttained": [
+        "Ethical decision-making in AI context",
+        "Awareness of artificial intelligence",
+        "Responsible technology thinking"
+      ],
+      "keyFeatures": [
+        "Conversational tone",
+        "Ethical AI focus",
+        "Real-world relevance",
+        "Part of the popular 'A Kids Book About' series"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "A.I. Encyclopedia for Kids by A. Onkar",
+      "description": "A comprehensive yet accessible guide to AI for young learners. Breaks down complex AI concepts into short, easy-to-read sections complemented by real-life examples illustrating AI in everyday life.",
+      "url": "https://www.amazon.com/s?k=AI+Encyclopedia+for+Kids+Onkar",
+      "ageRanges": ["8-10", "11-13"],
+      "resourceType": "books_reading_materials",
+      "format": "Book",
+      "cost": "paid",
+      "learningOutcomes": [
+        "Solid understanding of AI applications in daily life",
+        "Familiarity with key AI terminology"
+      ],
+      "skillsAttained": [
+        "AI vocabulary expansion",
+        "Comprehension of complex ideas",
+        "Analytical thinking through real-world AI connections"
+      ],
+      "keyFeatures": [
+        "Simplified explanations",
+        "Short sections for easy reading",
+        "Real-life examples",
+        "Encyclopedic reference structure"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "Little AI Explorer by N. Balani",
+      "description": "Uses engaging storytelling to introduce AI to young learners while emphasizing creativity and ethical considerations. Highlights real-world AI applications to make concepts relatable and fosters responsible thinking about AI from an early age.",
+      "url": "https://www.amazon.com/s?k=Little+AI+Explorer+Balani",
+      "ageRanges": ["4-7", "8-10"],
+      "resourceType": "books_reading_materials",
+      "format": "Book",
+      "cost": "paid",
+      "learningOutcomes": [
+        "Readers understand the role of AI in society",
+        "Understanding of the importance of responsible AI use"
+      ],
+      "skillsAttained": [
+        "Ethical AI thinking",
+        "Curiosity about technology",
+        "Creativity through AI-related concepts"
+      ],
+      "keyFeatures": [
+        "Story-driven learning",
+        "Ethical AI emphasis",
+        "Real-world AI application highlights",
+        "Interactive approach"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "A Kids Guide to AI by P. Kiely",
+      "description": "An easy-to-read introduction to AI designed to help children build a foundational understanding. Breaks down complex AI ideas into manageable concepts using step-by-step explanations.",
+      "url": "https://www.amazon.com/s?k=Kids+Guide+to+AI+Kiely",
+      "ageRanges": ["8-10", "11-13"],
+      "resourceType": "books_reading_materials",
+      "format": "Book",
+      "cost": "paid",
+      "learningOutcomes": [
+        "Basic understanding of AI",
+        "Awareness of AI's various real-world applications"
+      ],
+      "skillsAttained": [
+        "Fundamental AI concepts",
+        "Problem-solving by understanding AI systems",
+        "Digital literacy"
+      ],
+      "keyFeatures": [
+        "Beginner-friendly",
+        "Step-by-step explanations",
+        "Accessible for newcomers to AI",
+        "Clear structure"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "20 Fables for Kids on AI",
+      "description": "Uses the engaging format of fables to teach AI concepts. By presenting complex topics through relatable stories, this book makes AI more accessible and thought-provoking for older children.",
+      "url": "https://www.amazon.com/s?k=20+Fables+for+Kids+on+AI",
+      "ageRanges": ["11-13", "14-17"],
+      "resourceType": "books_reading_materials",
+      "format": "Book",
+      "cost": "paid",
+      "learningOutcomes": [
+        "Understanding of various AI concepts through storytelling",
+        "Abstract AI ideas made concrete through narrative"
+      ],
+      "skillsAttained": [
+        "Critical thinking by analyzing fables",
+        "Understanding fundamental AI concepts through storytelling"
+      ],
+      "keyFeatures": [
+        "Story-driven learning format",
+        "Thought-provoking narratives",
+        "AI concepts embedded in fable format",
+        "Great for discussion"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "How to Build a Robot (DK Eyewitness)",
+      "description": "A visually rich DK guide introducing children to robotics and AI concepts through real-world examples and hands-on project ideas. Covers the history of robotics, how AI powers robots, and encourages engineering and AI developer thinking.",
+      "url": "https://www.dk.com/us/book/9780744028997-how-to-build-a-robot/",
+      "ageRanges": ["8-10", "11-13"],
+      "resourceType": "books_reading_materials",
+      "format": "Book",
+      "cost": "paid",
+      "learningOutcomes": [
+        "Children understand how AI and robotics intersect",
+        "Inspiration to explore STEM fields"
+      ],
+      "skillsAttained": [
+        "Understanding of robotics",
+        "Basic AI principles",
+        "Engineering thinking",
+        "Logical reasoning"
+      ],
+      "keyFeatures": [
+        "DK trademark visual learning style",
+        "Real-world robot examples",
+        "AI and robotics connection",
+        "Hands-on thinking prompts"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "Google Teachable Machine",
+      "description": "A user-friendly, web-based tool from Google allowing anyone — including children — to train their own AI models using images, sounds, and poses without any coding. Provides intuitive, real-time machine learning experience.",
+      "url": "https://teachablemachine.withgoogle.com/",
+      "ageRanges": ["8-10", "11-13", "14-17"],
+      "resourceType": "interactive_tools_apps",
+      "format": "Interactive Tool",
+      "cost": "free",
+      "learningOutcomes": [
+        "Participants grasp fundamental machine learning concepts",
+        "Understanding of how AI learns from data through direct participation"
+      ],
+      "skillsAttained": [
+        "Machine learning basics",
+        "Data analysis by organizing input",
+        "Model training and testing",
+        "Pattern recognition"
+      ],
+      "keyFeatures": [
+        "No coding required",
+        "Real-time AI training with immediate feedback",
+        "Visual interface",
+        "Supports images, sounds, and poses",
+        "Completely browser-based"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": true
+    },
+
+    {
+      "title": "BrainPOP AI",
+      "description": "An engaging learning platform using AI to explain complex topics — including AI itself — through animations and interactive quizzes. AI-driven personalized learning paths adapt to individual student needs.",
+      "url": "https://www.brainpop.com/",
+      "ageRanges": ["8-10", "11-13"],
+      "resourceType": "interactive_tools_apps",
+      "format": "Interactive Tool",
+      "cost": "paid",
+      "learningOutcomes": [
+        "Children gain a solid understanding of AI and other STEM topics",
+        "Fostering deeper interest in AI through engaging, adaptive content"
+      ],
+      "skillsAttained": [
+        "AI concept comprehension",
+        "Problem-solving through interactive challenges",
+        "Creativity through AI application exploration"
+      ],
+      "keyFeatures": [
+        "AI-driven personalized learning paths",
+        "Engaging educational animations",
+        "Interactive quizzes",
+        "Educator dashboard"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "Studyable",
+      "description": "An AI-powered study platform generating personalized quizzes, flashcards, and study guides from any text input. Helps students actively engage with learning material using AI-generated content tailored to their needs.",
+      "url": "https://studyable.app",
+      "ageRanges": ["8-10", "11-13", "14-17"],
+      "resourceType": "interactive_tools_apps",
+      "format": "Interactive Tool",
+      "cost": "free",
+      "learningOutcomes": [
+        "Improved study efficiency through AI-powered revision tools",
+        "Better understanding through tools that adapt to individual learning needs"
+      ],
+      "skillsAttained": [
+        "Critical thinking",
+        "Memory retention",
+        "Active recall strategies",
+        "Understanding of AI personalization"
+      ],
+      "keyFeatures": [
+        "AI-generated quizzes and flashcards",
+        "Personalized study materials",
+        "Works from any text input",
+        "Active recall support"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "RoboMind Academy",
+      "description": "An online coding platform where children learn programming and fundamental AI concepts by programming a virtual robot. The robotics simulation environment makes learning both engaging and practical.",
+      "url": "https://www.robomindacademy.com/",
+      "ageRanges": ["8-10", "11-13"],
+      "resourceType": "interactive_tools_apps",
+      "format": "Interactive Tool",
+      "cost": "free",
+      "learningOutcomes": [
+        "Foundational understanding of AI principles",
+        "Programming skills and core robotics concepts through hands-on virtual robot control"
+      ],
+      "skillsAttained": [
+        "Coding skills",
+        "Basic AI logic through robot behavior design",
+        "Problem-solving through coding challenges"
+      ],
+      "keyFeatures": [
+        "AI-powered adaptive coding exercises",
+        "Interactive challenges",
+        "Robotics simulation environment",
+        "Virtual robot programming"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "Cognimates (MIT)",
+      "description": "An MIT project integrating robotics and AI learning with Scratch's visual programming language. Children can program virtual and physical robots and train their own AI models within the familiar Scratch environment.",
+      "url": "https://hackidemia.github.io/cognimates-website/home/",
+      "ageRanges": ["8-10", "11-13"],
+      "resourceType": "interactive_tools_apps",
+      "format": "Interactive Tool",
+      "cost": "free",
+      "learningOutcomes": [
+        "Fundamental concepts in both AI and robotics",
+        "Skills developed through hands-on programming and experimentation"
+      ],
+      "skillsAttained": [
+        "Coding through Scratch",
+        "Problem-solving by designing robot behaviors and AI models"
+      ],
+      "keyFeatures": [
+        "Visual Scratch-based programming",
+        "Robot control and AI model training",
+        "MIT-backed curriculum",
+        "Free and open-source"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "TensorFlow Playground",
+      "description": "An interactive web tool for older kids and teenagers to visualize and experiment with neural networks in real time. Allows users to tweak parameters and observe how they affect the network's learning process — no installation needed.",
+      "url": "https://playground.tensorflow.org",
+      "ageRanges": ["11-13", "14-17"],
+      "resourceType": "interactive_tools_apps",
+      "format": "Interactive Tool",
+      "cost": "free",
+      "learningOutcomes": [
+        "Better intuition for core AI concepts related to neural networks",
+        "Understanding of deep learning principles"
+      ],
+      "skillsAttained": [
+        "Model training and optimization",
+        "Foundational understanding of machine learning",
+        "Understanding of how neural networks function"
+      ],
+      "keyFeatures": [
+        "Real-time visual feedback of neural network learning",
+        "Highly interactive parameter adjustments",
+        "Browser-based — no installation required"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "Buddy.ai",
+      "description": "An AI-powered voice-based learning assistant helping young children practice and improve language skills through engaging conversations. The interactive AI chatbot provides a fun, supportive environment for language learning with voice recognition and pronunciation feedback.",
+      "url": "https://buddy.ai/",
+      "ageRanges": ["4-7", "8-10"],
+      "resourceType": "interactive_tools_apps",
+      "format": "App",
+      "cost": "free",
+      "learningOutcomes": [
+        "Improved speaking and comprehension skills",
+        "Enhanced language skills through interactive AI practice"
+      ],
+      "skillsAttained": [
+        "Communication skills",
+        "Language skills (vocabulary, grammar)",
+        "Pronunciation through AI feedback"
+      ],
+      "keyFeatures": [
+        "Interactive AI chatbot with voice recognition",
+        "Pronunciation feedback",
+        "Language-learning games",
+        "Safe for young children"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "Google NotebookLM",
+      "description": "Google's AI-powered research and note-taking tool that lets students upload sources and ask the AI questions, create summaries, and generate study guides grounded in their own materials. A powerful tool for learning about AI while using AI.",
+      "url": "https://notebooklm.google.com/",
+      "ageRanges": ["11-13", "14-17"],
+      "resourceType": "interactive_tools_apps",
+      "format": "Interactive Tool",
+      "cost": "free",
+      "learningOutcomes": [
+        "Students develop advanced study skills",
+        "Practical experience with state-of-the-art AI tools"
+      ],
+      "skillsAttained": [
+        "Research skills",
+        "Critical thinking",
+        "Note synthesis",
+        "Understanding of how AI processes and summarizes information"
+      ],
+      "keyFeatures": [
+        "AI grounded in your own uploaded sources",
+        "Generates summaries, Q&A, and study guides",
+        "Audio overview (podcast-style) feature",
+        "Completely free"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": true
+    },
+
+    {
+      "title": "Machine Learning for Kids",
+      "description": "A platform allowing children to train machine learning models using IBM Watson and then use them in Scratch, App Inventor, or Python projects. Covers supervised learning concepts in an accessible, hands-on way that is completely free.",
+      "url": "https://machinelearningforkids.co.uk/",
+      "ageRanges": ["8-10", "11-13", "14-17"],
+      "resourceType": "interactive_tools_apps",
+      "format": "Interactive Tool",
+      "cost": "free",
+      "learningOutcomes": [
+        "Understanding of how AI models learn from data",
+        "Active participation in the model training process"
+      ],
+      "skillsAttained": [
+        "Machine learning model training",
+        "Supervised learning concepts",
+        "Basic data science principles"
+      ],
+      "keyFeatures": [
+        "Trains real AI models using IBM Watson",
+        "Integrates with Scratch and App Inventor",
+        "Supervised learning focus",
+        "Completely free",
+        "Classroom-ready"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": true
+    },
+
+    {
+      "title": "Quick, Draw! (Google)",
+      "description": "A fun online game from Google challenging users to draw a given object within 20 seconds while an AI tries to guess what it is. A playful introduction to how AI recognizes patterns and learns from user input. Your drawings also help train the AI.",
+      "url": "https://quickdraw.withgoogle.com/",
+      "ageRanges": ["4-7", "8-10", "11-13", "14-17"],
+      "resourceType": "ai_powered_games_simulations",
+      "format": "Game",
+      "cost": "free",
+      "learningOutcomes": [
+        "Basic understanding of how AI recognizes objects based on visual patterns"
+      ],
+      "skillsAttained": [
+        "Creativity through drawing",
+        "Pattern recognition",
+        "Understanding of how AI learns from visual input"
+      ],
+      "keyFeatures": [
+        "Highly interactive for all ages",
+        "Fun way to see AI pattern recognition in action",
+        "Collaborative — drawings contribute to AI training data",
+        "No sign-up required"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": true
+    },
+
+    {
+      "title": "Google AutoDraw",
+      "description": "An AI-powered drawing tool that attempts to guess what the user is drawing and offers professional sketch suggestions. A creative exploration of AI visual recognition that demonstrates human-AI collaboration in a fun, accessible way.",
+      "url": "https://www.autodraw.com/",
+      "ageRanges": ["4-7", "8-10", "11-13", "14-17"],
+      "resourceType": "ai_powered_games_simulations",
+      "format": "Game",
+      "cost": "free",
+      "learningOutcomes": [
+        "Participants understand how AI can assist in design and visual creation"
+      ],
+      "skillsAttained": [
+        "Digital creativity",
+        "Understanding of AI visual recognition",
+        "Human-AI creative collaboration"
+      ],
+      "keyFeatures": [
+        "Converts rough doodles into refined images using AI",
+        "Demonstrates AI visual recognition in real time",
+        "Simple to use for any age",
+        "No sign-up required"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "AI for Oceans (Code.org)",
+      "description": "A coding-based game from Code.org teaching children how AI can be used for real-world problem-solving — specifically ocean conservation. Players train an AI to identify ocean debris, learning about AI ethics along the way.",
+      "url": "https://code.org/oceans",
+      "ageRanges": ["4-7", "8-10", "11-13"],
+      "resourceType": "ai_powered_games_simulations",
+      "format": "Game",
+      "cost": "free",
+      "learningOutcomes": [
+        "Understanding of how AI can be applied to solve real-world environmental problems"
+      ],
+      "skillsAttained": [
+        "AI ethics in an environmental context",
+        "Basic programming through block coding",
+        "Understanding of how AI classification works"
+      ],
+      "keyFeatures": [
+        "Block-based coding accessible to beginners",
+        "Interactive AI model training",
+        "Real-world environmental conservation context",
+        "Ethical AI discussion built in"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": true
+    },
+
+    {
+      "title": "Akinator",
+      "description": "A popular AI guessing game where an AI attempts to identify a character the user is thinking of through yes/no questions. A fun demonstration of AI reasoning, prediction, and decision tree logic for all ages.",
+      "url": "https://en.akinator.com/",
+      "ageRanges": ["4-7", "8-10", "11-13", "14-17"],
+      "resourceType": "ai_powered_games_simulations",
+      "format": "Game",
+      "cost": "free",
+      "learningOutcomes": [
+        "Understanding of how AI makes decisions based on systematically gathered information"
+      ],
+      "skillsAttained": [
+        "Understanding of AI reasoning and prediction",
+        "Pattern recognition",
+        "Observing decision tree logic in action"
+      ],
+      "keyFeatures": [
+        "AI-driven predictions based on user answers",
+        "Fun and interactive for all ages",
+        "Available as app and website"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "Semantle",
+      "description": "A word-guessing game using AI semantic analysis to show how closely related a player's guess is to a secret word. Provides a numerical similarity score, introducing players to natural language processing in a fun, challenging way.",
+      "url": "https://semantle.com/",
+      "ageRanges": ["11-13", "14-17"],
+      "resourceType": "ai_powered_games_simulations",
+      "format": "Game",
+      "cost": "free",
+      "learningOutcomes": [
+        "Better understanding of how AI processes and understands relationships between words"
+      ],
+      "skillsAttained": [
+        "Vocabulary expansion",
+        "Logical reasoning",
+        "Exposure to AI-driven natural language processing"
+      ],
+      "keyFeatures": [
+        "AI semantic analysis",
+        "Numerical word similarity scoring",
+        "Challenging and educational",
+        "Demonstrates NLP concepts"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "RoboRunner (MIT Media Lab)",
+      "description": "A game from MIT Media Lab where children train an AI-powered virtual robot to navigate obstacles. By providing feedback and rewards, players teach the AI how to complete challenges — a hands-on introduction to reinforcement learning.",
+      "url": "https://www.media.mit.edu/projects/roborunner/overview/",
+      "ageRanges": ["8-10", "11-13"],
+      "resourceType": "ai_powered_games_simulations",
+      "format": "Game",
+      "cost": "free",
+      "learningOutcomes": [
+        "Understanding of how AI makes decisions based on the training it receives"
+      ],
+      "skillsAttained": [
+        "AI training through feedback and rewards",
+        "Logical thinking",
+        "Understanding of reinforcement learning basics"
+      ],
+      "keyFeatures": [
+        "Hands-on AI training where players influence robot behavior",
+        "Problem-solving tasks",
+        "Introduces reinforcement learning",
+        "MIT-backed"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "AI Dungeon",
+      "description": "An innovative text-based adventure game using AI to generate dynamic, unpredictable storylines based on player input. The AI acts as a Dungeon Master, creating an endless, unique role-playing experience demonstrating large language model capabilities.",
+      "url": "https://aidungeon.io/",
+      "ageRanges": ["11-13", "14-17"],
+      "resourceType": "ai_powered_games_simulations",
+      "format": "Game",
+      "cost": "free",
+      "learningOutcomes": [
+        "Experience of AI's ability to generate narrative",
+        "Understanding of large language models in creative contexts"
+      ],
+      "skillsAttained": [
+        "Creativity and imagination",
+        "Decision-making",
+        "Understanding of how AI generates and adapts narrative"
+      ],
+      "keyFeatures": [
+        "Interactive AI storytelling that adapts to player choices",
+        "Endless story possibilities",
+        "Demonstrates large language model capabilities",
+        "Parents should review content settings for younger users"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "Google AI Experiments",
+      "description": "A collection of AI-powered experiments and interactive tools from Google, including Semi-Conductor (conduct an orchestra with your body), Talk to Books, and many more demonstrating AI capabilities in entertaining, accessible ways.",
+      "url": "https://experiments.withgoogle.com/",
+      "ageRanges": ["8-10", "11-13", "14-17"],
+      "resourceType": "ai_powered_games_simulations",
+      "format": "Interactive Tool",
+      "cost": "free",
+      "learningOutcomes": [
+        "Better understanding of real-world AI applications through interactive experiences"
+      ],
+      "skillsAttained": [
+        "Broad understanding of AI applications",
+        "Pattern recognition",
+        "Creativity through AI interaction"
+      ],
+      "keyFeatures": [
+        "Wide variety of interactive AI experiments",
+        "Demonstrates real-world AI capabilities",
+        "Visual and hands-on",
+        "Regularly updated with new experiments"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "Magenta – AI Music Composer (Google)",
+      "description": "Google's research project exploring AI and music creation. Tools include Song Maker and Blob Opera, letting users create music with AI. Hands-on projects exploring how AI understands and generates music — a creative entry point into understanding generative models.",
+      "url": "https://magenta.tensorflow.org/",
+      "ageRanges": ["8-10", "11-13", "14-17"],
+      "resourceType": "ai_powered_games_simulations",
+      "format": "Interactive Tool",
+      "cost": "free",
+      "learningOutcomes": [
+        "Understanding of how AI can be used as a tool in music production"
+      ],
+      "skillsAttained": [
+        "AI-generated music composition",
+        "Creativity",
+        "Understanding of generative AI models"
+      ],
+      "keyFeatures": [
+        "Browser-based music creation with AI",
+        "Blob Opera for interactive AI opera singing",
+        "Free and accessible",
+        "No music knowledge required"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "SciShow Kids",
+      "description": "A popular YouTube channel creating fun, engaging science videos for younger children. Covers topics related to AI and technology in an age-appropriate way, building scientific curiosity and vocabulary needed to understand AI concepts.",
+      "url": "https://www.youtube.com/@SciShowKids",
+      "ageRanges": ["4-7", "8-10"],
+      "resourceType": "youtube_video_resources",
+      "format": "Video",
+      "cost": "free",
+      "learningOutcomes": [
+        "Foundational understanding of basic scientific principles that underpin AI"
+      ],
+      "skillsAttained": [
+        "Scientific curiosity",
+        "Basic scientific vocabulary",
+        "Foundational understanding of technology concepts"
+      ],
+      "keyFeatures": [
+        "Engaging animated videos",
+        "Simple explanations for young children",
+        "Curriculum-adjacent content",
+        "New videos regularly posted"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "SciShow Kids: AI Explainers",
+      "description": "Kid-friendly videos from SciShow Kids specifically introducing AI ideas with examples from daily life. Covers topics like how voice assistants work, what machine learning is, and how robots learn.",
+      "url": "https://www.youtube.com/@SciShowKids",
+      "ageRanges": ["8-10", "11-13"],
+      "resourceType": "youtube_video_resources",
+      "format": "Video",
+      "cost": "free",
+      "learningOutcomes": [
+        "Children understand how AI is present in everyday technology around them"
+      ],
+      "skillsAttained": [
+        "Understanding of AI concepts in everyday context",
+        "Scientific vocabulary",
+        "Critical thinking about technology"
+      ],
+      "keyFeatures": [
+        "Kid-friendly AI explanations",
+        "Daily-life examples",
+        "Engaging presentation style",
+        "Freely available"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "Code.org AI Tutorials (Video + Interactive)",
+      "description": "Code.org's series of AI-focused video lessons combined with interactive coding activities. Introduces AI concepts in a beginner-friendly way with discussions on AI ethics and responsible use built into every module.",
+      "url": "https://code.org/ai",
+      "ageRanges": ["8-10", "11-13"],
+      "resourceType": "youtube_video_resources",
+      "format": "Video",
+      "cost": "free",
+      "learningOutcomes": [
+        "Introduction to AI concepts and their ethical implications",
+        "Development of basic coding skills through interactive activities"
+      ],
+      "skillsAttained": [
+        "Basic programming in AI context",
+        "Ethical considerations surrounding AI technology"
+      ],
+      "keyFeatures": [
+        "AI ethics discussions built in",
+        "Beginner-friendly coding exercises",
+        "Hands-on interactive activities",
+        "Free and school-ready"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "Google AI Experiments YouTube Channel",
+      "description": "Google's YouTube channel showcasing AI-powered experiments and demonstrations. Viewers see AI in action through visual, engaging presentations and can often try the experiments themselves via linked interactive tools.",
+      "url": "https://experiments.withgoogle.com/",
+      "ageRanges": ["11-13", "14-17"],
+      "resourceType": "youtube_video_resources",
+      "format": "Video",
+      "cost": "free",
+      "learningOutcomes": [
+        "Better understanding of real-world AI applications through visual demonstrations"
+      ],
+      "skillsAttained": [
+        "Understanding of how AI is developed and applied",
+        "Insight into AI functionalities"
+      ],
+      "keyFeatures": [
+        "Hands-on experiments viewers can try themselves",
+        "Visual demonstrations of AI capabilities",
+        "Real-world AI application examples",
+        "Regularly updated"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "AI Education For All",
+      "description": "A YouTube channel dedicated to making AI education accessible to kids and beginners. Covers AI basics, offers hands-on tutorials, and explores real-world AI applications in an easy-to-understand format. Also runs live streaming sessions.",
+      "url": "https://www.youtube.com/@AIEducationForAll",
+      "ageRanges": ["8-10", "11-13"],
+      "resourceType": "youtube_video_resources",
+      "format": "Video",
+      "cost": "free",
+      "learningOutcomes": [
+        "Foundational understanding of AI concepts and their practical relevance"
+      ],
+      "skillsAttained": [
+        "AI basics",
+        "Practical skills through tutorials",
+        "Understanding of AI application across industries"
+      ],
+      "keyFeatures": [
+        "AI fundamentals content",
+        "Hands-on tutorials",
+        "Real-world examples",
+        "Live streaming sessions",
+        "Beginner-friendly pacing"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "Teens in AI YouTube Channel",
+      "description": "A YouTube channel created for teenagers interested in AI for social good. Features real AI projects by teens, expert interviews, and information about AI competitions and opportunities — providing relatable role models for young AI enthusiasts.",
+      "url": "https://www.youtube.com/@TeensinAI",
+      "ageRanges": ["11-13", "14-17"],
+      "resourceType": "youtube_video_resources",
+      "format": "Video",
+      "cost": "free",
+      "learningOutcomes": [
+        "Inspiration from real-world AI applications for social good",
+        "Awareness of opportunities in the AI field"
+      ],
+      "skillsAttained": [
+        "Practical AI development awareness",
+        "Career insights in AI",
+        "Understanding of AI for social impact"
+      ],
+      "keyFeatures": [
+        "Peer AI projects as relatable role models",
+        "Expert career insights through interviews",
+        "AI challenge highlights",
+        "Social good focus"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "DeepLearning.AI YouTube Channel",
+      "description": "Founded by Andrew Ng, DeepLearning.AI offers high-quality educational content on AI and deep learning. Introductory talks and career-focused videos are particularly valuable for high school students considering AI careers.",
+      "url": "https://www.youtube.com/@DeepLearningAI",
+      "ageRanges": ["14-17"],
+      "resourceType": "youtube_video_resources",
+      "format": "Video",
+      "cost": "free",
+      "learningOutcomes": [
+        "Exposure to advanced AI topics",
+        "Broader perspective on AI from leading global experts"
+      ],
+      "skillsAttained": [
+        "Advanced AI understanding",
+        "Ethical considerations in AI",
+        "Career pathway awareness"
+      ],
+      "keyFeatures": [
+        "Expert AI talks from world-leading researchers",
+        "Coding tutorials",
+        "Real-world AI applications",
+        "Career pathway discussions"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "Microsoft AI for Kids (Learn AI with Minecraft)",
+      "description": "Microsoft's AI educational content integrating popular platforms like Minecraft. Resources include video-based learning and interactive challenges introducing AI concepts in an engaging, familiar gaming environment.",
+      "url": "https://www.microsoft.com/en-us/ai/education",
+      "ageRanges": ["8-10", "11-13"],
+      "resourceType": "youtube_video_resources",
+      "format": "Video",
+      "cost": "free",
+      "learningOutcomes": [
+        "Understanding of AI concepts applied in familiar environments like Minecraft"
+      ],
+      "skillsAttained": [
+        "Basic AI concepts",
+        "Problem-solving within familiar gaming environments"
+      ],
+      "keyFeatures": [
+        "Minecraft integration for familiar learning context",
+        "Kid-friendly AI explanations",
+        "Interactive challenges",
+        "Microsoft-backed curriculum"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "AI4K12 Initiative",
+      "description": "A national initiative providing free AI-focused learning resources including hands-on projects, lesson plans, and activities for K-12 learners. Built around five key AI concepts and designed to introduce fundamental AI ideas in a practical, accessible way.",
+      "url": "https://ai4k12.org/",
+      "ageRanges": ["8-10", "11-13", "14-17"],
+      "resourceType": "hands_on_projects_activities",
+      "format": "Activity",
+      "cost": "free",
+      "learningOutcomes": [
+        "Solid understanding of AI concepts and their real-world applications",
+        "Practical skills through activities and ethical discussions"
+      ],
+      "skillsAttained": [
+        "Fundamental AI concepts through active engagement",
+        "Ethical AI thinking",
+        "Problem-solving through AI projects"
+      ],
+      "keyFeatures": [
+        "5 Big Ideas in AI framework",
+        "Wide range of hands-on experiments",
+        "Classroom-friendly materials for educators",
+        "Ethical AI discussions built in",
+        "Constantly updated"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "Build a Chatbot (Scratch / Dialogflow)",
+      "description": "A project involving creating an AI-powered chatbot using Scratch for younger learners or Google Dialogflow for more advanced features. Participants learn the basics of natural language processing and build interactive conversational agents.",
+      "url": "https://scratch.mit.edu/",
+      "ageRanges": ["8-10", "11-13", "14-17"],
+      "resourceType": "hands_on_projects_activities",
+      "format": "Activity",
+      "cost": "free",
+      "learningOutcomes": [
+        "Understanding of how AI chatbots work",
+        "Practical experience building a simple conversational AI system"
+      ],
+      "skillsAttained": [
+        "Coding skills",
+        "Natural language processing principles",
+        "Conversational AI design"
+      ],
+      "keyFeatures": [
+        "Highly interactive with immediate feedback",
+        "Teaches NLP basics",
+        "Two difficulty levels (Scratch vs Dialogflow)",
+        "Parent and teacher guides available"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "Teach AI to Recognise Images (Teachable Machine Project)",
+      "description": "A hands-on project using Google's Teachable Machine to train an AI model to recognize categories of images, sounds, or poses. No coding required and AI training happens in real time — one of the most accessible AI projects for any age.",
+      "url": "https://teachablemachine.withgoogle.com/",
+      "ageRanges": ["4-7", "8-10", "11-13", "14-17"],
+      "resourceType": "hands_on_projects_activities",
+      "format": "Activity",
+      "cost": "free",
+      "learningOutcomes": [
+        "Understanding of how AI learns from datasets",
+        "Insight gained by actively participating in the training process"
+      ],
+      "skillsAttained": [
+        "Pattern recognition",
+        "Basics of AI training",
+        "Foundational machine learning principles"
+      ],
+      "keyFeatures": [
+        "No coding required",
+        "Real-time AI training",
+        "Immediate visual feedback",
+        "Supports image, sound, and pose inputs"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "AI Art Generator (DALL·E / Deep Dream Generator)",
+      "description": "Tools allowing users to generate images from text prompts (DALL·E) or apply artistic styles to photos (Deep Dream Generator). A fun, visual way to understand how generative AI models work and how AI can be used creatively.",
+      "url": "https://deepdreamgenerator.com/",
+      "ageRanges": ["4-7", "8-10", "11-13", "14-17"],
+      "resourceType": "hands_on_projects_activities",
+      "format": "Activity",
+      "cost": "free",
+      "learningOutcomes": [
+        "Understanding of how AI can be used to create art",
+        "Understanding of how machine learning models interpret and generate visual content"
+      ],
+      "skillsAttained": [
+        "Creativity through AI prompting",
+        "Understanding of AI in art",
+        "Pattern recognition in visual content"
+      ],
+      "keyFeatures": [
+        "Text-to-image generation",
+        "Artistic style transfer",
+        "Creative and immediately rewarding",
+        "Demonstrates generative AI capabilities"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "Scratch AI Projects",
+      "description": "Creative coding projects on Scratch where kids build simple AI-inspired experiences — from image classifiers using the ML for Kids extension to chatbots and recommendation engines. A community of millions shares and remixes AI projects.",
+      "url": "https://scratch.mit.edu/",
+      "ageRanges": ["8-10", "11-13"],
+      "resourceType": "hands_on_projects_activities",
+      "format": "Activity",
+      "cost": "free",
+      "learningOutcomes": [
+        "Practical AI project experience in a safe, creative community environment"
+      ],
+      "skillsAttained": [
+        "Coding skills",
+        "Computational thinking",
+        "Basic AI concepts through creative project building"
+      ],
+      "keyFeatures": [
+        "Huge community of shared AI projects",
+        "ML for Kids extension integration",
+        "Free and open",
+        "Remixable projects for learning by example"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "Create Your Own AI Game (MIT App Inventor)",
+      "description": "MIT App Inventor's block-based programming tool lets students create real mobile apps. With AI extensions, older kids can integrate AI functionalities — including image classification, text recognition, and personal audio classifier — into their own mobile games and apps.",
+      "url": "https://appinventor.mit.edu/",
+      "ageRanges": ["11-13", "14-17"],
+      "resourceType": "hands_on_projects_activities",
+      "format": "Activity",
+      "cost": "free",
+      "learningOutcomes": [
+        "Understanding of how AI enhances interactive applications",
+        "Practical experience building AI-powered mobile apps"
+      ],
+      "skillsAttained": [
+        "AI programming through extensions",
+        "Mobile app development",
+        "Understanding of AI-enhanced applications"
+      ],
+      "keyFeatures": [
+        "Drag-and-drop coding interface",
+        "AI extensions for image, text, and audio",
+        "Creates real mobile apps",
+        "MIT-backed and free"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "Arduino Robotics + AI Projects",
+      "description": "Arduino is a versatile microcontroller platform for building interactive devices and robots. Advanced projects can incorporate AI by connecting to AI platforms for tasks like object recognition or autonomous navigation, bridging physical and digital AI worlds.",
+      "url": "https://www.arduino.cc/",
+      "ageRanges": ["11-13", "14-17"],
+      "resourceType": "hands_on_projects_activities",
+      "format": "Activity",
+      "cost": "paid",
+      "learningOutcomes": [
+        "Experience building and programming physical systems",
+        "Potential for AI-powered robotics project development"
+      ],
+      "skillsAttained": [
+        "Electronics",
+        "C++ programming",
+        "Robotics principles",
+        "AI integration into physical systems"
+      ],
+      "keyFeatures": [
+        "Hands-on electronics and programming",
+        "Physical robot building",
+        "Potential AI integration with external platforms",
+        "Huge global project community"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "Runway ML (Creative AI Projects)",
+      "description": "A platform making machine learning accessible for creative tasks without extensive coding. Kids can use pre-trained AI models for image generation, video editing, and text manipulation — learning creative AI applications through direct experience.",
+      "url": "https://runwayml.com/",
+      "ageRanges": ["11-13", "14-17"],
+      "resourceType": "hands_on_projects_activities",
+      "format": "Activity",
+      "cost": "free",
+      "learningOutcomes": [
+        "Understanding of how AI can be used as a creative tool across different media formats"
+      ],
+      "skillsAttained": [
+        "AI-powered creativity",
+        "Digital media manipulation",
+        "Understanding of AI in art and design"
+      ],
+      "keyFeatures": [
+        "User-friendly AI model interface",
+        "Image generation, video editing, and text AI tools",
+        "No deep coding needed",
+        "Pre-trained models for creative use"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "AI Music with Google Magenta (Song Maker)",
+      "description": "Google's Magenta Song Maker and Blob Opera are accessible browser tools letting children compose music with AI assistance. Hands-on projects exploring how AI understands and generates music — a creative entry point for all ages.",
+      "url": "https://musiclab.chromeexperiments.com/",
+      "ageRanges": ["8-10", "11-13", "14-17"],
+      "resourceType": "hands_on_projects_activities",
+      "format": "Activity",
+      "cost": "free",
+      "learningOutcomes": [
+        "Understanding of how AI can assist in music creation",
+        "Insight into algorithms behind AI-generated music"
+      ],
+      "skillsAttained": [
+        "AI-generated music composition",
+        "Creativity",
+        "Understanding of generative AI models in music"
+      ],
+      "keyFeatures": [
+        "Browser-based music creation with AI",
+        "Blob Opera (AI opera singers)",
+        "Free and accessible",
+        "No music knowledge required"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "iD Tech AI Camp",
+      "description": "Specialized AI and coding bootcamps for older kids and teenagers. Intensive programs provide hands-on experience in machine learning and data science through advanced projects, available online and in-person at university campuses.",
+      "url": "https://www.idtech.com",
+      "ageRanges": ["11-13", "14-17"],
+      "resourceType": "ai_camps_webinars_live_classes",
+      "format": "Camp",
+      "cost": "paid",
+      "learningOutcomes": [
+        "Advanced AI skills through intensive project-based learning",
+        "Experience with real-world AI development in a structured environment"
+      ],
+      "skillsAttained": [
+        "Programming relevant to AI",
+        "Data science principles",
+        "Machine learning project development"
+      ],
+      "keyFeatures": [
+        "Online and in-person options at university campuses",
+        "Advanced AI projects",
+        "Intensive format",
+        "Experienced instructors"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "AI Camp",
+      "description": "A comprehensive summer program focused on AI where kids and teenagers learn by building real AI models. Emphasizes live instruction in a coding-intensive environment. Scholarships are often available to ensure accessibility.",
+      "url": "https://www.ai-camp.org/",
+      "ageRanges": ["11-13", "14-17"],
+      "resourceType": "ai_camps_webinars_live_classes",
+      "format": "Camp",
+      "cost": "paid",
+      "learningOutcomes": [
+        "Ability to create AI-powered applications",
+        "Experience of teamwork within AI development"
+      ],
+      "skillsAttained": [
+        "AI model training",
+        "Python proficiency",
+        "Fundamental machine learning concepts",
+        "Teamwork in AI development"
+      ],
+      "keyFeatures": [
+        "Live instruction from experienced educators",
+        "Real-world AI model building",
+        "Coding-intensive environment",
+        "Scholarship availability"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "Stanford AI4ALL Camp",
+      "description": "A prestigious summer camp hosted by Stanford University for high school students interested in AI. Provides an immersive experience with AI projects, university-level instruction, and exposure to real-world AI challenges. Focused on diversity and inclusion in AI.",
+      "url": "https://ai4all.stanford.edu/",
+      "ageRanges": ["14-17"],
+      "resourceType": "ai_camps_webinars_live_classes",
+      "format": "Camp",
+      "cost": "paid",
+      "learningOutcomes": [
+        "Advanced AI knowledge",
+        "Experience in collaborative AI research at a leading university"
+      ],
+      "skillsAttained": [
+        "Advanced AI problem-solving",
+        "Ethical AI thinking",
+        "Programming for AI",
+        "Collaborative AI research"
+      ],
+      "keyFeatures": [
+        "University-level instruction at Stanford",
+        "Intensive AI projects",
+        "Real-world AI problem exposure",
+        "Diversity-focused",
+        "Scholarship availability"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "Inspirit AI Summer School",
+      "description": "Founded by Stanford and MIT alumni, Inspirit AI offers a live online AI summer camp with scholarship opportunities. Focuses on project-based learning, expert mentorship from Stanford and MIT researchers, and career insights in AI.",
+      "url": "https://www.inspiritai.com/liveonline",
+      "ageRanges": ["11-13", "14-17"],
+      "resourceType": "ai_camps_webinars_live_classes",
+      "format": "Camp",
+      "cost": "paid",
+      "learningOutcomes": [
+        "Hands-on AI project experience",
+        "Deeper understanding of advanced AI concepts"
+      ],
+      "skillsAttained": [
+        "AI problem-solving",
+        "Programming for AI",
+        "Teamwork through collaborative projects"
+      ],
+      "keyFeatures": [
+        "Stanford and MIT alumni instructors",
+        "Project-based learning",
+        "Expert mentorship from AI researchers",
+        "Career pathway insights",
+        "Scholarship availability"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "Teens in AI Hackathons & Webinars",
+      "description": "A global initiative organising live AI hackathons, mentorship programmes, and workshops for teenagers. Events provide opportunities for hands-on AI project development, collaboration, and learning from experts — with a strong focus on AI for social good.",
+      "url": "https://teensinai.com/",
+      "ageRanges": ["11-13", "14-17"],
+      "resourceType": "ai_camps_webinars_live_classes",
+      "format": "Camp",
+      "cost": "free",
+      "learningOutcomes": [
+        "Experience building AI-powered solutions for real-world problems",
+        "Collaborative skills in competitive AI project settings"
+      ],
+      "skillsAttained": [
+        "AI development through real projects",
+        "Teamwork",
+        "Coding in AI context",
+        "Social impact thinking"
+      ],
+      "keyFeatures": [
+        "Global hackathon events",
+        "Expert mentorship",
+        "AI for social good focus",
+        "Collaborative team projects",
+        "Free to participate"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "CodeWizardsHQ AI Coding Classes",
+      "description": "Structured AI-focused coding curriculum introducing students to Python and machine learning. Live online classes are project-based with expert guidance, following a clear learning path from beginner to advanced levels.",
+      "url": "https://www.codewizardshq.com/",
+      "ageRanges": ["8-10", "11-13", "14-17"],
+      "resourceType": "ai_camps_webinars_live_classes",
+      "format": "Live Class",
+      "cost": "paid",
+      "learningOutcomes": [
+        "Ability to build AI applications using Python",
+        "Understanding of data models in machine learning"
+      ],
+      "skillsAttained": [
+        "AI programming techniques",
+        "Problem-solving",
+        "Coding fundamentals relevant to AI"
+      ],
+      "keyFeatures": [
+        "Live online classes with real-time instruction",
+        "Structured Python to ML learning path",
+        "Project-based curriculum",
+        "Expert instructors",
+        "All age groups catered for"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "Google AI for Youth",
+      "description": "Google's global education programme offering workshops and hands-on AI training for teenagers. Makes AI education accessible and engaging while incorporating discussions on AI ethics and societal impact.",
+      "url": "https://aiyprojects.withgoogle.com",
+      "ageRanges": ["11-13", "14-17"],
+      "resourceType": "ai_camps_webinars_live_classes",
+      "format": "Webinar",
+      "cost": "free",
+      "learningOutcomes": [
+        "Understanding of AI's role in society",
+        "Awareness of real-world AI applications"
+      ],
+      "skillsAttained": [
+        "Fundamental AI concepts",
+        "Python coding",
+        "Problem-solving",
+        "Understanding of AI ethics"
+      ],
+      "keyFeatures": [
+        "Interactive AI lessons and activities",
+        "Ethical AI discussions",
+        "Hands-on project opportunities",
+        "Google-backed curriculum"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "Create & Learn Webinars",
+      "description": "Live online discussions and interactive courses on AI suitable for both kids and parents. Expert-led sessions include engaging projects making learning practical and accessible. A great option for families wanting to explore AI together.",
+      "url": "https://www.create-learn.us/",
+      "ageRanges": ["4-7", "8-10", "11-13", "14-17"],
+      "resourceType": "ai_camps_webinars_live_classes",
+      "format": "Webinar",
+      "cost": "free",
+      "learningOutcomes": [
+        "Practical AI skills",
+        "Experience applying AI concepts through live guided projects"
+      ],
+      "skillsAttained": [
+        "AI coding skills",
+        "Project management through hands-on activities"
+      ],
+      "keyFeatures": [
+        "Expert-led live sessions",
+        "Interactive projects",
+        "Family-friendly options",
+        "Both free and paid sessions available"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "NVIDIA AI Webinars for Students",
+      "description": "NVIDIA, a leader in AI computing, offers live webinars featuring AI experts introducing students to careers in AI and real-world AI projects. Sessions include live Q&A with industry professionals from one of the world's leading AI companies.",
+      "url": "https://www.nvidia.com/en-us/ai-education/",
+      "ageRanges": ["11-13", "14-17"],
+      "resourceType": "ai_camps_webinars_live_classes",
+      "format": "Webinar",
+      "cost": "free",
+      "learningOutcomes": [
+        "Understanding of potential AI careers",
+        "Awareness of how AI is applied across different industry sectors"
+      ],
+      "skillsAttained": [
+        "AI development insights",
+        "Deep learning basics",
+        "Real-world AI application awareness"
+      ],
+      "keyFeatures": [
+        "Industry expert speakers from NVIDIA",
+        "Real-world AI project showcases",
+        "Live Q&A sessions",
+        "Career insights",
+        "Globally accessible"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "AI & Machine Learning Bootcamp – Juni Learning",
+      "description": "A structured bootcamp focused on AI fundamentals and Python for middle and high school students. Features live online classes with expert instructors and a project-based curriculum providing practical AI experience.",
+      "url": "https://junilearning.com/",
+      "ageRanges": ["11-13", "14-17"],
+      "resourceType": "ai_camps_webinars_live_classes",
+      "format": "Live Class",
+      "cost": "paid",
+      "learningOutcomes": [
+        "Ability to develop AI-powered projects",
+        "Solid understanding of AI applications"
+      ],
+      "skillsAttained": [
+        "AI programming with Python",
+        "Machine learning algorithm fundamentals"
+      ],
+      "keyFeatures": [
+        "Live expert instruction",
+        "Project-based curriculum",
+        "Python and ML focus",
+        "Structured progression",
+        "1-to-1 and group options"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    },
+
+    {
+      "title": "MIT AI + Ethics Webinar Series",
+      "description": "An online discussion series led by MIT experts focusing on the critical intersection of AI and ethics. Provides a platform for older kids and teenagers to engage with thought-provoking discussions on the societal and moral implications of AI.",
+      "url": "https://www.media.mit.edu/",
+      "ageRanges": ["11-13", "14-17"],
+      "resourceType": "ai_camps_webinars_live_classes",
+      "format": "Webinar",
+      "cost": "free",
+      "learningOutcomes": [
+        "Deeper understanding of ethical considerations surrounding AI design and deployment"
+      ],
+      "skillsAttained": [
+        "Critical thinking by analyzing ethical AI dilemmas",
+        "Responsible AI development thinking"
+      ],
+      "keyFeatures": [
+        "MIT expert facilitators",
+        "Real-world ethical case studies",
+        "Discussion-based format",
+        "Thought-provoking content"
+      ],
+      "imageUrl": "",
+      "addedBy": "admin",
+      "isApproved": true,
+      "isFeatured": false
+    }
+
+  ]
+}

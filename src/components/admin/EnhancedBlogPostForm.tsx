@@ -12,6 +12,7 @@ import { PublishingOptions } from './PublishingOptions';
 import { BlogPreview } from './BlogPreview';
 import { BlogFormActions } from './BlogFormActions';
 import { BlogContentTab } from './BlogContentTab';
+import { HeadingTest } from './editor/HeadingTest';
 
 interface EnhancedBlogPostFormProps {
   post?: {
@@ -56,7 +57,7 @@ export const EnhancedBlogPostForm = ({ post, onSuccess }: EnhancedBlogPostFormPr
 
   useAutoSave({
     enabled: open,
-    formData,
+    formData: formData as unknown as Record<string, unknown>,
     onAutoSave: handleAutoSave,
   });
 

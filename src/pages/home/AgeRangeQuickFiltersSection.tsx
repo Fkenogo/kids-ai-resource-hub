@@ -14,15 +14,17 @@ const AgeRangeQuickFiltersSection = () => (
         </p>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-        {['5-7', '8-10', '11-13', '14-17'].map((ageRange) => (
+        {['4-7', '8-10', '11-13', '14-17'].map((ageRange) => (
           <Link key={ageRange} to={`/resources?age=${ageRange}`} className="block">
             <m.div 
-              className="glass-card rounded-xl p-4 md:p-6 h-full flex flex-col items-center justify-center text-center border border-white/70 bg-white/90 shadow-md hover:shadow-lg transition-all duration-300"
+              className="enhanced-card rounded-xl p-4 md:p-6 h-full flex flex-col items-center justify-center text-center border border-white/80 bg-white shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 hover:scale-105"
               whileHover={{ y: -5, transition: { duration: 0.2 } }}
             >
-              <h3 className="text-lg md:text-xl font-semibold mb-2">Ages {ageRange}</h3>
-              <p className="text-sm md:text-base text-muted-foreground mb-4 leading-relaxed">
-                {ageRange === '5-7'
+              <h3 className="text-lg md:text-xl font-bold mb-2 text-gray-900 dark:text-white">
+                Ages {ageRange}
+              </h3>
+              <p className="text-sm md:text-base text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
+                {ageRange === '4-7'
                   ? 'Early learning for young explorers'
                   : ageRange === '8-10'
                   ? 'Interactive tools for curious minds'
@@ -31,7 +33,11 @@ const AgeRangeQuickFiltersSection = () => (
                   : 'Advanced concepts for teens'
                 }
               </p>
-              <Button variant="outline" size="sm" className="gap-1 mt-auto">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="gap-1 mt-auto border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 dark:border-gray-600 dark:hover:border-gray-500 dark:text-gray-200 dark:hover:text-white"
+              >
                 Explore <ArrowRight className="h-4 w-4" />
               </Button>
             </m.div>

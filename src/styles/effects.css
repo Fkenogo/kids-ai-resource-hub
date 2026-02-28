@@ -8,6 +8,15 @@
   @apply bg-white/95 dark:bg-gray-900/90 backdrop-blur-xl border border-white/30 dark:border-gray-800/40 transition-all duration-500 hover:bg-white/[0.98] dark:hover:bg-gray-900/95 shadow-lg hover:shadow-2xl transform hover:-translate-y-1;
 }
 
+/* Enhanced card for better visibility on light backgrounds */
+.enhanced-card {
+  @apply bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 hover:scale-105 hover:border-gray-300 dark:hover:border-gray-600;
+}
+
+.enhanced-card:hover {
+  @apply shadow-2xl transform -translate-y-2 scale-105;
+}
+
 .enhanced-section {
   @apply relative bg-gradient-to-br from-brand-purple/5 to-brand-teal/5 dark:from-brand-purple/10 dark:to-brand-teal/10;
 }

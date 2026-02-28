@@ -106,7 +106,7 @@ export const ResourceGrid = ({
 
 function getCategoryDescription(ageRange: string): string {
   switch (ageRange) {
-    case '5-7':
+    case '4-7':
       return 'Early Learning';
     case '8-10':
       return 'Beginner AI Learning';

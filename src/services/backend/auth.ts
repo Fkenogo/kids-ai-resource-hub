@@ -23,7 +23,57 @@ export type BackendAuthSession = {
 } | null;
 
 type AuthListener = (event: string, session: BackendAuthSession) => void;
-const resolvedUserIdByEmail = new Map<string, string>();
+
+// LRU Cache with TTL for resolved user IDs
+const MAX_CACHE_SIZE = 100;
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+interface CacheEntry {
+  value: string;
+  timestamp: number;
+}
+
+const resolvedUserIdByEmail = new Map<string, CacheEntry>();
+
+const isCacheValid = (entry: CacheEntry): boolean => {
+  return Date.now() - entry.timestamp < CACHE_TTL_MS;
+};
+
+const getFromCache = (email: string): string | null => {
+  const entry = resolvedUserIdByEmail.get(email);
+  if (entry && isCacheValid(entry)) {
+    return entry.value;
+  }
+  if (entry) {
+    resolvedUserIdByEmail.delete(email); // Remove expired entry
+  }
+  return null;
+};
+
+const setCache = (email: string, userId: string): void => {
+  // Implement LRU: remove oldest entry if at capacity
+  if (resolvedUserIdByEmail.size >= MAX_CACHE_SIZE) {
+    let oldestKey: string | null = null;
+    let oldestTimestamp = Infinity;
+    
+    for (const [key, entry] of resolvedUserIdByEmail.entries()) {
+      if (entry.timestamp < oldestTimestamp) {
+        oldestTimestamp = entry.timestamp;
+        oldestKey = key;
+      }
+    }
+    
+    if (oldestKey) {
+      resolvedUserIdByEmail.delete(oldestKey);
+    }
+  }
+  
+  resolvedUserIdByEmail.set(email, { value: userId, timestamp: Date.now() });
+};
+
+const clearAuthCache = (): void => {
+  resolvedUserIdByEmail.clear();
+};
 
 const mapFirebaseUser = (user: FirebaseUser): BackendAuthUser => ({
   id: user.uid,
@@ -74,7 +124,8 @@ export const resolveDataUserId = async (user?: BackendAuthUser | null): Promise<
   if (!currentUser) return null;
   if (!currentUser.email) return currentUser.id;
 
-  const cached = resolvedUserIdByEmail.get(currentUser.email);
+  // Use cache helper with TTL
+  const cached = getFromCache(currentUser.email);
   if (cached) return cached;
 
   const matches = await readMany('profiles', {
@@ -83,7 +134,7 @@ export const resolveDataUserId = async (user?: BackendAuthUser | null): Promise<
   });
   if (matches.length > 0) {
     const id = String(matches[0].id);
-    resolvedUserIdByEmail.set(currentUser.email, id);
+    setCache(currentUser.email, id);
     return id;
   }
 

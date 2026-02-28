@@ -17,6 +17,11 @@ export const DEFAULT_FORMAT_OPTIONS = [
   'Tutorial',
   'Activity',
   'Camp',
+  'Live Class',
+  'Webinar',
+  'App',
+  'Web Tool',
+  'Worksheet',
 ] as const;
 
 const formatAliasMap: Record<string, string> = {

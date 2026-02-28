@@ -13,34 +13,47 @@ interface ResourceImageEditorProps {
     image_url?: string;
   };
   onUpdated?: () => void;
+  onUrlChange?: (url: string) => void;
 }
 
 export const ResourceImageEditor: React.FC<ResourceImageEditorProps> = ({
   resource,
   onUpdated,
+  onUrlChange,
 }) => {
   const [newImageUrl, setNewImageUrl] = useState<string | undefined>(undefined);
   const [saving, setSaving] = useState(false);
+  const [pendingUrl, setPendingUrl] = useState<string | undefined>(undefined);
 
   const handleImageChange = (url: string) => {
     logger.debug("New image uploaded:", url);
     setNewImageUrl(url);
+    setPendingUrl(undefined); // Clear any pending URL
+  };
+
+  const handleUrlChange = (url: string) => {
+    logger.debug("URL input changed:", url);
+    setPendingUrl(url);
+    setNewImageUrl(undefined); // Clear any uploaded image
   };
 
   const handleSave = async () => {
-    if (!newImageUrl) {
-      toast.error("Please upload an image first");
+    const imageUrlToSave = newImageUrl || pendingUrl;
+    
+    if (!imageUrlToSave) {
+      toast.error("Please upload an image or enter a URL first");
       return;
     }
     
     setSaving(true);
-    logger.debug("Saving image URL:", newImageUrl, "for resource:", resource.id);
+    logger.debug("Saving image URL:", imageUrlToSave, "for resource:", resource.id);
     
     try {
-      await updateResourceImageAdmin(resource.id, newImageUrl);
+      await updateResourceImageAdmin(resource.id, imageUrlToSave);
       logger.debug("Image updated successfully in database");
       toast.success(`Image updated for "${resource.title}"`);
       setNewImageUrl(undefined); // Reset the upload state
+      setPendingUrl(undefined); // Reset the pending URL
       onUpdated?.();
     } catch (err) {
       console.error("Unexpected error:", err);
@@ -53,11 +66,12 @@ export const ResourceImageEditor: React.FC<ResourceImageEditorProps> = ({
   const handleCancel = () => {
     logger.debug("Cancelling image upload");
     setNewImageUrl(undefined);
+    setPendingUrl(undefined);
   };
 
   // Show new image if uploaded, otherwise show current image
-  const displayImageUrl = newImageUrl || resource.image_url;
-  const hasNewImage = !!newImageUrl;
+  const displayImageUrl = newImageUrl || pendingUrl || resource.image_url;
+  const hasNewImage = !!newImageUrl || !!pendingUrl;
 
   return (
     <div className="border rounded-lg p-4 flex flex-col md:flex-row gap-4 items-center">
@@ -85,11 +99,12 @@ export const ResourceImageEditor: React.FC<ResourceImageEditorProps> = ({
         <ImageUploader
           value={newImageUrl}
           onChange={handleImageChange}
+          onUrlChange={handleUrlChange}
           label="Upload New Image"
         />
         {hasNewImage && (
           <p className="text-sm text-green-600 mt-2 flex items-center gap-1">
-            ✓ New image ready to save
+            ✓ Image ready to save
           </p>
         )}
       </div>

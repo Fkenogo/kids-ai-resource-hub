@@ -291,7 +291,7 @@ export const AddResourceForm = ({ onSuccess }: AddResourceFormProps) => {
           <div className="space-y-2">
             <Label>Age Ranges *</Label>
             <div className="flex flex-wrap gap-2">
-              {(['5-7', '8-10', '11-13', '14-17'] as AgeRange[]).map((age) => (
+              {(['4-7', '8-10', '11-13', '14-17'] as AgeRange[]).map((age) => (
                 <Badge
                   key={age}
                   variant={formData.age_ranges.includes(age) ? "default" : "outline"}

@@ -46,7 +46,7 @@ type ResourceEditFormData = {
   image_url: string;
 };
 
-const ageRangeOptions = ['5-7', '8-10', '11-13', '14-17'];
+const ageRangeOptions = ['4-7', '8-10', '11-13', '14-17'];
 const costOptions = ['free', 'paid', 'subscription', 'freemium'];
 
 export const ResourceEditDialog = ({ resource, onUpdated }: ResourceEditDialogProps) => {

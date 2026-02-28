@@ -12,7 +12,11 @@
     "seed:firestore": "node --env-file-if-exists=.env.migration scripts/seed-firestore.mjs",
     "smoke:routes": "node scripts/smoke-routes.mjs",
     "audit:smoke": "npm run build && npm run smoke:routes",
-    "check:firebase-key": "node scripts/check-firebase-key.mjs"
+    "check:firebase-key": "node scripts/check-firebase-key.mjs",
+    "upload:resources": "node scripts/bulk-upload-resources.mjs",
+    "upload:admin": "node scripts/admin-upload-resources.mjs",
+    "upload:new": "node scripts/upload-resources.mjs",
+    "upload:admin-sdk": "node scripts/upload-resources-admin.mjs"
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.24.1",

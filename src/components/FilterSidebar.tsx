@@ -18,7 +18,7 @@ export const FilterSidebar = ({ filters, onFiltersChange }: FilterSidebarProps) 
   const [searchValue, setSearchValue] = useState(filters.searchQuery);
 
   const ageRangeOptions: { value: AgeRange; label: string }[] = [
-    { value: '5-7', label: 'Ages 5-7' },
+    { value: '4-7', label: 'Ages 4-7' },
     { value: '8-10', label: 'Ages 8-10' },
     { value: '11-13', label: 'Ages 11-13' },
     { value: '14-17', label: 'Ages 14-17' },

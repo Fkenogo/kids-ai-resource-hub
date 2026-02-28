@@ -2,7 +2,9 @@
 import React, { useState, useEffect } from "react";
 import { uploadResourceImage } from "@/services/storageService";
 import { Button } from "@/components/ui/button";
-import { Upload, CheckCircle, XCircle } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Upload, CheckCircle, XCircle, Link as LinkIcon } from "lucide-react";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
 
@@ -20,6 +22,9 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | undefined>(value);
   const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [urlInput, setUrlInput] = useState('');
+  const [activeTab, setActiveTab] = useState<'upload' | 'url'>('upload');
+  const [pendingUrl, setPendingUrl] = useState<string | null>(null);
 
   useEffect(() => {
     setPreview(value);
@@ -72,50 +77,130 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
     }
   };
 
+  const handleUrlInput = (url: string) => {
+    if (!url.trim()) {
+      return;
+    }
+
+    // Basic URL validation
+    try {
+      new URL(url);
+    } catch (error) {
+      return; // Don't set invalid URLs
+    }
+
+    // Set the URL directly without validation - let the admin save it with the form
+    logger.debug("URL image set for form:", url);
+    setPreview(url);
+    onChange(url);
+    setUploadSuccess(true);
+  };
+
   return (
     <div className="w-full flex flex-col gap-2">
-      <div className="flex items-center gap-2">
-        <Button
-          type="button"
-          variant="outline"
-          disabled={uploading}
-          className="relative overflow-hidden"
-          asChild
-        >
-          <label className="cursor-pointer flex items-center gap-2">
-            {uploading ? (
-              <>
-                <div className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
-                Uploading...
-              </>
-            ) : uploadSuccess ? (
-              <>
-                <CheckCircle className="h-4 w-4 text-green-600" />
-                Upload Another
-              </>
-            ) : (
-              <>
-                <Upload className="h-4 w-4" />
-                {label}
-              </>
-            )}
-            <input 
-              type="file" 
-              accept="image/*"
-              onChange={handleFileChange}
+      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'upload' | 'url')}>
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="upload" className="flex items-center gap-2">
+            <Upload className="h-4 w-4" />
+            Upload
+          </TabsTrigger>
+          <TabsTrigger value="url" className="flex items-center gap-2">
+            <LinkIcon className="h-4 w-4" />
+            URL
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="upload">
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
               disabled={uploading}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            />
-          </label>
-        </Button>
-        
-        {uploadSuccess && (
-          <div className="flex items-center gap-1 text-sm text-green-600">
-            <CheckCircle className="h-4 w-4" />
-            Ready to save
+              className="relative overflow-hidden"
+              asChild
+            >
+              <label className="cursor-pointer flex items-center gap-2">
+                {uploading ? (
+                  <>
+                    <div className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
+                    Uploading...
+                  </>
+                ) : uploadSuccess ? (
+                  <>
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    Upload Another
+                  </>
+                ) : (
+                  <>
+                    <Upload className="h-4 w-4" />
+                    {label}
+                  </>
+                )}
+                <input 
+                  type="file" 
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  disabled={uploading}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                />
+              </label>
+            </Button>
+            
+            {uploadSuccess && (
+              <div className="flex items-center gap-1 text-sm text-green-600">
+                <CheckCircle className="h-4 w-4" />
+                Ready to save
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </TabsContent>
+
+        <TabsContent value="url">
+          <div className="space-y-2">
+            <div className="flex gap-2">
+              <Input
+                type="url"
+                placeholder="Enter image URL (e.g., https://ibb.co/8DjtHhMt)"
+                value={urlInput}
+                onChange={(e) => {
+                  const url = e.target.value;
+                  setUrlInput(url);
+                  setPreview(url);
+                }}
+                disabled={uploading}
+              />
+               <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  if (urlInput.trim()) {
+                    try {
+                      new URL(urlInput);
+                      onChange(urlInput);
+                      setUploadSuccess(true);
+                    } catch (error) {
+                      toast.error("Invalid URL");
+                    }
+                  }
+                }}
+              >
+                Set URL
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Enter URL and click "Set URL" to update the image.
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Please provide a direct image link (e.g., ending in .png, .jpg).
+            </p>
+            {urlInput && (
+              <div className="text-xs text-blue-600">
+                ✓ URL ready to save with form
+              </div>
+            )}
+          </div>
+        </TabsContent>
+      </Tabs>
       
       {preview && (
         <div className="mt-2">
@@ -135,7 +220,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
       )}
       
       {uploading && (
-        <span className="text-xs text-muted-foreground">Uploading image...</span>
+        <span className="text-xs text-muted-foreground">Processing image...</span>
       )}
     </div>
   );

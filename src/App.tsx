@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LazyMotion, domAnimation } from "framer-motion";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 
 const Home = lazy(() => import("./pages/Home"));
 const ResourceDirectory = lazy(() => import("./pages/ResourceDirectory"));
@@ -26,37 +27,39 @@ const AdminPlaceholderMigration = lazy(() => import("./pages/AdminPlaceholderMig
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <LazyMotion strict features={domAnimation}>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-sm text-muted-foreground">Loading...</div>}>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/resources" element={<ResourceDirectory />} />
-                <Route path="/resources/:id" element={<ResourcePage />} />
-                <Route path="/community" element={<Community />} />
-                <Route path="/shopping" element={<Shopping />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/privacy" element={<PrivacyPolicy />} />
-                <Route path="/terms" element={<TermsOfService />} />
-                <Route path="/blog" element={<Blog />} />
-                <Route path="/blog/:slug" element={<BlogPost />} />
-                <Route path="/admin" element={<Admin />} />
-                <Route path="/admin-placeholders" element={<AdminPlaceholderMigration />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Suspense>
-          </BrowserRouter>
-        </TooltipProvider>
-      </LazyMotion>
-    </AuthProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <LazyMotion strict features={domAnimation}>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-sm text-muted-foreground">Loading...</div>}>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/resources" element={<ResourceDirectory />} />
+                  <Route path="/resources/:id" element={<ResourcePage />} />
+                  <Route path="/community" element={<Community />} />
+                  <Route path="/shopping" element={<Shopping />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<Signup />} />
+                  <Route path="/privacy" element={<PrivacyPolicy />} />
+                  <Route path="/terms" element={<TermsOfService />} />
+                  <Route path="/blog" element={<Blog />} />
+                  <Route path="/blog/:slug" element={<BlogPost />} />
+                  <Route path="/admin" element={<Admin />} />
+                  <Route path="/admin-placeholders" element={<AdminPlaceholderMigration />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
+            </BrowserRouter>
+          </TooltipProvider>
+        </LazyMotion>
+      </AuthProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;
