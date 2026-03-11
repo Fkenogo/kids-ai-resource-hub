@@ -1,34 +1,8 @@
-import fs from "node:fs";
-import path from "node:path";
-
-const envPath = path.resolve(process.cwd(), ".env");
-
-function readEnvFile(filePath) {
-  if (!fs.existsSync(filePath)) {
-    throw new Error(`Missing .env file at ${filePath}`);
-  }
-
-  const entries = {};
-  const lines = fs.readFileSync(filePath, "utf8").split("\n");
-  for (const rawLine of lines) {
-    const line = rawLine.trim();
-    if (!line || line.startsWith("#")) continue;
-    const delimiterIndex = line.indexOf("=");
-    if (delimiterIndex <= 0) continue;
-    const key = line.slice(0, delimiterIndex).trim();
-    const value = line.slice(delimiterIndex + 1).trim();
-    entries[key] = value;
-  }
-  return entries;
-}
+import { loadProjectEnv, requireEnv } from "./lib/env.mjs";
 
 async function main() {
-  const env = readEnvFile(envPath);
-  const apiKey = env.VITE_FIREBASE_API_KEY;
-
-  if (!apiKey) {
-    throw new Error("VITE_FIREBASE_API_KEY is missing in .env");
-  }
+  loadProjectEnv();
+  const apiKey = requireEnv("VITE_FIREBASE_API_KEY");
 
   const url = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${apiKey}`;
   const response = await fetch(url, {

@@ -9,6 +9,7 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
+    "scan:secrets": "node scripts/scan-secrets.mjs",
     "seed:firestore": "node --env-file-if-exists=.env.migration scripts/seed-firestore.mjs",
     "smoke:routes": "node scripts/smoke-routes.mjs",
     "audit:smoke": "npm run build && npm run smoke:routes",

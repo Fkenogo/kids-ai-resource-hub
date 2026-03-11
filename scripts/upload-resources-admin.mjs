@@ -19,32 +19,14 @@ console.log('Starting admin upload script...');
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { readFileSync, existsSync } from 'fs';
-import { resolve, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { resolve } from 'path';
+import { getFirebaseProjectId, loadProjectEnv, projectRoot } from './lib/env.mjs';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-// Load .env file for project ID
-const envPath = resolve(__dirname, '../.env');
-if (existsSync(envPath)) {
-  const envContent = readFileSync(envPath, 'utf8');
-  envContent.split('\n').forEach(line => {
-    const match = line.match(/^([^=]+)=(.*)$/);
-    if (match) {
-      process.env[match[1].trim()] = match[2].trim();
-    }
-  });
-}
+loadProjectEnv();
 
 // Check for service account or use project ID
 const serviceAccountPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
-const projectId = process.env.VITE_FIREBASE_PROJECT_ID;
-
-if (!projectId) {
-  console.error('Missing VITE_FIREBASE_PROJECT_ID in .env file');
-  process.exit(1);
-}
+const projectId = getFirebaseProjectId();
 
 let adminApp;
 try {
@@ -70,7 +52,7 @@ try {
 const db = getFirestore(adminApp);
 
 // Load resources from JSON file
-const resourcesPath = resolve(__dirname, '../kids_ai_resources.json');
+const resourcesPath = resolve(projectRoot, 'kids_ai_resources.json');
 let resourcesData;
 
 try {
@@ -235,4 +217,3 @@ async function main() {
 }
 
 main();
-

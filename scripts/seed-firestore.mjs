@@ -1,4 +1,7 @@
 import admin from 'firebase-admin';
+import { loadProjectEnv } from './lib/env.mjs';
+
+loadProjectEnv();
 
 const getEnv = (key) => {
   const value = process.env[key];

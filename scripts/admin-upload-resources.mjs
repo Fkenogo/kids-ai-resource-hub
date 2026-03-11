@@ -4,26 +4,31 @@ import { initializeApp, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
+import { getFirebaseAdminServiceAccountEnv, loadProjectEnv, projectRoot } from './lib/env.mjs';
+
+loadProjectEnv();
+
+const adminEnv = getFirebaseAdminServiceAccountEnv();
 
 // Admin Firebase configuration
 const serviceAccount = {
   type: "service_account",
-  project_id: process.env.VITE_FIREBASE_PROJECT_ID,
-  private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
-  private_key: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-  client_email: process.env.FIREBASE_CLIENT_EMAIL,
-  client_id: process.env.FIREBASE_CLIENT_ID,
+  project_id: adminEnv.projectId,
+  private_key_id: adminEnv.privateKeyId,
+  private_key: adminEnv.privateKey,
+  client_email: adminEnv.clientEmail,
+  client_id: adminEnv.clientId,
   auth_uri: "https://accounts.google.com/o/oauth2/auth",
   token_uri: "https://oauth2.googleapis.com/token",
   auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
-  client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL
+  client_x509_cert_url: adminEnv.clientX509CertUrl
 };
 
 console.log('Checking admin credentials...');
 
 // Validate required environment variables
 const requiredEnvVars = [
-  'VITE_FIREBASE_PROJECT_ID',
+  'FIREBASE_PROJECT_ID',
   'FIREBASE_PRIVATE_KEY_ID',
   'FIREBASE_PRIVATE_KEY',
   'FIREBASE_CLIENT_EMAIL',
@@ -56,7 +61,7 @@ try {
   console.log(`Starting bulk upload of resources to project: ${serviceAccount.project_id}...`);
 
   // Load resources from JSON file
-  const resourcesPath = resolve(process.cwd(), 'kids_ai_resources.json');
+  const resourcesPath = resolve(projectRoot, 'kids_ai_resources.json');
   const resourcesData = JSON.parse(readFileSync(resourcesPath, 'utf8'));
   const resources = resourcesData.resources;
 

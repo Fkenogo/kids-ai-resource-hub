@@ -21,48 +21,16 @@ process.stdout.write('Starting upload script...\n');
 
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, getDocs, query, where, writeBatch, doc } from 'firebase/firestore';
-import { readFileSync, existsSync } from 'fs';
-import { resolve, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
+import { getFirebaseWebConfig, loadProjectEnv, projectRoot } from './lib/env.mjs';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-// Load .env file manually
-const envPath = resolve(__dirname, '../.env');
-if (existsSync(envPath)) {
-  const envContent = readFileSync(envPath, 'utf8');
-  envContent.split('\n').forEach(line => {
-    const match = line.match(/^([^=]+)=(.*)$/);
-    if (match) {
-      process.env[match[1].trim()] = match[2].trim();
-    }
-  });
-}
+loadProjectEnv();
 
 process.stdout.write('Config loaded, initializing Firebase...\n');
 
 // Firebase configuration from environment
-const firebaseConfig = {
-  apiKey: process.env.VITE_FIREBASE_API_KEY,
-  authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.VITE_FIREBASE_APP_ID,
-  measurementId: process.env.VITE_FIREBASE_MEASUREMENT_ID
-};
-
-// Validate configuration
-const requiredVars = ['VITE_FIREBASE_API_KEY', 'VITE_FIREBASE_PROJECT_ID'];
-const missingVars = requiredVars.filter(v => !process.env[v]);
-
-if (missingVars.length > 0) {
-  console.error('Missing required environment variables:');
-  missingVars.forEach(v => console.error('   - ' + v));
-  console.error('\nPlease add these to your .env file');
-  process.exit(1);
-}
+const firebaseConfig = getFirebaseWebConfig();
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -71,7 +39,7 @@ const db = getFirestore(app);
 process.stdout.write('Firebase initialized, loading resources...\n');
 
 // Load resources from JSON file
-const resourcesPath = resolve(__dirname, '../kids_ai_resources.json');
+const resourcesPath = resolve(projectRoot, 'kids_ai_resources.json');
 let resourcesData;
 
 try {
@@ -267,4 +235,3 @@ async function main() {
 }
 
 main();
-
