@@ -47,13 +47,13 @@ Legacy profile documents are keyed by an old id, not the auth uid, so email matc
 
 New collection: `public_profiles/{profileId}` (same document id as the profile).
 
-Fields the public UI actually renders:
+Fields the public UI actually renders, under a **string-only value contract**:
 
-- `username` — `@member` in the leaderboard; author fallback names
-- `display_name` — author/member display names
-- `avatar_url` — community feed and leaderboard avatars
+- `username` — `@member` in the leaderboard; author fallback names — required, non-blank string
+- `display_name` — author/member display names — required, non-blank string
+- `avatar_url` — community feed and leaderboard avatars — optional string (initials fallback when absent/blank)
 
-`bio`, `created_at`, `updated_at`, `email`, and anything else are rejected by rules (`keys().hasOnly(['username','display_name','avatar_url'])`). The UI never renders `bio` or `joinDate` from real data (only mock components do), and timestamps exist only for internal freshness checks — so they stay private.
+`bio`, `created_at`, `updated_at`, `email`, and anything else are rejected by rules (`keys().hasOnly([...])` plus per-field `is string` checks). Non-string or blank values in an allowed field are rejected at write time, flagged by the verifier, and repaired by the backfill (from the profile when the profile value is valid). The UI never renders `bio` or `joinDate` from real data (only mock components do), and timestamps exist only for internal freshness checks — so they stay private.
 
 Writes:
 
@@ -98,7 +98,7 @@ The script keeps the projection exactly in sync without clobbering fresher write
 `public_profiles/{profileId}`:
 
 - `read`: public.
-- `create`/`update`: owner or admin, restricted to the three rendered fields.
+- `create`/`update`: owner or admin, restricted to `username`, `display_name`, `avatar_url` via `keys().hasOnly([...])`, with the string-only value contract (non-blank name strings; optional `avatar_url` string).
 - `delete`: admin.
 
 No other rules were changed. `matchesProfileUser()` now requires the verified email for its email branch; its uid branch is unchanged.
@@ -115,7 +115,7 @@ npm run test:backfill         # backfill idempotency + concurrent-edit regressio
 
 A read-only production pre-check is available too: `npm run verify:public-profiles` (Admin SDK; counts only — profiles without projections, projections with unexpected fields, and content author references missing a projection).
 
-### `test:profile-rules` — 28/28 PASS
+### `test:profile-rules` — 33/33 PASS
 
 | # | Case | Result |
 |---|---|---|
@@ -147,6 +147,11 @@ A read-only production pre-check is available too: `npm run verify:public-profil
 | 26 | Signed-out cannot write public projections | PASS |
 | 27 | Admin can write any public projection | PASS |
 | 28 | Admin projection writes are also restricted to public fields | PASS |
+| 29 | **Projection username must be a string** | PASS |
+| 30 | **Projection username cannot be blank** | PASS |
+| 31 | **Projection display_name must be a string** | PASS |
+| 32 | **Projection display_name cannot be blank** | PASS |
+| 33 | **Projection avatar_url must be a string when present** | PASS |
 
 ### `test:profile-release` — 15/15 PASS
 
@@ -175,12 +180,14 @@ Release **rehearsal** against the *published* rules first (`tests/fixtures/publi
 | 8 | Post-publication: unverified legacy owner cannot post with the legacy author id | PASS |
 | 9 | Post-publication: admin keeps private reads | PASS |
 
-### `test:backfill` — 2/2 PASS
+### `test:backfill` — 4/4 PASS
 
 | # | Case | Result |
 |---|---|---|
 | 1 | **Profile or projection edit during the backfill**: transaction-safe; converges to the latest write; no private field survives; second run reports 0 repairs | PASS |
 | 2 | Dry run stays read-only and reports the same converged state | PASS |
+| 3 | **Malformed existing projection (non-string `username` + stray field) is flagged by the verifier and repaired from the profile** | PASS |
+| 4 | **Malformed source profile value is dropped and remains flagged for repair** | PASS |
 
 ### Built-UI proof against the emulator
 

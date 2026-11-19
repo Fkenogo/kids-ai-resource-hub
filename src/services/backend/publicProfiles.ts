@@ -17,8 +17,12 @@ const PUBLIC_PROFILE_FIELDS = [
 const toPublicProfile = (id: string, profile: BackendRow): BackendRow => {
   const output: BackendRow = { id };
   for (const field of PUBLIC_PROFILE_FIELDS) {
-    if (profile[field] !== undefined && profile[field] !== null) {
-      output[field] = profile[field];
+    // String-only contract: never copy non-string or blank values into the
+    // public projection; a blank name stays blank and is flagged by the
+    // verifier rather than rendered as garbage.
+    const value = profile[field];
+    if (typeof value === 'string' && value.trim() !== '') {
+      output[field] = value;
     }
   }
   return output;

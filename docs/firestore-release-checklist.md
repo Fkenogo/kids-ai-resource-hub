@@ -12,7 +12,7 @@
 | Checks | none — the build workflow ships in PR #3; once PR #3 is merged, PR #4 should get `Build` + `Typecheck` checks on the next update |
 | Review threads | none open |
 | Typecheck | 167 pre-existing `main` errors, unchanged by this PR; stays red in CI by design |
-| Emulator suites | `test:profile-rules` 28/28, `test:profile-release` 15/15 (published rules → proposed rules), `test:backfill` 2/2 |
+| Emulator suites | `test:profile-rules` 33/33, `test:profile-release` 15/15 (published rules → proposed rules), `test:backfill` 4/4 (incl. malformed-value regressions) |
 
 Merge order note: PR #2 (Storage), PR #3 (build workflow), and PR #4 each touch `package.json`/`firebase.json`; expect small conflicts. PR #4 does not depend on either; rerun `test:profile-rules`, `test:profile-release`, and `test:backfill` after any rebase.
 
@@ -39,6 +39,7 @@ Expected clean state before publication:
 |---|---|
 | `profiles missing projection: 0` | every profile has a projection |
 | `projections with unexpected fields: 0` | only `username`, `display_name`, `avatar_url` exist |
+| `projections with non-string username/display_name/avatar_url: 0` | string-only value contract |
 | `projections missing/blank username: 0` | name fields renderable |
 | `projections missing/blank display_name: 0` | name fields renderable |
 | `projections missing/blank avatar_url` | informational only (UI falls back to initials) |

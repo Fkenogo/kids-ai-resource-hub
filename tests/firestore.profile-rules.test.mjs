@@ -180,7 +180,6 @@ test('uid ownership still allows writing the own public projection without a ver
     setDoc(doc(db, 'public_profiles', UNVERIFIED_UID), {
       username: 'unverified',
       display_name: 'Still Owner',
-      avatar_url: null,
     })
   );
 });
@@ -218,7 +217,6 @@ test('verified legacy owner can write the legacy public projection (regression)'
     setDoc(doc(db, 'public_profiles', 'legacy-bob'), {
       username: 'bob',
       display_name: 'Bob Updated',
-      avatar_url: null,
     })
   );
 });
@@ -276,6 +274,57 @@ test('public profile writes cannot include unrendered fields', async () => {
       display_name: 'Alice',
       avatar_url: null,
       bio: 'Not rendered publicly',
+    })
+  );
+});
+
+test('public profile username must be a string', async () => {
+  const db = testEnv.authenticatedContext(OWNER_UID, { email: ALICE_EMAIL, email_verified: true }).firestore();
+  await assertFails(
+    setDoc(doc(db, 'public_profiles', OWNER_UID), {
+      username: 42,
+      display_name: 'Alice',
+    })
+  );
+});
+
+test('public profile username cannot be blank', async () => {
+  const db = testEnv.authenticatedContext(OWNER_UID, { email: ALICE_EMAIL, email_verified: true }).firestore();
+  await assertFails(
+    setDoc(doc(db, 'public_profiles', OWNER_UID), {
+      username: '   ',
+      display_name: 'Alice',
+    })
+  );
+});
+
+test('public profile display_name must be a string', async () => {
+  const db = testEnv.authenticatedContext(OWNER_UID, { email: ALICE_EMAIL, email_verified: true }).firestore();
+  await assertFails(
+    setDoc(doc(db, 'public_profiles', OWNER_UID), {
+      username: 'alice',
+      display_name: ['not', 'a', 'string'],
+    })
+  );
+});
+
+test('public profile display_name cannot be blank', async () => {
+  const db = testEnv.authenticatedContext(OWNER_UID, { email: ALICE_EMAIL, email_verified: true }).firestore();
+  await assertFails(
+    setDoc(doc(db, 'public_profiles', OWNER_UID), {
+      username: 'alice',
+      display_name: '',
+    })
+  );
+});
+
+test('public profile avatar_url must be a string when present', async () => {
+  const db = testEnv.authenticatedContext(OWNER_UID, { email: ALICE_EMAIL, email_verified: true }).firestore();
+  await assertFails(
+    setDoc(doc(db, 'public_profiles', OWNER_UID), {
+      username: 'alice',
+      display_name: 'Alice',
+      avatar_url: 123,
     })
   );
 });

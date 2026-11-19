@@ -14,11 +14,16 @@ const PUBLIC_FIELDS = [
   'avatar_url',
 ];
 
+const RENDER_NAME_FIELDS = ['username', 'display_name'];
+
+const isBlank = (value) => typeof value === 'string' && value.trim() === '';
+
 const toPublicProfile = (profile) => {
   const output = {};
   for (const field of PUBLIC_FIELDS) {
-    if (profile[field] !== undefined && profile[field] !== null) {
-      output[field] = profile[field];
+    const value = profile[field];
+    if (typeof value === 'string' && value.trim() !== '') {
+      output[field] = value;
     }
   }
   return output;
@@ -67,17 +72,22 @@ const planAction = (profile, profileWriteMs, publicSnap) => {
 
   const publicData = publicSnap?.data() || {};
   const unexpected = unexpectedFields(publicData);
-  // A projection the UI cannot render at all (blank name fields) is always
+  // String-only contract violations and names the UI cannot render are always
   // repaired from the profile, even if the projection was written later.
-  const blankBlocking = ['username', 'display_name'].some((field) => {
-    const value = publicData[field];
-    return value == null || (typeof value === 'string' && value.trim() === '');
-  });
+  const malformed = PUBLIC_FIELDS.some(
+    (field) =>
+      publicData[field] !== undefined &&
+      publicData[field] !== null &&
+      typeof publicData[field] !== 'string',
+  );
+  const blankBlocking = RENDER_NAME_FIELDS.some(
+    (field) => publicData[field] == null || isBlank(publicData[field]),
+  );
   const publicWriteMs = toMillis(publicSnap.updateTime);
   const profileMs = Math.max(toMillis(profile.updated_at), profileWriteMs);
   const publicIsFresher = publicWriteMs > profileMs;
 
-  if (publicIsFresher && !blankBlocking) {
+  if (publicIsFresher && !blankBlocking && !malformed) {
     if (unexpected.length > 0) {
       return { action: 'sanitizedPublic', payload: toPublicProfile(publicData) };
     }

@@ -48,16 +48,29 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    function isValidPublicProfile() {
+      // String-only contract: names must render, avatar is an optional string.
+      return request.resource.data.keys().hasOnly([
+        'username',
+        'display_name',
+        'avatar_url'
+      ])
+        && request.resource.data.username is string
+        && request.resource.data.username.trim() != ''
+        && request.resource.data.display_name is string
+        && request.resource.data.display_name.trim() != ''
+        && (
+          !request.resource.data.keys().hasAny(['avatar_url'])
+          || request.resource.data.avatar_url is string
+        );
+    }
+
     match /public_profiles/{profileId} {
       // Only fields the public UI renders: author/member name and avatar.
       // Never add email, bio, timestamps, or any private data here.
       allow read: if true;
       allow create, update: if (isAdmin() || matchesProfileUser(profileId))
-        && request.resource.data.keys().hasOnly([
-          'username',
-          'display_name',
-          'avatar_url'
-        ]);
+        && isValidPublicProfile();
       allow delete: if isAdmin();
     }
 

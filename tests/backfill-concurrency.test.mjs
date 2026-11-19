@@ -2,6 +2,7 @@ import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import admin from 'firebase-admin';
 import { backfillPublicProfiles } from '../scripts/backfill-public-profiles.mjs';
+import { verifyPublicProfiles } from '../scripts/verify-public-profiles.mjs';
 
 const projectId =
   process.env.FIREBASE_PROJECT_ID || process.env.GCLOUD_PROJECT || 'demo-kids-ai';
@@ -123,4 +124,51 @@ test('dry run stays read-only and reports the same converged state', async () =>
   // The dry run must not have modified anything.
   const pSnap = await db.collection('public_profiles').doc('p-edit').get();
   assert.equal(pSnap.data().display_name, 'Fresher During Backfill');
+});
+
+test('verifier flags a malformed existing projection and the backfill repairs it from the profile', async () => {
+  await seedProfile('contract-1', 'Contract One');
+  // Pre-existing bad data (Admin-style write, no rules): non-string username
+  // in an allowed field plus a stray unexpected field.
+  await db.collection('public_profiles').doc('contract-1').set({
+    username: 42,
+    display_name: 'Contract One',
+    avatar_url: 'https://example.test/contract-1.png',
+    bio: 'stray field',
+  });
+
+  const before = await verifyPublicProfiles(db);
+  assert.equal(before.malformedCounts.username, 1);
+  assert.equal(before.unexpectedFieldProjectionCount, 1);
+  assert.equal(before.blocking, true);
+
+  await backfillPublicProfiles(db, { apply: true });
+
+  const after = await verifyPublicProfiles(db);
+  assert.equal(after.malformedCounts.username, 0);
+  assert.equal(after.unexpectedFieldProjectionCount, 0);
+  assert.equal(after.blocking, false);
+
+  const snap = await db.collection('public_profiles').doc('contract-1').get();
+  assert.equal(snap.data().username, 'user_contract-1');
+  assert.equal(snap.data().bio, undefined);
+});
+
+test('a malformed source profile value is dropped and remains flagged for repair', async () => {
+  await db.collection('profiles').doc('contract-2').set({
+    id: 'contract-2',
+    username: 7,
+    display_name: 'Contract Two',
+    email: 'contract-2@example.com',
+  });
+
+  await backfillPublicProfiles(db, { apply: true });
+
+  const snap = await db.collection('public_profiles').doc('contract-2').get();
+  assert.equal(snap.data().username, undefined);
+  assert.equal(snap.data().display_name, 'Contract Two');
+
+  const counts = await verifyPublicProfiles(db);
+  assert.equal(counts.blankCounts.username, 1);
+  assert.equal(counts.blocking, true);
 });
