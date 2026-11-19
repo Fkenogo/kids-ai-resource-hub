@@ -47,9 +47,9 @@ Cross-service rules also require the one-time Firestore↔Storage rules permissi
 | Read (any path) | Public | Public (unchanged) |
 | Create/overwrite `resource-images/**` | Any signed-in user, image <10 MB | **Admin or moderator only**, image <10 MB |
 | Create/overwrite any other path | Any signed-in user, image <10 MB | **Denied** (default deny) |
-| Delete any path | Any signed-in user (via `write`) | **Denied** (no existing workflow) |
+| Delete any path | **Denied** — the old `write` guard required `request.resource != null`, which is null on delete | **Denied** (now explicit; behavior unchanged) |
 
-The 10 MB and `image/*` content-type limits are preserved.
+The 10 MB and `image/*` content-type limits are preserved. Deletion was already impossible before this change; the new rule states it explicitly so a future `write` relaxation cannot silently re-enable deletes.
 
 ## 4. Emulator verification
 
@@ -61,7 +61,7 @@ npm run test:storage-rules
 
 This runs `firebase emulators:exec --only firestore,storage --project demo-kids-ai` and executes `tests/storage.rules.test.mjs` with `@firebase/rules-unit-testing`. The `demo-` project ID guarantees no production access.
 
-Result: **10/10 passing.**
+Result: **11/11 passing.**
 
 | # | Test | Result |
 |---|---|---|
@@ -75,13 +75,14 @@ Result: **10/10 passing.**
 | 8 | Admins cannot upload non-image content | PASS |
 | 9 | Admins cannot upload outside `resource-images/` | PASS |
 | 10 | Admins cannot delete images (no delete workflow) | PASS |
+| 11 | Signed-in user with no UID-keyed role document cannot upload | PASS |
 
-Test setup seeds `user_roles/{uid}` documents with roles `admin`, `moderator`, and `viewer`, then exercises the Storage client SDK against the emulators — the same SDK the app uses.
+Test setup seeds `user_roles/{uid}` documents with roles `admin`, `moderator`, and `viewer`, then exercises the Storage client SDK against the emulators — the same SDK the app uses. Test 11 authenticates a user who has **no** `user_roles/{uid}` document at all, which is the production risk if role documents are still legacy-keyed.
 
 ## 5. Pre-deploy checklist (owner)
 
 - [ ] Confirm production `user_roles` documents are keyed by Firebase uid (console, counts only).
-- [ ] Migrate legacy role docs first if needed; verify admin upload works in a preview channel.
+- [ ] Migrate legacy role docs first if needed. **Hosting preview channels cannot verify this change:** `firebase hosting:channel:deploy` deploys Hosting assets only, while Storage rules are project-wide and are not versioned per preview channel. Verify in the emulator (this PR) and, if a live check is required, deploy the rules to a separate staging Firebase project — not a Hosting preview channel.
 - [ ] Confirm public resource images still render signed-out (Home, `/resources`, detail pages).
 - [ ] Confirm a non-admin test account cannot upload (button should already be hidden; the rule is the real gate).
 - [ ] Deploy with `firebase deploy --only storage` **only after approval**.

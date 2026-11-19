@@ -127,3 +127,12 @@ test('no delete workflow exists, so admins cannot delete images', async () => {
   const admin = testEnv.authenticatedContext(ADMIN_UID).storage();
   await assertFails(deleteObject(ref(admin, 'resource-images/existing.png')));
 });
+
+test('a signed-in user with no UID-keyed role document cannot upload', async () => {
+  const noRole = testEnv.authenticatedContext('no-role-user').storage();
+  await assertFails(
+    uploadBytes(ref(noRole, 'resource-images/no-role-upload.png'), PNG_BYTES, {
+      contentType: 'image/png',
+    })
+  );
+});
