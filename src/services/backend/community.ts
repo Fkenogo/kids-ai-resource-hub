@@ -2,24 +2,14 @@ import { CommunityCategory, CommunityPost, CommunityReply, CommunityUser, Leader
 import { formatTimeAgo } from '@/services/community/utils';
 import { createOne, readMany, readOneById, upsertOne, countMany } from './firestoreDb';
 import { getCurrentAuthUser, resolveDataUserId } from './auth';
+import { getAllPublicProfiles, getPublicProfilesMap } from './publicProfiles';
 type BackendRow = Record<string, unknown>;
-
-const getProfileMap = async (ids: string[]) => {
-  const map = new Map<string, BackendRow | null>();
-  await Promise.all(
-    ids.map(async (id) => {
-      const profile = await readOneById('profiles', id);
-      map.set(id, profile || null);
-    }),
-  );
-  return map;
-};
 
 export const getCommunityPostsFromBackend = async (category?: string): Promise<CommunityPost[]> => {
   const rows = await readMany('community_posts', { orderBy: { field: 'created_at', direction: 'desc' } });
   const filtered = rows.filter((row: BackendRow) => !category || category === 'all' || row.category === category);
   const authorIds = [...new Set(filtered.map((post: BackendRow) => String(post.author_id || '')))].filter(Boolean);
-  const profiles = await getProfileMap(authorIds);
+  const profiles = await getPublicProfilesMap(authorIds);
 
   return filtered.map((post: BackendRow): CommunityPost => {
     const profile = profiles.get(String(post.author_id || ''));
@@ -49,7 +39,7 @@ export const getCommunityRepliesFromBackend = async (postId: string): Promise<Co
     orderBy: { field: 'created_at', direction: 'asc' },
   });
   const authorIds = [...new Set(rows.map((reply: BackendRow) => String(reply.author_id || '')))].filter(Boolean);
-  const profiles = await getProfileMap(authorIds);
+  const profiles = await getPublicProfilesMap(authorIds);
 
   return rows.map((reply: BackendRow): CommunityReply => {
     const profile = profiles.get(String(reply.author_id || ''));
@@ -68,7 +58,7 @@ export const getCommunityRepliesFromBackend = async (postId: string): Promise<Co
 };
 
 export const getCommunityUsersFromBackend = async (): Promise<CommunityUser[]> => {
-  const rows = await readMany('profiles', { orderBy: { field: 'created_at', direction: 'desc' } });
+  const rows = await getAllPublicProfiles();
   return Promise.all(
     rows.map(async (user: BackendRow): Promise<CommunityUser> => {
       const [postCount, replyCount] = await Promise.all([

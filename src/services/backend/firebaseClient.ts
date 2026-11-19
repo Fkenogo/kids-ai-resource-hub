@@ -1,6 +1,6 @@
 import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { connectAuthEmulator, getAuth } from 'firebase/auth';
+import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 const requireEnv = (key: string) => {
@@ -32,3 +32,20 @@ export const firebaseApp = getFirebaseApp();
 export const firebaseAuth = getAuth(firebaseApp);
 export const firestore = getFirestore(firebaseApp);
 export const firebaseStorage = getStorage(firebaseApp);
+
+// Local test plumbing only. VITE_FIREBASE_USE_EMULATOR=true must never be set
+// in a production build; it routes Firestore and Auth to the local emulator suite.
+const useFirestoreEmulator = import.meta.env.VITE_FIREBASE_USE_EMULATOR === 'true';
+if (useFirestoreEmulator) {
+  const emulatorHost = String(import.meta.env.VITE_FIREBASE_EMULATOR_HOST || '127.0.0.1');
+  connectFirestoreEmulator(
+    firestore,
+    emulatorHost,
+    Number(import.meta.env.VITE_FIREBASE_EMULATOR_PORT || 8080),
+  );
+  connectAuthEmulator(
+    firebaseAuth,
+    `http://${emulatorHost}:${Number(import.meta.env.VITE_FIREBASE_AUTH_EMULATOR_PORT || 9099)}`,
+    { disableWarnings: true },
+  );
+}

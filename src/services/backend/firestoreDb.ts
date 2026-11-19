@@ -105,6 +105,11 @@ export const upsertOne = async (collectionName: string, id: string, data: Record
   await setDoc(doc(db, collectionName, id), data, { merge: true });
 };
 
+/** Replaces the document wholesale: fields absent from `data` are removed. */
+export const replaceOne = async (collectionName: string, id: string, data: Record<string, unknown>) => {
+  await setDoc(doc(db, collectionName, id), data);
+};
+
 export const removeOne = async (collectionName: string, id: string) => {
   await deleteDoc(doc(db, collectionName, id));
 };
