@@ -1,0 +1,137 @@
+name: Cloudflare Pages deploy
+
+# Manually triggered only. Uploads a previously verified dist artifact from an
+# approved main commit to the named Cloudflare Pages Direct Upload project.
+# Never runs automatically; DNS/Cloudflare domain changes are out of scope.
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit_sha:
+        description: "Approved main commit (full 40-char lowercase SHA with a successful Build run)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  deploy:
+    name: Verify artifact and deploy to Cloudflare Pages
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: cloudflare-pages
+    env:
+      # The dispatch SHA is only ever used via this environment variable, after
+      # strict validation in the first step.
+      APPROVED_SHA: ${{ inputs.commit_sha }}
+    # Serialize deployments to the same Pages project across commits.
+    concurrency:
+      group: cloudflare-pages-${{ vars.CF_PAGES_PROJECT_NAME }}
+      cancel-in-progress: false
+    steps:
+      - name: Validate the approved SHA before checkout or shell use
+        run: |
+          set -euo pipefail
+          echo "raw length: ${#APPROVED_SHA}"
+          case "$APPROVED_SHA" in
+            [0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]\
+            [0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]\
+            [0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]\
+            [0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]) : ;;
+            *) echo "::error::APPROVED_SHA must be a full 40-character lowercase commit SHA (got length ${#APPROVED_SHA})"; exit 1 ;;
+          esac
+          echo "APPROVED_SHA validated."
+
+      - name: Check out the approved commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.APPROVED_SHA }}
+          fetch-depth: 0
+
+      - name: Verify the commit is an ancestor of main
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git merge-base --is-ancestor "$APPROVED_SHA" origin/main \
+            || { echo "::error::$APPROVED_SHA is not on main"; exit 1; }
+          echo "Commit is on main."
+
+      - name: Locate the completed Build run, green build job, and matching unexpired artifact
+        id: find
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          repo="${{ github.repository }}"
+          run_json=$(gh api "repos/$repo/actions/runs?head_sha=$APPROVED_SHA&status=completed" \
+            --jq '[.workflow_runs[] | select(.name == "Build")][0] // empty')
+          if [ -z "$run_json" ]; then
+            echo "::error::No completed Build workflow run found for $APPROVED_SHA"
+            exit 1
+          fi
+          run_id=$(echo "$run_json" | jq -r .id)
+          overall=$(echo "$run_json" | jq -r .conclusion)
+          echo "Found Build run $run_id (overall conclusion: $overall — a red overall run from the known typecheck failure is fine)"
+          job_json=$(gh api "repos/$repo/actions/runs/$run_id/jobs" \
+            --jq '[.jobs[] | select(.name == "Build, smoke test, and retain dist")][0] // empty')
+          if [ -z "$job_json" ]; then
+            echo "::error::Build run $run_id has no 'Build, smoke test, and retain dist' job"
+            exit 1
+          fi
+          job_conclusion=$(echo "$job_json" | jq -r .conclusion)
+          if [ "$job_conclusion" != "success" ]; then
+            echo "::error::Build job conclusion is '$job_conclusion' — refusing to deploy"
+            exit 1
+          fi
+          artifact_json=$(gh api "repos/$repo/actions/runs/$run_id/artifacts" \
+            --jq '[.artifacts[] | select(.name == "dist-'"$APPROVED_SHA"'")][0] // empty')
+          if [ -z "$artifact_json" ]; then
+            echo "::error::No dist-$APPROVED_SHA artifact on Build run $run_id"
+            exit 1
+          fi
+          expired=$(echo "$artifact_json" | jq -r .expired)
+          if [ "$expired" != "false" ]; then
+            echo "::error::Artifact dist-$APPROVED_SHA has expired"
+            exit 1
+          fi
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+          echo "Build job green and unexpired artifact confirmed."
+
+      - name: Download the verified dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-${{ env.APPROVED_SHA }}
+          run-id: ${{ steps.find.outputs.run_id }}
+          github-token: ${{ github.token }}
+          path: dist
+
+      - name: Verify artifact identity and hygiene
+        run: |
+          set -euo pipefail
+          actual=$(cat dist/COMMIT_SHA)
+          echo "COMMIT_SHA in artifact: $actual"
+          if [ "$actual" != "$APPROVED_SHA" ]; then
+            echo "::error::Artifact COMMIT_SHA ($actual) does not match the approved commit"
+            exit 1
+          fi
+          if grep -rq "__identity-probe" dist/assets 2>/dev/null; then
+            echo "::error::Emulator probe leaked into the production bundle"
+            exit 1
+          fi
+          if grep -rq "VITE_FIREBASE_USE_EMULATOR" dist/assets 2>/dev/null; then
+            echo "::error::Emulator flag leaked into the production bundle"
+            exit 1
+          fi
+          echo "Artifact verified."
+
+      - name: Deploy to Cloudflare Pages (Direct Upload)
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_PAGES_EDIT_TOKEN }}
+          accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=${{ vars.CF_PAGES_PROJECT_NAME }} --branch=main --commit-dirty=true
+
+      - name: Report deployment URL
+        run: echo "Check the wrangler output above for the pages.dev deployment URL."

@@ -1,0 +1,125 @@
+name: Build
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build, smoke test, and retain dist
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+    env:
+      # Public Firebase web config only. Never add Admin SDK credentials here.
+      VITE_FIREBASE_API_KEY: ${{ vars.VITE_FIREBASE_API_KEY }}
+      VITE_FIREBASE_AUTH_DOMAIN: ${{ vars.VITE_FIREBASE_AUTH_DOMAIN }}
+      VITE_FIREBASE_PROJECT_ID: ${{ vars.VITE_FIREBASE_PROJECT_ID }}
+      VITE_FIREBASE_STORAGE_BUCKET: ${{ vars.VITE_FIREBASE_STORAGE_BUCKET }}
+      VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ vars.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+      VITE_FIREBASE_APP_ID: ${{ vars.VITE_FIREBASE_APP_ID }}
+      VITE_FIREBASE_MEASUREMENT_ID: ${{ vars.VITE_FIREBASE_MEASUREMENT_ID }}
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Verify required Firebase web variables
+        run: |
+          set -euo pipefail
+          missing=0
+          for name in \
+            VITE_FIREBASE_API_KEY \
+            VITE_FIREBASE_AUTH_DOMAIN \
+            VITE_FIREBASE_PROJECT_ID \
+            VITE_FIREBASE_STORAGE_BUCKET \
+            VITE_FIREBASE_MESSAGING_SENDER_ID \
+            VITE_FIREBASE_APP_ID; do
+            if [ -z "${!name:-}" ]; then
+              echo "::error::Missing required environment variable: $name"
+              missing=1
+            fi
+          done
+          if [ -z "${VITE_FIREBASE_MEASUREMENT_ID:-}" ]; then
+            echo "::notice::VITE_FIREBASE_MEASUREMENT_ID is not set (optional)."
+          fi
+          exit "$missing"
+
+      - name: Ensure Admin credentials are not present
+        run: |
+          set -euo pipefail
+          blocked=0
+          for name in \
+            FIREBASE_PRIVATE_KEY \
+            FIREBASE_CLIENT_EMAIL \
+            FIREBASE_CLIENT_ID \
+            FIREBASE_PRIVATE_KEY_ID \
+            FIREBASE_CLIENT_X509_CERT_URL \
+            GOOGLE_APPLICATION_CREDENTIALS; do
+            if [ -n "${!name:-}" ]; then
+              echo "::error::Admin credential variable is present in the build environment: $name"
+              blocked=1
+            fi
+          done
+          if [ "$blocked" -ne 0 ]; then
+            echo "Refusing to build: Admin SDK credentials must never enter the web build."
+            exit 1
+          fi
+          echo "No Admin credential variables present."
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Record checked-out commit
+        run: git rev-parse HEAD > dist/COMMIT_SHA
+
+      - name: Route smoke check
+        timeout-minutes: 5
+        run: npm run smoke:routes
+
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ github.sha }}
+          path: dist
+          if-no-files-found: error
+          retention-days: 14
+
+  typecheck:
+    name: Typecheck (true result; currently fails on main)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      # Deliberately not continue-on-error: the known failures must stay visible
+      # as a failing check instead of being hidden behind a green build.
+      - name: Typecheck
+        run: npm run typecheck
