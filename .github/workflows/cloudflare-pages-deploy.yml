@@ -35,13 +35,10 @@ jobs:
         run: |
           set -euo pipefail
           echo "raw length: ${#APPROVED_SHA}"
-          case "$APPROVED_SHA" in
-            [0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]\
-            [0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]\
-            [0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]\
-            [0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]) : ;;
-            *) echo "::error::APPROVED_SHA must be a full 40-character lowercase commit SHA (got length ${#APPROVED_SHA})"; exit 1 ;;
-          esac
+          if ! printf '%s' "$APPROVED_SHA" | grep -Eq '^[0-9a-f]{40}$'; then
+            echo "::error::APPROVED_SHA must be a full 40-character lowercase commit SHA (got length ${#APPROVED_SHA})"
+            exit 1
+          fi
           echo "APPROVED_SHA validated."
 
       - name: Check out the approved commit
