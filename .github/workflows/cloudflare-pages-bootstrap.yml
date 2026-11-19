@@ -16,7 +16,7 @@ jobs:
     timeout-minutes: 10
     environment: cloudflare-pages
     steps:
-      - name: Create or confirm kids-ai-resource-hub (production branch: main)
+      - name: "Create or confirm kids-ai-resource-hub (production branch: main)"
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_PAGES_EDIT_TOKEN }}
