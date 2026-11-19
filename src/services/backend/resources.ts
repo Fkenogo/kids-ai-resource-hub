@@ -1,6 +1,7 @@
 import { ResourceFilters } from '@/types';
 import { readMany, readOneById, createOne, upsertOne } from './firestoreDb';
 import { resolveDataUserId } from './auth';
+import { getPublicProfilesMap } from './publicProfiles';
 import { normalizeResourceType, parseFormatTags } from '@/utils/resourceTaxonomy';
 type BackendRow = Record<string, unknown>;
 
@@ -28,17 +29,6 @@ const applyClientFilters = (rows: BackendRow[], filters?: ResourceFilters) => {
     }
     return true;
   });
-};
-
-const getProfilesMap = async (userIds: string[]) => {
-  const map = new Map<string, BackendRow | null>();
-  await Promise.all(
-    userIds.map(async (uid) => {
-      const profile = await readOneById('profiles', uid);
-      map.set(uid, profile || null);
-    }),
-  );
-  return map;
 };
 
 const calculateReviewAggregate = async (resourceId: string) => {
@@ -71,7 +61,7 @@ export const getResourceReviewsFromBackend = async (resourceId: string) => {
     orderBy: { field: 'created_at', direction: 'desc' },
   });
   const userIds = [...new Set(rows.map((row: BackendRow) => String(row.user_id || '')))].filter(Boolean);
-  const profilesMap = await getProfilesMap(userIds);
+  const profilesMap = await getPublicProfilesMap(userIds);
   return rows.map((row: BackendRow) => ({
     ...row,
     profiles: profilesMap.get(String(row.user_id || ''))
@@ -89,7 +79,7 @@ export const getResourceCommentsFromBackend = async (resourceId: string) => {
     orderBy: { field: 'created_at', direction: 'desc' },
   });
   const userIds = [...new Set(rows.map((row: BackendRow) => String(row.user_id || '')))].filter(Boolean);
-  const profilesMap = await getProfilesMap(userIds);
+  const profilesMap = await getPublicProfilesMap(userIds);
   return rows.map((row: BackendRow) => ({
     ...row,
     profiles: profilesMap.get(String(row.user_id || ''))

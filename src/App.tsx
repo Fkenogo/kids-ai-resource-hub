@@ -23,6 +23,9 @@ const Community = lazy(() => import("./pages/Community"));
 const Shopping = lazy(() => import("./pages/Shopping"));
 const Admin = lazy(() => import("./pages/Admin"));
 const AdminPlaceholderMigration = lazy(() => import("./pages/AdminPlaceholderMigration"));
+const IdentityProbe = lazy(() => import("./pages/IdentityProbe"));
+
+const isEmulatorProbeEnabled = import.meta.env.VITE_FIREBASE_USE_EMULATOR === "true";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +54,9 @@ const App = () => (
                   <Route path="/blog/:slug" element={<BlogPost />} />
                   <Route path="/admin" element={<Admin />} />
                   <Route path="/admin-placeholders" element={<AdminPlaceholderMigration />} />
+                  {isEmulatorProbeEnabled && (
+                    <Route path="/__identity-probe" element={<IdentityProbe />} />
+                  )}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
