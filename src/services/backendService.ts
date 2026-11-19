@@ -51,7 +51,9 @@ export const getProfile = async (userId: string) => {
 };
 
 export const updateProfile = async (userId: string, updates: Record<string, unknown>) => {
-  await updateOne('profiles', userId, updates);
+  // Always stamp the edit so the backfill can compare freshness against the
+  // projection's last write time without guessing.
+  await updateOne('profiles', userId, { ...updates, updated_at: new Date().toISOString() });
   const updated = await readOneById('profiles', userId);
   if (updated) {
     await syncPublicProfile(userId, updated);

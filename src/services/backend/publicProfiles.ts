@@ -4,16 +4,14 @@ import { logger } from '@/lib/logger';
 type BackendRow = Record<string, unknown>;
 
 /**
- * Fields that are safe to show to anyone (signed-out visitors included).
- * Never add `email` or any other private field here.
+ * Fields that the public UI actually renders (author/member name and avatar).
+ * Never add `email`, `bio`, timestamps, or any other field here; Firestore
+ * rules reject anything outside this list.
  */
 const PUBLIC_PROFILE_FIELDS = [
   'username',
   'display_name',
   'avatar_url',
-  'bio',
-  'created_at',
-  'updated_at',
 ] as const;
 
 const toPublicProfile = (id: string, profile: BackendRow): BackendRow => {
@@ -68,9 +66,9 @@ export const getPublicProfilesMap = async (ids: string[]) => {
 export const getAllPublicProfiles = async (): Promise<BackendRow[]> => {
   let publicRows: BackendRow[] = [];
   try {
-    publicRows = await readMany('public_profiles', {
-      orderBy: { field: 'created_at', direction: 'desc' },
-    });
+    // Public projections do not carry `created_at`, so list without orderBy
+    // (an orderBy on a missing field would silently drop every document).
+    publicRows = await readMany('public_profiles');
   } catch {
     // Signed-out or ordinary callers may not list the projection yet.
   }

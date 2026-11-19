@@ -23,6 +23,7 @@ service cloud.firestore {
         profileId == request.auth.uid
         || (
           request.auth.token.email != null
+          && request.auth.token.email_verified == true
           && exists(/databases/$(database)/documents/profiles/$(profileId))
           && get(/databases/$(database)/documents/profiles/$(profileId)).data.email == request.auth.token.email
         )
@@ -39,6 +40,7 @@ service cloud.firestore {
         || (
           signedIn()
           && request.auth.token.email != null
+          && request.auth.token.email_verified == true
           && resource.data.email == request.auth.token.email
         );
       allow create: if signedIn() && request.auth.uid == profileId;
@@ -47,16 +49,14 @@ service cloud.firestore {
     }
 
     match /public_profiles/{profileId} {
-      // Intended public author fields only. Never add email or private data here.
+      // Only fields the public UI renders: author/member name and avatar.
+      // Never add email, bio, timestamps, or any private data here.
       allow read: if true;
       allow create, update: if (isAdmin() || matchesProfileUser(profileId))
         && request.resource.data.keys().hasOnly([
           'username',
           'display_name',
-          'avatar_url',
-          'bio',
-          'created_at',
-          'updated_at'
+          'avatar_url'
         ]);
       allow delete: if isAdmin();
     }

@@ -24,8 +24,8 @@ That exposes **every field** of every profile document to signed-out visitors, i
 | `src/services/backend/community.ts` — `getCommunityPostsFromBackend`, `getCommunityRepliesFromBackend` | Community author names and avatars | `public_profiles` |
 | `src/services/backend/community.ts` — `getCommunityUsersFromBackend`, `getLeaderboardFromBackend` | Public member directory / leaderboard | `public_profiles` list |
 | `src/services/backend/resources.ts` — `getResourceReviewsFromBackend`, `getResourceCommentsFromBackend` | Reviewer/commenter display names | `public_profiles` |
-| `src/services/backend/auth.ts` — `ensureProfileDocument` | Finds a profile by the signed-in email; syncs the projection | `profiles` list constrained to own email (owner) |
-| `src/services/backend/auth.ts` — `resolveDataUserId` | Maps auth uid → legacy profile id by email | `profiles` list constrained to own email (owner) |
+| `src/services/backend/auth.ts` — `ensureProfileDocument` | Finds a profile by the signed-in email; syncs the projection | `profiles` list constrained to the caller's own **verified** email |
+| `src/services/backend/auth.ts` — `resolveDataUserId` | Maps auth uid → legacy profile id by email | `profiles` list constrained to the caller's own **verified** email |
 | `src/services/backendService.ts` — `getProfile`, `updateProfile` | Current user's account profile; update syncs projection | Owner read/write |
 | `src/hooks/useAuth.ts` | Loads the signed-in user's own profile | Owner read |
 | `src/services/backend/admin.ts` — `getAdminCounts` | Admin dashboard user count | Admin list |
@@ -33,34 +33,62 @@ That exposes **every field** of every profile document to signed-out visitors, i
 
 No component reads `profiles` directly; all reads go through these services.
 
-## 3. Data shape
+## 3. Verified email for legacy/email access
+
+Legacy profile documents are keyed by an old id, not the auth uid, so email matching grants access to "your own" legacy profile. Email addresses can be changed without verification, so that match now requires a **verified** email:
+
+- `request.auth.token.email_verified == true` is required for:
+  - the email branch of legacy-profile ownership (`get`/`update` on a profile keyed by a different id),
+  - own-email `profiles` queries (`resolveDataUserId`, `ensureProfileDocument`),
+  - public projection writes for legacy-keyed documents.
+- **UID-based access is unchanged:** a signed-in user can always read/update their uid-keyed profile and write their own `public_profiles/{uid}` without a verified email.
+
+## 4. Data shape
 
 New collection: `public_profiles/{profileId}` (same document id as the profile).
 
-Allowed fields only:
+Fields the public UI actually renders:
 
-- `username`
-- `display_name`
-- `avatar_url`
-- `bio`
-- `created_at`
-- `updated_at`
+- `username` — `@member` in the leaderboard; author fallback names
+- `display_name` — author/member display names
+- `avatar_url` — community feed and leaderboard avatars
 
-`email` and any other field are rejected by rules (`keys().hasOnly([...])`).
+`bio`, `created_at`, `updated_at`, `email`, and anything else are rejected by rules (`keys().hasOnly(['username','display_name','avatar_url'])`). The UI never renders `bio` or `joinDate` from real data (only mock components do), and timestamps exist only for internal freshness checks — so they stay private.
 
 Writes:
 
 - `ensureProfileDocument` creates/syncs the projection on every sign-in (incremental repair).
-- `updateProfile` re-syncs after a profile update.
-- `scripts/backfill-public-profiles.mjs` is a **dry-run-by-default** owner tool for existing accounts. It is not executed by this PR.
+- `updateProfile` stamps `updated_at` on the profile and re-syncs the projection.
 - `src/services/backend/publicProfiles.ts` centralizes reads, the rollout fallback, and safe field picking.
+- `scripts/backfill-public-profiles.mjs` is the **dry-run-by-default** owner tool for existing accounts. It is not executed by this PR.
 
-## 4. Rules change
+### Idempotent backfill
+
+The script keeps the projection exactly in sync without clobbering fresher writes:
+
+- **Missing projection → write** the three public fields from the profile.
+- **Profile fresher than projection** (`profile.updated_at` > projection write time) → rewrite the projection from the profile.
+- **Projection fresher than profile** (a successful app sync writes the projection after the profile edit) → leave the values untouched; do not overwrite fresher projection data.
+- **Unexpected fields** (`email`, `bio`, timestamps, anything else) are **removed** by replacing the document with only the three allowed fields — in every case, including stale/fresher projections and orphaned projections.
+- Re-running the script on an already-correct projection reports “already in sync” with no writes (idempotent).
+- Dry run is the default; writes only with `--apply`. No emails or user records are printed.
+- Emulator verification (`FIRESTORE_EMULATOR_HOST=127.0.0.1:8080`, isolated `demo-kids-ai` data):
+  dry run → apply → verify → dry run again:
+  | Case | Result |
+  |---|---|
+  | Missing projection created | `projections to create: 1` |
+  | Stale projection overwritten from fresher profile (`updated_at` newer) | `updates from fresher profile: 1`; values replaced with profile values |
+  | Fresher projection preserved (`updateTime` newer than `profile.updated_at`) | `kept fresher projection as-is: 1`; values kept |
+  | Unexpected `email` removed from a kept-fresher projection | `unexpected fields removed: 2` (fresher case + orphan) |
+  | In-sync projection untouched | `already in sync: 1` |
+  | Second dry run after apply | `0` creates, `0` updates, `0` fields to remove (idempotent) |
+
+## 5. Rules change
 
 `profiles/{profileId}`:
 
-- `get`: owner (uid match, or legacy doc whose `email` equals the caller's token email) or admin.
-- `list`: admin, or a signed-in owner querying their **own email** (preserves legacy id resolution).
+- `get`: owner (uid match, or legacy doc whose `email` equals the caller's **verified** token email) or admin.
+- `list`: admin, or a signed-in owner querying their **own verified email** (preserves legacy id resolution).
 - `create`: signed-in user creating their own uid-keyed document.
 - `update`: owner (uid or verified email match) or admin.
 - `delete`: admin.
@@ -68,46 +96,81 @@ Writes:
 `public_profiles/{profileId}`:
 
 - `read`: public.
-- `create`/`update`: owner or admin, restricted to the six public fields.
+- `create`/`update`: owner or admin, restricted to the three rendered fields.
 - `delete`: admin.
 
-No other rules were changed. `matchesProfileUser()` already existed and is reused for owner checks.
+No other rules were changed. `matchesProfileUser()` now requires the verified email for its email branch; its uid branch is unchanged.
 
-## 5. Emulator tests
+## 6. Emulator tests
 
-Command:
+Two suites run against the Firestore emulator with the `demo-kids-ai` project:
 
 ```sh
-npm run test:profile-rules
+npm run test:profile-rules    # access-control matrix
+npm run test:profile-release  # release-sequence walkthrough
 ```
 
-Runs `firebase emulators:exec --only firestore --project demo-kids-ai` with `tests/firestore.profile-rules.test.mjs`.
-
-Result: **19/19 passing.**
+### `test:profile-rules` — 28/28 PASS
 
 | # | Case | Result |
 |---|---|---|
 | 1 | Signed-out cannot read a full profile | PASS |
 | 2 | Signed-out cannot list profiles | PASS |
-| 3 | Signed-out can read a public profile; no `email` returned | PASS |
+| 3 | Signed-out can read a public profile; no `email`/`bio`/timestamps | PASS |
 | 4 | Signed-out can list public profiles (author names) | PASS |
 | 5 | Ordinary user cannot read another user's full profile | PASS |
 | 6 | Ordinary user cannot list all profiles | PASS |
 | 7 | Ordinary user cannot query another profile by email | PASS |
 | 8 | Ordinary user cannot update another profile | PASS |
-| 9 | Owner can read own full profile | PASS |
-| 10 | Legacy owner can read a profile keyed by a different id via email | PASS |
-| 11 | Owner can list own profile by email constraint | PASS |
-| 12 | Owner can update own profile | PASS |
-| 13 | Admin can read any full profile | PASS |
-| 14 | Admin can list all full profiles | PASS |
-| 15 | Owner can write own public projection | PASS |
-| 16 | Public projection rejects `email` | PASS |
-| 17 | Ordinary user cannot write another public projection | PASS |
-| 18 | Signed-out cannot write a public projection | PASS |
-| 19 | Admin can write any public projection | PASS |
+| 9 | **Unverified email cannot claim a legacy profile by matching email** | PASS |
+| 10 | **Unverified email cannot run an own-email profile query** | PASS |
+| 11 | UID ownership still works without a verified email | PASS |
+| 12 | UID ownership still allows updating the own profile without a verified email | PASS |
+| 13 | UID ownership still allows writing the own public projection | PASS |
+| 14 | **Verified legacy owner can read the legacy profile (regression)** | PASS |
+| 15 | **Verified legacy owner can list by own email (regression)** | PASS |
+| 16 | Verified legacy owner can update the legacy profile (regression) | PASS |
+| 17 | Verified legacy owner can write the legacy projection (regression) | PASS |
+| 18 | Owner can read own full profile | PASS |
+| 19 | Owner can update own profile | PASS |
+| 20 | Admin can read any full profile | PASS |
+| 21 | Admin can list all full profiles | PASS |
+| 22 | Owner can write own public projection | PASS |
+| 23 | Public projection rejects `email` | PASS |
+| 24 | **Public projection rejects unrendered fields (`bio`)** | PASS |
+| 25 | Ordinary user cannot write another public projection | PASS |
+| 26 | Signed-out cannot write public projections | PASS |
+| 27 | Admin can write any public projection | PASS |
+| 28 | Admin projection writes are also restricted to public fields | PASS |
 
-## 6. Release sequence for the currently live frontend
+### `test:profile-release` — 8/8 PASS
+
+Release-sequence walkthrough using the same client SDK the app uses:
+
+| # | Step | Result |
+|---|---|---|
+| 1 | Stale frontend path: full profile reads denied after lockdown | PASS |
+| 2 | New frontend path: signed-out reads the public projection | PASS |
+| 3 | Author rendering works from public content + public profiles | PASS |
+| 4 | Stale frontend fallback would show Anonymous, not expose the profile | PASS |
+| 5 | Sign-in resolves the legacy profile via a verified email | PASS |
+| 6 | Profile edit keeps the projection in sync and stays private | PASS |
+| 7 | Admin keeps the private read path after lockdown | PASS |
+| 8 | Ordinary signed-in user reads public content but not profiles | PASS |
+
+### Built-UI proof against the emulator
+
+`firebaseClient.ts` gained opt-in local plumbing (`VITE_FIREBASE_USE_EMULATOR=true`; never set in production, documented in `.env.example`). The app was built with demo `VITE_FIREBASE_*` config plus the emulator host and served with `vite preview`, pointed at the Firestore emulator seeded with one author and one post:
+
+| Route | Signed-out result |
+|---|---|
+| `/community` | Rendered the seeded post author (“Public Author”) from `public_profiles`; Firestore traffic hit `127.0.0.1:8080`; no console errors; no `Anonymous` |
+| `/blog/emulator-proof-post` | Rendered the post with the author name from `public_profiles`; no console errors |
+| `/blog` | Post rendered; author name is not part of the card markup |
+
+This proves the actual signed-out UI reads the public projection. Full-profile denial is proven by the SDK suites; the UI has no code path that reads a full profile while signed out.
+
+## 7. Release sequence for the currently live frontend
 
 The live bundle reads `profiles` directly. Publishing the rules first would break public author names for every visitor still running it. Do **not** publish rules until the new bundle is live and the projection is backfilled.
 
@@ -115,21 +178,25 @@ The live bundle reads `profiles` directly. Publishing the rules first would brea
 2. **Deploy the new frontend** (dual-write + `public_profiles` reads with fallback). Live rules are unchanged, so both old and new bundles keep working.
 3. **Backfill existing profiles** (owner, Admin SDK):
    ```sh
-   npm run backfill:public-profiles            # dry run
-   npm run backfill:public-profiles -- --apply # write projections
+   npm run backfill:public-profiles             # dry run
+   npm run backfill:public-profiles -- --apply  # write projections
    ```
-   This only creates `public_profiles`; it does not modify `profiles`.
+   This only creates/repairs `public_profiles`; it does not modify `profiles`. Re-running is safe.
 4. **Verify completeness:** public-profile count should equal the profile count (aggregate counts only; do not dump user records).
-5. **Verify public flows** signed-out (incognito): Home, `/resources`, a resource detail page, `/blog` and `/community` author names/avatars. No "Anonymous" regression.
+5. **Verify public flows** signed-out (incognito): Home, `/resources`, a resource detail page, `/blog` and `/blog/<post>`, `/community` author names/avatars. No "Anonymous" regression.
 6. **Confirm the new bundle is actually served.** `index.html` is `no-cache`, but an already-open SPA tab keeps the old JS until reload. Announce the change or wait for sessions to refresh.
-7. **Publish Firestore rules** only after steps 4–6. Capture the current ruleset for rollback: `projects/kids-ai-resources/rulesets/c3fd3010-125f-47ec-bec8-f35d923039d1`.
-8. **Verify signed-in flows:** owner loads their profile (including a legacy id resolved by email); profile updates still save and refresh `public_profiles`; admin dashboard counts and admin-only reads work.
-9. **Verify ordinary users:** cannot read another full profile, but can still create reviews/comments/posts (those rules use `matchesProfileUser`).
-10. **Rollback:** republish the previous Firestore ruleset. No data rollback is needed; `public_profiles` can remain in place.
+7. **Publish Firestore rules** only after steps 4–6.
+8. **Verify signed-in flows:** owner loads their profile (including a legacy id resolved via a **verified** email); profile updates still save and refresh `public_profiles`; admin dashboard counts and admin-only reads work.
+9. **Verify ordinary users:** cannot read another full profile, but can still create reviews/comments/posts (those rules use `matchesProfileUser`, now email-verified for legacy ids).
+10. **Rollback that keeps full profiles private:**
+    - Do **not** republish the pre-lockdown ruleset (`c3fd3010…`); that would make full profiles public again.
+    - If the rules themselves are faulty, revert only the rules file to the previous state of **this PR** (owner/admin reads + public projection) and redeploy rules. `profiles` stays private.
+    - If the app/projection breaks, fix or roll back the **frontend** (redeploy the last known-good bundle) and run the backfill to repair projections. Do not loosen rules.
+    - Author names degrading to "Anonymous" (stale tab, missing projection) is an acceptable degraded state; private profile reads stay denied.
 
 Residual window: after step 7, a visitor still running the old bundle in an open tab will fail `profiles` reads and may see fallback/Anonymous names until reload. Step 6 minimizes this; publishing during low traffic further reduces it.
 
-## 7. Out of scope
+## 8. Out of scope
 
 - No rules publication in this PR.
 - No production data migration, backfill execution, or user-record reads.
