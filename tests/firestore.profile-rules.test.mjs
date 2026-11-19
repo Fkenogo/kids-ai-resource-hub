@@ -172,6 +172,20 @@ test('uid ownership still allows updating the own profile without a verified ema
   await assertSucceeds(updateDoc(doc(db, 'profiles', UNVERIFIED_UID), { display_name: 'Still Owner' }));
 });
 
+test('uid ownership still allows creating the own uid-keyed profile without a verified email', async () => {
+  const db = testEnv
+    .authenticatedContext('brand-new-uid', { email: 'brand-new@example.com', email_verified: false })
+    .firestore();
+  await assertSucceeds(
+    setDoc(doc(db, 'profiles', 'brand-new-uid'), {
+      id: 'brand-new-uid',
+      email: 'brand-new@example.com',
+      username: 'brand_new',
+      display_name: 'Brand New',
+    })
+  );
+});
+
 test('uid ownership still allows writing the own public projection without a verified email', async () => {
   const db = testEnv
     .authenticatedContext(UNVERIFIED_UID, { email: UNVERIFIED_EMAIL, email_verified: false })

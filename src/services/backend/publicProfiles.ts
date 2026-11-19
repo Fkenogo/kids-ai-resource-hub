@@ -1,4 +1,4 @@
-import { readMany, readOneById, upsertOne } from './firestoreDb';
+import { readMany, readOneById, replaceOne, upsertOne } from './firestoreDb';
 import { logger } from '@/lib/logger';
 
 type BackendRow = Record<string, unknown>;
@@ -109,7 +109,9 @@ export const syncPublicProfile = async (id: string, profile: BackendRow) => {
   try {
     const payload = toPublicProfile(id, profile);
     delete payload.id;
-    await upsertOne('public_profiles', id, payload);
+    // Replace (not merge) so clearing a field on the profile actually removes
+    // it from the projection instead of leaving a stale value public.
+    await replaceOne('public_profiles', id, payload);
   } catch (error) {
     logger.warn('Failed to sync public profile', id, error);
   }

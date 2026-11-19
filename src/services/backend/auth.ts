@@ -10,7 +10,7 @@ import {
   type User as FirebaseUser,
 } from 'firebase/auth';
 import { auth } from './client';
-import { createOne, readMany } from './firestoreDb';
+import { createOne, readMany, readOneById } from './firestoreDb';
 import { syncPublicProfile } from './publicProfiles';
 
 export type BackendAuthUser = {
@@ -88,14 +88,28 @@ const mapFirebaseUser = (user: FirebaseUser): BackendAuthUser => ({
 const ensureProfileDocument = async (user: FirebaseUser) => {
   if (!user.email) return;
 
-  const existing = await readMany('profiles', {
-    filters: [{ field: 'email', op: '==', value: user.email }],
-    limit: 1,
-  });
-  if (existing.length > 0) {
-    // Keep the public projection present for accounts created before it existed.
-    await syncPublicProfile(String(existing[0].id), existing[0]);
+  // UID-first access works for every signed-in user, including unverified
+  // emails, and keeps sign-in/sign-up from failing on the legacy email query.
+  const ownDoc = await readOneById('profiles', user.uid);
+  if (ownDoc) {
+    await syncPublicProfile(user.uid, ownDoc);
     return;
+  }
+
+  try {
+    const existing = await readMany('profiles', {
+      filters: [{ field: 'email', op: '==', value: user.email }],
+      limit: 1,
+    });
+    if (existing.length > 0) {
+      // Keep the public projection present for accounts created before it existed.
+      await syncPublicProfile(String(existing[0].id), existing[0]);
+      return;
+    }
+  } catch {
+    // An unverified email cannot run the legacy email query once the rules are
+    // published. Fall through and create the uid-keyed document below; the
+    // legacy link is restored once the email is verified.
   }
 
   const now = new Date().toISOString();
@@ -134,14 +148,31 @@ export const resolveDataUserId = async (user?: BackendAuthUser | null): Promise<
   const cached = getFromCache(currentUser.email);
   if (cached) return cached;
 
-  const matches = await readMany('profiles', {
-    filters: [{ field: 'email', op: '==', value: currentUser.email }],
-    limit: 1,
-  });
-  if (matches.length > 0) {
-    const id = String(matches[0].id);
-    setCache(currentUser.email, id);
-    return id;
+  // UID-first: works for uid-keyed accounts and unverified emails alike.
+  try {
+    const ownDoc = await readOneById('profiles', currentUser.id);
+    if (ownDoc) {
+      setCache(currentUser.email, currentUser.id);
+      return currentUser.id;
+    }
+  } catch {
+    // Fall through to the legacy email lookup.
+  }
+
+  try {
+    const matches = await readMany('profiles', {
+      filters: [{ field: 'email', op: '==', value: currentUser.email }],
+      limit: 1,
+    });
+    if (matches.length > 0) {
+      const id = String(matches[0].id);
+      setCache(currentUser.email, id);
+      return id;
+    }
+  } catch {
+    // Unverified emails cannot run the legacy email query once the rules are
+    // published; fall back to the uid so posting/engagements keep working.
+    return currentUser.id;
   }
 
   return currentUser.id;
