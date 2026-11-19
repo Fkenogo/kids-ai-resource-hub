@@ -40,6 +40,27 @@ jobs:
             || { echo "::error::${{ inputs.commit_sha }} is not on main"; exit 1; }
           echo "Commit is on main."
 
+      - name: Verify Cloudflare settings are present on the environment
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          CF_PAGES_PROJECT_NAME: ${{ vars.CF_PAGES_PROJECT_NAME }}
+        run: |
+          set -euo pipefail
+          missing=0
+          for name in CLOUDFLARE_ACCOUNT_ID CF_PAGES_PROJECT_NAME; do
+            if [ -z "${!name:-}" ]; then
+              echo "::error::Environment variable $name is missing on the cloudflare-pages environment"
+              missing=1
+            fi
+          done
+          # CLOUDFLARE_PAGES_EDIT_TOKEN is an environment secret; a missing
+          # token fails at the deploy step (secrets cannot be inspected here).
+          if [ "$missing" -ne 0 ]; then
+            echo "Add the missing values under Settings → Environments → cloudflare-pages."
+            exit 1
+          fi
+          echo "Cloudflare environment variables present."
+
       - name: Locate the successful Build run for this commit
         id: find
         env:

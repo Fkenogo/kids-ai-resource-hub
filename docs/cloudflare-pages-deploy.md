@@ -13,14 +13,16 @@
 
 ## Settings the owner must add (one-time)
 
+All values live on the **`cloudflare-pages` environment** (Settings → Environments → cloudflare-pages) — the deploy job is scoped to it. No placeholders have been added; the environment is empty until the owner fills it in.
+
 | Where | Name | Value / source |
 |---|---|---|
-| Repo **Secrets and variables → Actions → Secrets** | `CLOUDFLARE_PAGES_EDIT_TOKEN` | Cloudflare API token with **Account → Cloudflare Pages → Edit** scoped to the target account (and optionally only the specific Pages project). Create in Cloudflare → My Profile → API Tokens. |
-| Repo **Variables** | `CF_PAGES_PROJECT_NAME` | The **Pages Direct Upload project name** (as configured in Cloudflare → Workers & Pages → the project). |
-| Repo **Variables** | `CLOUDFLARE_ACCOUNT_ID` | Cloudflare **Account ID** (shown in the Pages project overview). Recommended so wrangler is unambiguous. |
-| Repo **Environments** | `cloudflare-pages` | Create it and optionally add **required reviewers** — the workflow targets this environment, so deployments get a second human gate even when triggered manually. |
+| **Environment secret** (cloudflare-pages) | `CLOUDFLARE_PAGES_EDIT_TOKEN` | Cloudflare API token with **Account → Cloudflare Pages → Edit** scoped to the target account (and optionally only the specific Pages project). Create in Cloudflare → My Profile → API Tokens. |
+| **Environment variable** (cloudflare-pages) | `CF_PAGES_PROJECT_NAME` | The **Pages Direct Upload project name** (Cloudflare → Workers & Pages → the project). |
+| **Environment variable** (cloudflare-pages) | `CLOUDFLARE_ACCOUNT_ID` | Cloudflare **Account ID** (shown in the Pages project overview). |
+| Repo **Environments** | `cloudflare-pages` | Optionally add **required reviewers** — the workflow targets this environment, so deployments get a second human gate even when triggered manually. |
 
-No values are added by this PR (the workflow will fail fast if any are missing).
+The job fail-fasts if either environment variable is missing; a missing token fails at the deploy step (secrets cannot be inspected from Actions).
 
 ## Running it
 
