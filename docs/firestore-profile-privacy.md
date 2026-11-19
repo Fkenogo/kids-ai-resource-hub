@@ -42,6 +42,8 @@ Legacy profile documents are keyed by an old id, not the auth uid, so email matc
   - own-email `profiles` queries (`resolveDataUserId`, `ensureProfileDocument`),
   - public projection writes for legacy-keyed documents.
 - **UID-based access is unchanged:** a signed-in user can always read/update their uid-keyed profile and write their own `public_profiles/{uid}` without a verified email.
+- **Verified legacy link stays authoritative.** `ensureProfileDocument`/`resolveDataUserId` run the legacy email query first (allowed only with a verified email) and prefer a legacy document (id ≠ uid) over a uid document when both share the email. Unverified emails cannot run that query, so they use the uid path. Net effect: an unverified user works under their uid; after verifying, the legacy id becomes authoritative again.
+- **Split-identity window (regression-tested).** A pre-existing legacy user who signs in before verifying gets a uid-keyed profile and authors activity under the uid. After verification they author under the legacy id. Activity created in both windows stays owned (`matchesProfileUser` covers uid and verified-email matches), both projections keep rendering, and no data is lost. Residual: two profile docs/projections exist until an admin reconciles; the community member list can show both entries. Reconciliation is an owner follow-up and is not required for this release.
 
 ## 4. Data shape
 

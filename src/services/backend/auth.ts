@@ -88,28 +88,33 @@ const mapFirebaseUser = (user: FirebaseUser): BackendAuthUser => ({
 const ensureProfileDocument = async (user: FirebaseUser) => {
   if (!user.email) return;
 
-  // UID-first access works for every signed-in user, including unverified
-  // emails, and keeps sign-in/sign-up from failing on the legacy email query.
+  // Verified legacy link first: keeps legacy authorship authoritative for
+  // verified users (including users who created a uid profile while their
+  // email was unverified). Unverified emails cannot run this query once the
+  // rules are published; they fall through to the uid path below.
+  try {
+    const existing = await readMany('profiles', {
+      filters: [{ field: 'email', op: '==', value: user.email }],
+    });
+    const legacyDoc = existing.find((row) => String(row.id) !== user.uid);
+    if (legacyDoc) {
+      await syncPublicProfile(String(legacyDoc.id), legacyDoc);
+      return;
+    }
+    const ownDocInResults = existing.find((row) => String(row.id) === user.uid);
+    if (ownDocInResults) {
+      await syncPublicProfile(user.uid, ownDocInResults);
+      return;
+    }
+  } catch {
+    // Unverified email: the legacy query is denied; continue on the uid path
+    // so sign-in/sign-up still complete and posting keeps working.
+  }
+
   const ownDoc = await readOneById('profiles', user.uid);
   if (ownDoc) {
     await syncPublicProfile(user.uid, ownDoc);
     return;
-  }
-
-  try {
-    const existing = await readMany('profiles', {
-      filters: [{ field: 'email', op: '==', value: user.email }],
-      limit: 1,
-    });
-    if (existing.length > 0) {
-      // Keep the public projection present for accounts created before it existed.
-      await syncPublicProfile(String(existing[0].id), existing[0]);
-      return;
-    }
-  } catch {
-    // An unverified email cannot run the legacy email query once the rules are
-    // published. Fall through and create the uid-keyed document below; the
-    // legacy link is restored once the email is verified.
   }
 
   const now = new Date().toISOString();
@@ -148,7 +153,23 @@ export const resolveDataUserId = async (user?: BackendAuthUser | null): Promise<
   const cached = getFromCache(currentUser.email);
   if (cached) return cached;
 
-  // UID-first: works for uid-keyed accounts and unverified emails alike.
+  // Verified legacy link first (deterministic when both a legacy doc and a
+  // uid doc share the email), then the uid path for unverified/new accounts.
+  try {
+    const matches = await readMany('profiles', {
+      filters: [{ field: 'email', op: '==', value: currentUser.email }],
+    });
+    if (matches.length > 0) {
+      const legacyDoc = matches.find((row) => String(row.id) !== currentUser.id);
+      const id = legacyDoc ? String(legacyDoc.id) : String(matches[0].id);
+      setCache(currentUser.email, id);
+      return id;
+    }
+  } catch {
+    // Unverified emails cannot run the legacy email query once the rules are
+    // published; fall back to the uid so posting/engagements keep working.
+  }
+
   try {
     const ownDoc = await readOneById('profiles', currentUser.id);
     if (ownDoc) {
@@ -156,23 +177,7 @@ export const resolveDataUserId = async (user?: BackendAuthUser | null): Promise<
       return currentUser.id;
     }
   } catch {
-    // Fall through to the legacy email lookup.
-  }
-
-  try {
-    const matches = await readMany('profiles', {
-      filters: [{ field: 'email', op: '==', value: currentUser.email }],
-      limit: 1,
-    });
-    if (matches.length > 0) {
-      const id = String(matches[0].id);
-      setCache(currentUser.email, id);
-      return id;
-    }
-  } catch {
-    // Unverified emails cannot run the legacy email query once the rules are
-    // published; fall back to the uid so posting/engagements keep working.
-    return currentUser.id;
+    // Fall through to the uid fallback.
   }
 
   return currentUser.id;

@@ -71,6 +71,7 @@ Verify **immediately after** (each item has an emulator-proven equivalent):
 - [ ] Signed-out full-profile read denied; public projection still readable.
 - [ ] Public author rendering intact (`/blog`, `/blog/<post>`, `/community`).
 - [ ] **UID-keyed owner** (unverified email): sign in, load own profile, edit profile + projection refresh, post with own `uid` author id.
+- [ ] **Split-identity user** (legacy user who signed in while unverified, then verified): resolves back to the legacy id, keeps ownership of activity created in both windows, and both author names render. (Regression: `npm run test:profile-identity`.)
 - [ ] **Verified legacy owner:** legacy id resolves via the verified email; edit profile + projection refresh; post with the legacy `author_id`.
 - [ ] Unverified legacy owner: posting with the legacy `author_id` is denied (expected; owner re-verifies email or uses the uid path).
 - [ ] Ordinary signed-in user: cannot read another full profile; can still post/comment/review.

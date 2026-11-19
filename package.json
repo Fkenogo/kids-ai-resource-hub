@@ -12,6 +12,7 @@
     "test:profile-rules": "firebase emulators:exec --only firestore --project demo-kids-ai \"node --test tests/firestore.profile-rules.test.mjs\"",
     "test:profile-release": "firebase emulators:exec --only firestore --project demo-kids-ai \"node --test tests/profile-release-sequence.test.mjs\"",
     "test:backfill": "firebase emulators:exec --only firestore --project demo-kids-ai \"node --test tests/backfill-concurrency.test.mjs\"",
+    "test:profile-identity": "firebase emulators:exec --only firestore --project demo-kids-ai \"node --test tests/profile-identity-regression.test.mjs\"",
     "backfill:public-profiles": "node scripts/backfill-public-profiles.mjs",
     "verify:public-profiles": "node scripts/verify-public-profiles.mjs",
     "preview": "vite preview",
