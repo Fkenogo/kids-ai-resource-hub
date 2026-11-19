@@ -1,12 +1,38 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    match /{allPaths=**} {
-      allow read: if true;
-      allow write: if request.auth != null
-        && request.resource != null
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // Mirrors the Firestore isAdmin() helper: role document keyed by Firebase uid.
+    function adminRolePath() {
+      return /databases/(default)/documents/user_roles/$(request.auth.uid);
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && firestore.get(adminRolePath()).data.role in ['admin', 'moderator'];
+    }
+
+    function isValidImageUpload() {
+      return request.resource != null
         && request.resource.size < 10 * 1024 * 1024
         && request.resource.contentType.matches('image/.*');
+    }
+
+    // Public reads: resource images are rendered on public pages and social previews.
+    // This also preserves reads for any legacy objects already referenced by resource data.
+    match /{allPaths=**} {
+      allow read: if true;
+    }
+
+    // Only verified admins/moderators may create or replace resource images.
+    match /resource-images/{fileName} {
+      allow create, update: if isAdmin() && isValidImageUpload();
+
+      // No existing admin workflow deletes Storage objects (no deleteObject usage in the app).
+      allow delete: if false;
     }
   }
 }

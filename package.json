@@ -19,6 +19,7 @@
     "scan:secrets": "node scripts/scan-secrets.mjs",
     "seed:firestore": "node --env-file-if-exists=.env.migration scripts/seed-firestore.mjs",
     "smoke:routes": "node scripts/smoke-routes.mjs",
+    "test:storage-rules": "firebase emulators:exec --only firestore,storage --project demo-kids-ai \"node --test tests/storage.rules.test.mjs\"",
     "audit:smoke": "npm run build && npm run smoke:routes",
     "check:firebase-key": "node scripts/check-firebase-key.mjs",
     "upload:resources": "node scripts/bulk-upload-resources.mjs",

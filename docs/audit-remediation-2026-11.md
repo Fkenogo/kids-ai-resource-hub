@@ -94,7 +94,7 @@ These are two separate problems. Fixing one does not fix the other.
   - `src/components/ImageUploader.tsx`, `src/components/ResourceImageEditor.tsx`, `src/components/admin/ResourceManagement.tsx` — uploads must go through `storageService` (verify no direct `ref()` calls elsewhere; grep shows only `storageService.ts`).
   - `src/pages/AdminPlaceholderMigration.tsx` — verify it uploads via the same service; if it writes to another prefix, scope that prefix too or migrate it.
   - `scripts/*` uploads use Firestore only (no Storage writes) — unaffected.
-- **Must not deploy until:** admin upload verified in a preview channel and non-admin upload denied (check R6).
+- **Must not deploy until:** admin upload is verified against the emulator suite (11/11) and non-admin upload is denied (check R6). A Hosting preview channel cannot validate Storage rules; use a staging Firebase project if a live check is required.
 
 ### Group H — Error/empty states (dependency)
 - Rules denials surface as query errors. `src/hooks/useBackendData.ts:19-47` currently swallows errors and returns `[]`/`null`; `src/pages/ResourcePage.tsx:17-23` conflates error with not-found. **Ship error states in the same release as any rules tightening**, or admins will report "site is empty" with no signal.
@@ -122,7 +122,7 @@ Run these **read-only** before any rules deploy. Aggregate counts and field name
 
 ## 4. Prioritized plan (rules + app fixes)
 
-**Standing gate for every rules PR (Firestore or Storage):** ship emulator tests that cover both the allowed path and the denied path, and pass them before review. A rules change without emulator evidence is not ready. Storage PR #2 is the reference pattern (`npm run test:storage-rules`, 10/10 passing).
+**Standing gate for every rules PR (Firestore or Storage):** ship emulator tests that cover both the allowed path and the denied path, and pass them before review. A rules change without emulator evidence is not ready. Storage PR #2 is the reference pattern (`npm run test:storage-rules`, 11/11 passing).
 
 **P0 — before any rules change (safety + visibility)**
 1. Land this remediation PR (temp rules removed, real `typecheck`, CI env documentation).
@@ -131,7 +131,7 @@ Run these **read-only** before any rules deploy. Aggregate counts and field name
 
 **P1 — identity, Storage, and live profile privacy verification (one window)**
 4. Group E: uid-keyed `user_roles` migration (dry-run → owner approval), update `useAdminAccess` + `storageService`, verify founder admin write (approve/feature) works.
-5. Group G: Storage rules scoped to `resource-images/`, admin-gated create/update, deletion denied; emulator tests pass; verify admin upload and non-admin denial in a preview channel before deploy.
+5. Group G: Storage rules scoped to `resource-images/`, admin-gated create/update, deletion denied; emulator tests pass; verify admin upload and non-admin denial in a staging project (Hosting preview channels do not deploy Storage rules) before deploy.
 6. **Bring live profile privacy verification forward (R5):** signed-out and signed-in walkthrough of `/community`, `/blog`, `/resources` to confirm which author names/avatars currently depend on public profile reads. Record the decision (denormalize author fields vs split sensitive fields out of `profiles`) before any profile-rule change. Do not lock `profiles` until the chosen path is proven.
 
 **P2 — schema normalization before visibility rules**
