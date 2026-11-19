@@ -1,23 +1,13 @@
 import { createOne, readMany, readOneById, removeOne, updateOne } from './firestoreDb';
 import { resolveDataUserId } from './auth';
+import { getPublicProfile, getPublicProfilesMap } from './publicProfiles';
 type BackendRow = Record<string, unknown>;
-
-const getProfileMap = async (authorIds: string[]) => {
-  const map = new Map<string, BackendRow | null>();
-  await Promise.all(
-    authorIds.map(async (id) => {
-      const profile = await readOneById('profiles', id);
-      map.set(id, profile || null);
-    }),
-  );
-  return map;
-};
 
 export const getBlogPostsFromBackend = async (includeUnpublished = false) => {
   const rows = await readMany('blog_posts', { orderBy: { field: 'created_at', direction: 'desc' } });
   const filtered = includeUnpublished ? rows : rows.filter((row: BackendRow) => row.is_published === true);
   const authorIds = [...new Set(filtered.map((row: BackendRow) => String(row.author_id || '')))].filter(Boolean);
-  const profileMap = await getProfileMap(authorIds);
+  const profileMap = await getPublicProfilesMap(authorIds);
   return filtered.map((row: BackendRow) => ({
     ...row,
     profiles: profileMap.get(String(row.author_id || ''))
@@ -36,7 +26,7 @@ export const getBlogPostBySlugFromBackend = async (slug: string) => {
   });
   if (matches.length === 0) return null;
   const row = matches[0];
-  const profile = row.author_id ? await readOneById('profiles', String(row.author_id)) : null;
+  const profile = row.author_id ? await getPublicProfile(String(row.author_id)) : null;
   return {
     ...row,
     profiles: profile
@@ -57,7 +47,7 @@ export const getBlogCommentsFromBackend = async (postId?: string, includeUnappro
   });
 
   const authorIds = [...new Set(filtered.map((row: BackendRow) => String(row.author_id || '')))].filter(Boolean);
-  const profileMap = await getProfileMap(authorIds);
+  const profileMap = await getPublicProfilesMap(authorIds);
 
   return filtered.map((row: BackendRow) => ({
     ...row,

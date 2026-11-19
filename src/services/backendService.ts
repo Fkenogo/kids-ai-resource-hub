@@ -10,6 +10,7 @@ import {
 } from '@/services/backend/resources';
 import { getUserEngagementsFromBackend, toggleEngagementFromBackend, trackViewFromBackend } from '@/services/backend/engagement';
 import { createOne, readOneById, updateOne } from '@/services/backend/firestoreDb';
+import { syncPublicProfile } from '@/services/backend/publicProfiles';
 import { ResourceFilters } from '@/types';
 import { logger } from '@/lib/logger';
 
@@ -51,7 +52,11 @@ export const getProfile = async (userId: string) => {
 
 export const updateProfile = async (userId: string, updates: Record<string, unknown>) => {
   await updateOne('profiles', userId, updates);
-  return readOneById('profiles', userId);
+  const updated = await readOneById('profiles', userId);
+  if (updated) {
+    await syncPublicProfile(userId, updated);
+  }
+  return updated;
 };
 
 export const getResources = async (filters?: ResourceFilters) => {

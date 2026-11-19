@@ -11,6 +11,7 @@ import {
 } from 'firebase/auth';
 import { auth } from './client';
 import { createOne, readMany } from './firestoreDb';
+import { syncPublicProfile } from './publicProfiles';
 
 export type BackendAuthUser = {
   id: string;
@@ -91,10 +92,14 @@ const ensureProfileDocument = async (user: FirebaseUser) => {
     filters: [{ field: 'email', op: '==', value: user.email }],
     limit: 1,
   });
-  if (existing.length > 0) return;
+  if (existing.length > 0) {
+    // Keep the public projection present for accounts created before it existed.
+    await syncPublicProfile(String(existing[0].id), existing[0]);
+    return;
+  }
 
   const now = new Date().toISOString();
-  await createOne(
+  const created = await createOne(
     'profiles',
     {
       id: user.uid,
@@ -107,6 +112,7 @@ const ensureProfileDocument = async (user: FirebaseUser) => {
     },
     user.uid,
   );
+  await syncPublicProfile(String(created.id), created);
 };
 
 export const getCurrentAuthUser = async (): Promise<BackendAuthUser | null> => {
