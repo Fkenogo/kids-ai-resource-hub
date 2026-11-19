@@ -77,6 +77,20 @@ All local assets returned 200. Firebase Firestore/Storage requests returned 200,
 
 **Finding (pre-existing, out of scope):** `/resources/r_teachable_machine` — one of the smoke routes — stays on “Loading resource...” indefinitely because that resource ID does not exist in production; the real ID is `res_teachable_machine`. The smoke check only asserts the app shell, so it still passes. Fix the route fixture or make the detail page show a not-found state in a separate change.
 
+## CI verification
+
+Run on head `aa1de3d` (PR #3, run `44507344381`):
+
+| Job | Result |
+|---|---|
+| `Build, smoke test, and retain dist` | **SUCCESS** — all steps passed, including smoke and artifact upload |
+| `Typecheck (true result; currently fails on main)` | **FAILURE** — 167 errors, visible by design |
+| Overall workflow | **FAILURE** (only because of typecheck) |
+
+Artifact uploaded: `dist-<merge-sha>`, 1,157,528 bytes compressed (artifact names now prefer the PR head SHA).
+
+The first CI attempt (`e1c6f28`) hung on the smoke step because the `vite` grandchild process kept the inherited pipes open after `npm` was signalled. `scripts/smoke-routes.mjs` now runs the preview tree in its own process group and escalates `SIGTERM` → `SIGKILL`, so it exits in under 2 s locally and in CI. The hung run was cancelled.
+
 ## Owner checks before relying on this workflow
 
 - [ ] Confirm the `production` environment still has the six required web variables (names only; no values displayed).
