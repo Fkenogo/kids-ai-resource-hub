@@ -23,9 +23,10 @@ const Community = lazy(() => import("./pages/Community"));
 const Shopping = lazy(() => import("./pages/Shopping"));
 const Admin = lazy(() => import("./pages/Admin"));
 const AdminPlaceholderMigration = lazy(() => import("./pages/AdminPlaceholderMigration"));
-const IdentityProbe = lazy(() => import("./pages/IdentityProbe"));
 
 const isEmulatorProbeEnabled = import.meta.env.VITE_FIREBASE_USE_EMULATOR === "true";
+// Emulator-only page: the lazy import stays out of production bundles entirely.
+const IdentityProbe = isEmulatorProbeEnabled ? lazy(() => import("./pages/IdentityProbe")) : null;
 
 const queryClient = new QueryClient();
 
@@ -54,7 +55,7 @@ const App = () => (
                   <Route path="/blog/:slug" element={<BlogPost />} />
                   <Route path="/admin" element={<Admin />} />
                   <Route path="/admin-placeholders" element={<AdminPlaceholderMigration />} />
-                  {isEmulatorProbeEnabled && (
+                  {isEmulatorProbeEnabled && IdentityProbe && (
                     <Route path="/__identity-probe" element={<IdentityProbe />} />
                   )}
                   <Route path="*" element={<NotFound />} />
