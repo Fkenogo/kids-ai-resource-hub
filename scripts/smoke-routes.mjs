@@ -42,8 +42,35 @@ function startPreview() {
     {
       stdio: ["ignore", "pipe", "pipe"],
       env: process.env,
+      // Give the preview tree its own process group so shutdown can reach
+      // the vite child, not just the npm wrapper (important on Linux CI).
+      detached: process.platform !== "win32",
     },
   );
+}
+
+async function stopPreview(preview) {
+  if (!preview.pid) return;
+
+  const signal = (name) => {
+    try {
+      if (process.platform === "win32") preview.kill(name);
+      else process.kill(-preview.pid, name);
+    } catch {
+      try {
+        preview.kill(name);
+      } catch {
+        // Already gone.
+      }
+    }
+  };
+
+  signal("SIGTERM");
+  await delay(1000);
+  signal("SIGKILL");
+
+  preview.stdout?.destroy();
+  preview.stderr?.destroy();
 }
 
 async function checkRoutes() {
@@ -87,7 +114,7 @@ async function main() {
     await checkRoutes();
     console.log("Smoke route checks passed.");
   } finally {
-    preview.kill("SIGTERM");
+    await stopPreview(preview);
   }
 }
 
