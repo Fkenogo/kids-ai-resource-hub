@@ -62,26 +62,28 @@ Writes:
 - `src/services/backend/publicProfiles.ts` centralizes reads, the rollout fallback, and safe field picking.
 - `scripts/backfill-public-profiles.mjs` is the **dry-run-by-default** owner tool for existing accounts. It is not executed by this PR.
 
-### Idempotent backfill
+### Idempotent, concurrency-safe backfill
 
 The script keeps the projection exactly in sync without clobbering fresher writes:
 
 - **Missing projection → write** the three public fields from the profile.
-- **Profile fresher than projection** (`profile.updated_at` > projection write time) → rewrite the projection from the profile.
-- **Projection fresher than profile** (a successful app sync writes the projection after the profile edit) → leave the values untouched; do not overwrite fresher projection data.
+- **Profile fresher than projection** (the later of `profile.updated_at` and the profile's own write time is newer than the projection's write time) → rewrite the projection from the profile.
+- **Projection fresher than profile** (a successful app sync writes the projection after the profile's last write) → leave the values untouched; do not overwrite fresher projection data.
 - **Unexpected fields** (`email`, `bio`, timestamps, anything else) are **removed** by replacing the document with only the three allowed fields — in every case, including stale/fresher projections and orphaned projections.
 - Re-running the script on an already-correct projection reports “already in sync” with no writes (idempotent).
+- **Concurrency safety:** with `--apply`, every read+decide+write pair runs inside a Firestore **transaction**. A concurrent profile or projection edit either lands before the transaction reads (and is picked up) or after it commits (and is picked up by the next run); Firestore retries conflicting transactions, so the script never writes a half-mixed projection and never resurrects fields a concurrent edit removed. Dry run stays read-only.
 - Dry run is the default; writes only with `--apply`. No emails or user records are printed.
 - Emulator verification (`FIRESTORE_EMULATOR_HOST=127.0.0.1:8080`, isolated `demo-kids-ai` data):
   dry run → apply → verify → dry run again:
   | Case | Result |
   |---|---|
   | Missing projection created | `projections to create: 1` |
-  | Stale projection overwritten from fresher profile (`updated_at` newer) | `updates from fresher profile: 1`; values replaced with profile values |
-  | Fresher projection preserved (`updateTime` newer than `profile.updated_at`) | `kept fresher projection as-is: 1`; values kept |
+  | Stale projection overwritten from fresher profile | `updates from fresher profile: 1`; values replaced with profile values |
+  | Fresher projection preserved | `kept fresher projection as-is: 1`; values kept |
   | Unexpected `email` removed from a kept-fresher projection | `unexpected fields removed: 2` (fresher case + orphan) |
   | In-sync projection untouched | `already in sync: 1` |
   | Second dry run after apply | `0` creates, `0` updates, `0` fields to remove (idempotent) |
+  | **Profile or projection edit during the backfill** (`npm run test:backfill`) | converges to the latest write; no `email` survives; second run reports 0 repairs |
 
 ## 5. Rules change
 
@@ -103,12 +105,15 @@ No other rules were changed. `matchesProfileUser()` now requires the verified em
 
 ## 6. Emulator tests
 
-Two suites run against the Firestore emulator with the `demo-kids-ai` project:
+Three suites run against the Firestore emulator with the `demo-kids-ai` project:
 
 ```sh
 npm run test:profile-rules    # access-control matrix
-npm run test:profile-release  # release-sequence walkthrough
+npm run test:profile-release  # release rehearsal: published rules, then proposed rules
+npm run test:backfill         # backfill idempotency + concurrent-edit regression
 ```
+
+A read-only production pre-check is available too: `npm run verify:public-profiles` (Admin SDK; counts only — profiles without projections, projections with unexpected fields, and content author references missing a projection).
 
 ### `test:profile-rules` — 28/28 PASS
 
@@ -143,20 +148,39 @@ npm run test:profile-release  # release-sequence walkthrough
 | 27 | Admin can write any public projection | PASS |
 | 28 | Admin projection writes are also restricted to public fields | PASS |
 
-### `test:profile-release` — 8/8 PASS
+### `test:profile-release` — 15/15 PASS
 
-Release-sequence walkthrough using the same client SDK the app uses:
+Release **rehearsal** against the *published* rules first (`tests/fixtures/published-firestore.rules`, captured from the live ruleset), then the *proposed* rules:
 
-| # | Step | Result |
+**Phase A — published rules (what is true today):**
+
+| # | Case | Result |
 |---|---|---|
-| 1 | Stale frontend path: full profile reads denied after lockdown | PASS |
-| 2 | New frontend path: signed-out reads the public projection | PASS |
-| 3 | Author rendering works from public content + public profiles | PASS |
-| 4 | Stale frontend fallback would show Anonymous, not expose the profile | PASS |
-| 5 | Sign-in resolves the legacy profile via a verified email | PASS |
-| 6 | Profile edit keeps the projection in sync and stays private | PASS |
-| 7 | Admin keeps the private read path after lockdown | PASS |
-| 8 | Ordinary signed-in user reads public content but not profiles | PASS |
+| 1 | Full profiles are publicly readable (the exposure this PR fixes) | PASS |
+| 2 | Author rendering reads full profiles | PASS |
+| 3 | Legacy profile read works without a verified email; legacy profile **update** is still denied | PASS |
+| 4 | Legacy posting works without a verified email | PASS |
+
+**Phase B — proposed rules (what must be true after publication):**
+
+| # | Case | Result |
+|---|---|---|
+| 1 | Pre-publication: author coverage — every content author has a projection | PASS |
+| 2 | Pre-publication: allowed fields — projections contain only rendered fields | PASS |
+| 3 | Post-publication: signed-out full-profile reads denied (UID, legacy, unverified-legacy) | PASS |
+| 4 | Post-publication: author rendering works from the public projection | PASS |
+| 5 | Post-publication: stale frontend degrades to Anonymous without exposing profiles | PASS |
+| 6 | Post-publication: **UID-keyed owner posts and edits without a verified email** | PASS |
+| 7 | Post-publication: **verified legacy owner posts and edits via email match** | PASS |
+| 8 | Post-publication: unverified legacy owner cannot post with the legacy author id | PASS |
+| 9 | Post-publication: admin keeps private reads | PASS |
+
+### `test:backfill` — 2/2 PASS
+
+| # | Case | Result |
+|---|---|---|
+| 1 | **Profile or projection edit during the backfill**: transaction-safe; converges to the latest write; no private field survives; second run reports 0 repairs | PASS |
+| 2 | Dry run stays read-only and reports the same converged state | PASS |
 
 ### Built-UI proof against the emulator
 
@@ -174,27 +198,40 @@ This proves the actual signed-out UI reads the public projection. Full-profile d
 
 The live bundle reads `profiles` directly. Publishing the rules first would break public author names for every visitor still running it. Do **not** publish rules until the new bundle is live and the projection is backfilled.
 
-1. **Merge this PR. Do not publish rules.**
-2. **Deploy the new frontend** (dual-write + `public_profiles` reads with fallback). Live rules are unchanged, so both old and new bundles keep working.
-3. **Backfill existing profiles** (owner, Admin SDK):
-   ```sh
-   npm run backfill:public-profiles             # dry run
-   npm run backfill:public-profiles -- --apply  # write projections
-   ```
-   This only creates/repairs `public_profiles`; it does not modify `profiles`. Re-running is safe.
-4. **Verify completeness:** public-profile count should equal the profile count (aggregate counts only; do not dump user records).
-5. **Verify public flows** signed-out (incognito): Home, `/resources`, a resource detail page, `/blog` and `/blog/<post>`, `/community` author names/avatars. No "Anonymous" regression.
-6. **Confirm the new bundle is actually served.** `index.html` is `no-cache`, but an already-open SPA tab keeps the old JS until reload. Announce the change or wait for sessions to refresh.
-7. **Publish Firestore rules** only after steps 4–6.
-8. **Verify signed-in flows:** owner loads their profile (including a legacy id resolved via a **verified** email); profile updates still save and refresh `public_profiles`; admin dashboard counts and admin-only reads work.
-9. **Verify ordinary users:** cannot read another full profile, but can still create reviews/comments/posts (those rules use `matchesProfileUser`, now email-verified for legacy ids).
-10. **Rollback that keeps full profiles private:**
-    - Do **not** republish the pre-lockdown ruleset (`c3fd3010…`); that would make full profiles public again.
-    - If the rules themselves are faulty, revert only the rules file to the previous state of **this PR** (owner/admin reads + public projection) and redeploy rules. `profiles` stays private.
-    - If the app/projection breaks, fix or roll back the **frontend** (redeploy the last known-good bundle) and run the backfill to repair projections. Do not loosen rules.
-    - Author names degrading to "Anonymous" (stale tab, missing projection) is an acceptable degraded state; private profile reads stay denied.
+### Before publication (can be checked without touching rules)
 
-Residual window: after step 7, a visitor still running the old bundle in an open tab will fail `profiles` reads and may see fallback/Anonymous names until reload. Step 6 minimizes this; publishing during low traffic further reduces it.
+- **Merge this PR; deploy the new frontend** (dual-write + `public_profiles` reads with fallback). Live rules are unchanged, so old and new bundles keep working.
+- **Backfill existing profiles** (owner, Admin SDK):
+  ```sh
+  npm run backfill:public-profiles             # dry run (default, read-only)
+  npm run backfill:public-profiles -- --apply  # write projections
+  ```
+  Transactions make it safe to run while users edit profiles; re-runs are safe.
+- **Run the read-only rollout check:**
+  ```sh
+  npm run verify:public-profiles
+  ```
+  All three repair counts must be **0** before publication: profiles missing projections, projections with unexpected fields, and content author references missing a projection.
+- **Verify public flows** signed-out (incognito): Home, `/resources`, a resource detail page, `/blog`, `/blog/<post>`, `/community` author names/avatars. No "Anonymous" regression.
+- **Confirm the new bundle is actually served.** `index.html` is `no-cache`, but an already-open SPA tab keeps the old JS until reload. Announce the change or wait for sessions to refresh.
+- **Confirm the emulator suites and UI rehearsal are green** on the exact rules file being published.
+
+### Immediately after publication (verify while watching)
+
+- **Full-profile denial:** signed-out and ordinary accounts cannot read full `profiles` documents (emulator-proven; confirm with a real ordinary account if desired — no record contents printed).
+- **Public author rendering:** `/blog`, `/blog/<post>`, `/community` still show author names/avatars for signed-out visitors (the projection path).
+- **UID-keyed owner:** sign in, load own profile, edit profile + projection sync — all without a verified email.
+- **Verified legacy owner:** sign in, legacy id resolves via the verified email, profile edit + projection sync, and posting with the legacy `author_id` works.
+- **Unverified legacy owner:** posting with the legacy `author_id` is denied (expected; the owner can re-verify email or use the uid path).
+- **Admin:** dashboard counts and admin-only profile reads still work.
+- **Stale frontend:** visitors on an old cached bundle degrade to Anonymous/fallback names until reload; no errors are thrown that break pages.
+
+### Rollback that keeps full profiles private
+
+- Do **not** republish the pre-lockdown ruleset (`c3fd3010…`); that would make full profiles public again.
+- If the rules themselves are faulty, revert only the rules file to the previous state of **this PR** (owner/admin reads + public projection) and redeploy rules. `profiles` stays private.
+- If the app/projection breaks, fix or roll back the **frontend** (redeploy the last known-good bundle) and run the backfill to repair projections. Do not loosen rules.
+- Author names degrading to "Anonymous" (stale tab, missing projection) is an acceptable degraded state; private profile reads stay denied.
 
 ## 8. Out of scope
 
