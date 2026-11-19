@@ -87,6 +87,9 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Record checked-out commit
+        run: git rev-parse HEAD > dist/COMMIT_SHA
+
       - name: Route smoke check
         timeout-minutes: 5
         run: npm run smoke:routes
@@ -94,7 +97,7 @@ jobs:
       - name: Upload dist artifact
         uses: actions/upload-artifact@v4
         with:
-          name: dist-${{ github.event.pull_request.head.sha || github.sha }}
+          name: dist-${{ github.sha }}
           path: dist
           if-no-files-found: error
           retention-days: 14

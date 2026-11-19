@@ -10,7 +10,7 @@ const routes = [
   "/login",
   "/signup",
   "/resources",
-  "/resources/r_teachable_machine",
+  "/resources/res_teachable_machine",
   "/blog",
   "/community",
   "/shopping",

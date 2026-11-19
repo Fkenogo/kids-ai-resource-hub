@@ -42,8 +42,9 @@ The workflow fails early with a named error if any required variable is missing.
 3. Guard against Admin credentials.
 4. `npm ci`.
 5. `npm run build`.
-6. `npm run smoke:routes` (starts `vite preview` on `127.0.0.1:4174`, checks `/`, `/login`, `/signup`, `/resources`, `/resources/r_teachable_machine`, `/blog`, `/community`, `/shopping`, `/admin`).
-7. `actions/upload-artifact@v4` uploads `dist` as `dist-<sha>`, retention 14 days, fails if the folder is empty.
+6. `git rev-parse HEAD > dist/COMMIT_SHA` records the exact checked-out commit in the artifact.
+7. `npm run smoke:routes` (starts `vite preview` on `127.0.0.1:4174`, checks `/`, `/login`, `/signup`, `/resources`, `/resources/res_teachable_machine`, `/blog`, `/community`, `/shopping`, `/admin`).
+8. `actions/upload-artifact@v4` uploads `dist` as `dist-${GITHUB_SHA}`, retention 14 days, fails if the folder is empty.
 
 ### `typecheck` — separate, true status
 
@@ -75,19 +76,13 @@ Served `dist` with `vite preview` and loaded it in Chromium:
 
 All local assets returned 200. Firebase Firestore/Storage requests returned 200, confirming the injected web config works. No authenticated flow was exercised.
 
-**Finding (pre-existing, out of scope):** `/resources/r_teachable_machine` — one of the smoke routes — stays on “Loading resource...” indefinitely because that resource ID does not exist in production; the real ID is `res_teachable_machine`. The smoke check only asserts the app shell, so it still passes. Fix the route fixture or make the detail page show a not-found state in a separate change.
+**Finding (pre-existing, separate follow-up):** a resource detail route for an ID that does not exist (previously the smoke fixture `/resources/r_teachable_machine`) stays on “Loading resource...” indefinitely instead of showing a not-found state. The smoke route now points at the real `/resources/res_teachable_machine`, but the underlying detail-page behavior is not fixed in this PR. Fix it by rendering an explicit not-found state when the resource query returns no document.
 
 ## CI verification
 
-Run on head `aa1de3d` (PR #3, run `44507344381`):
+The workflow has been run on this branch. The `build` job (install → build → commit stamp → smoke → artifact upload) passes, while the separate `typecheck` job fails on the known 167 errors. The overall run is therefore red by design; this is visible in the PR checks and repeated in the PR description.
 
-| Job | Result |
-|---|---|
-| `Build, smoke test, and retain dist` | **SUCCESS** — all steps passed, including smoke and artifact upload |
-| `Typecheck (true result; currently fails on main)` | **FAILURE** — 167 errors, visible by design |
-| Overall workflow | **FAILURE** (only because of typecheck) |
-
-Artifact uploaded: `dist-<merge-sha>`, 1,157,528 bytes compressed (artifact names now prefer the PR head SHA).
+Artifact naming: `dist-${GITHUB_SHA}` identifies the **actual checked-out commit** for that run. On `pull_request` events `github.sha` is GitHub's merge commit, not the PR branch head; the `COMMIT_SHA` file inside the artifact records `git rev-parse HEAD` for unambiguous verification.
 
 The first CI attempt (`e1c6f28`) hung on the smoke step because the `vite` grandchild process kept the inherited pipes open after `npm` was signalled. `scripts/smoke-routes.mjs` now runs the preview tree in its own process group and escalates `SIGTERM` → `SIGKILL`, so it exits in under 2 s locally and in CI. The hung run was cancelled.
 
@@ -96,7 +91,8 @@ The first CI attempt (`e1c6f28`) hung on the smoke step because the `vite` grand
 - [ ] Confirm the `production` environment still has the six required web variables (names only; no values displayed).
 - [ ] Confirm no Admin credential variables/secrets are added to `production` later; the guard fails the build if they are.
 - [ ] Decide when to fix the 167 typecheck errors; until then the workflow conclusion is red even when build and artifact succeed.
-- [ ] Replace or remove the stale `/resources/r_teachable_machine` smoke fixture.
+- [ ] Verify the downloaded artifact's `COMMIT_SHA` matches the run's checked-out commit (`github.sha`).
+- [ ] Fix the missing-resource detail-page loading state as a follow-up.
 - [ ] Keep artifact consumption (download + deploy) in a separate, approved workflow.
 
 ## Non-goals
