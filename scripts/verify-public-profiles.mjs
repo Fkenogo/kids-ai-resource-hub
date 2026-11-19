@@ -64,6 +64,7 @@ const main = async () => {
   ]);
 
   const projectionIds = new Set(projections.docs.map((d) => d.id));
+  const profileIds = new Set(profiles.docs.map((d) => d.id));
   const missingProjectionIds = profiles.docs
     .map((d) => d.id)
     .filter((id) => !projectionIds.has(id));
@@ -71,6 +72,21 @@ const main = async () => {
   const badFieldProjectionIds = projections.docs
     .filter((d) => Object.keys(d.data() || {}).some((field) => !PUBLIC_FIELDS.includes(field)))
     .map((d) => d.id);
+
+  // Field-value coverage: projections the UI cannot render because the value
+  // is missing or blank. Counts only; values are never printed.
+  const blankValueCounts = Object.fromEntries(PUBLIC_FIELDS.map((field) => [field, 0]));
+  for (const d of projections.docs) {
+    for (const field of PUBLIC_FIELDS) {
+      const value = d.data()?.[field];
+      if (value === undefined || value === null || (typeof value === 'string' && value.trim() === '')) {
+        blankValueCounts[field] += 1;
+      }
+    }
+  }
+
+  // Orphan projections: no source profile exists (renamed/deleted accounts).
+  const orphanProjectionCount = projections.docs.filter((d) => !profileIds.has(d.id)).length;
 
   let missingAuthorIds = [];
   for (const [collectionName, field] of CONTENT_AUTHOR_FIELDS) {
@@ -87,17 +103,26 @@ const main = async () => {
   console.log(`public_profiles: ${projections.size}`);
   console.log(`profiles missing projection: ${missingProjectionIds.length}`);
   console.log(`projections with unexpected fields: ${badFieldProjectionIds.length}`);
+  for (const field of PUBLIC_FIELDS) {
+    console.log(`projections missing/blank ${field}: ${blankValueCounts[field]}`);
+  }
+  console.log(`orphan projections (no source profile): ${orphanProjectionCount}`);
   console.log(`content author references missing projection: ${missingAuthorIds.length}`);
 
-  if (
+  const blankBlocking = blankValueCounts.username + blankValueCounts.display_name;
+  // Blank avatars and orphan projections degrade gracefully (initials avatar /
+  // sanitized doc), so they are reported but do not block publication.
+  const needsRepair =
     missingProjectionIds.length > 0 ||
     badFieldProjectionIds.length > 0 ||
-    missingAuthorIds.length > 0
-  ) {
+    blankBlocking > 0 ||
+    missingAuthorIds.length > 0;
+
+  if (needsRepair) {
     console.log('repair needed: run `npm run backfill:public-profiles` (dry run first), then publish rules only when all counts are 0.');
     process.exitCode = 2;
   } else {
-    console.log('ready: projection coverage and fields are clean.');
+    console.log('ready: projection coverage, field values, and fields are clean.');
   }
 };
 

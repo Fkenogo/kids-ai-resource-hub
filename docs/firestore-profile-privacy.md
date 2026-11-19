@@ -211,7 +211,7 @@ The live bundle reads `profiles` directly. Publishing the rules first would brea
   ```sh
   npm run verify:public-profiles
   ```
-  All three repair counts must be **0** before publication: profiles missing projections, projections with unexpected fields, and content author references missing a projection.
+  Repair counts must be **0** before publication: profiles missing projections, projections with unexpected fields, blank `username`/`display_name`, and content author references missing a projection. Blank avatars and orphan projections are informational (graceful degradation). See `docs/firestore-release-checklist.md` for the full checklist.
 - **Verify public flows** signed-out (incognito): Home, `/resources`, a resource detail page, `/blog`, `/blog/<post>`, `/community` author names/avatars. No "Anonymous" regression.
 - **Confirm the new bundle is actually served.** `index.html` is `no-cache`, but an already-open SPA tab keeps the old JS until reload. Announce the change or wait for sessions to refresh.
 - **Confirm the emulator suites and UI rehearsal are green** on the exact rules file being published.

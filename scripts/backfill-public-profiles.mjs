@@ -65,13 +65,19 @@ const planAction = (profile, profileWriteMs, publicSnap) => {
 
   if (!publicSnap?.exists) return { action: 'missing', payload: source };
 
-  const publicData = publicSnap.data() || {};
+  const publicData = publicSnap?.data() || {};
   const unexpected = unexpectedFields(publicData);
+  // A projection the UI cannot render at all (blank name fields) is always
+  // repaired from the profile, even if the projection was written later.
+  const blankBlocking = ['username', 'display_name'].some((field) => {
+    const value = publicData[field];
+    return value == null || (typeof value === 'string' && value.trim() === '');
+  });
   const publicWriteMs = toMillis(publicSnap.updateTime);
   const profileMs = Math.max(toMillis(profile.updated_at), profileWriteMs);
   const publicIsFresher = publicWriteMs > profileMs;
 
-  if (publicIsFresher) {
+  if (publicIsFresher && !blankBlocking) {
     if (unexpected.length > 0) {
       return { action: 'sanitizedPublic', payload: toPublicProfile(publicData) };
     }
