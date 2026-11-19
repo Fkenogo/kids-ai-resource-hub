@@ -60,14 +60,14 @@ Each row is one unit of work: the rules change and the app change must ship in t
   - `src/services/backend/admin.ts` — any approval helpers must use the admin path.
 - **Must not deploy until:** verify no client code updates `is_approved` as an owner (grep `is_approved` in `src/components` and `src/services`).
 
-### Group D — Counters and aggregates
-- **Rules:** `resources` and `community_posts` signed-in update clauses get type/range validation; ideally narrowed to `increment`-style deltas.
-- **App to change together:**
-  - `src/services/backend/resources.ts` `createReviewFromBackend()` (average/review count), `createCommentFromBackend()` (comment count) — move to `runTransaction`.
-  - `src/services/backend/engagement.ts` — replace read-then-write with `runTransaction`/`increment`.
-  - `src/services/backend/community.ts` — `reply_count` / `last_activity` updates.
-  - `src/services/engagementService.ts` — must be removed or rewired for real engagement before counter rules tighten (currently localStorage fake; it does not write counters, so rules don't break it, but showing fake counts remains a product bug).
-- **Ordering:** code transactions first, then rules validation. If rules tighten first, legit client-computed float averages may be rejected. **Do not** add a strict integer rule on `average_rating` (it is a float 0–5); validate range only.
+### Group D — Counters: authorization vs transactional consistency
+
+These are two separate problems. Fixing one does not fix the other.
+
+- **Authorization — who may write trusted counters.** The rules currently let *any* signed-in user write `{average_rating, review_count, comment_count, view_count, like_count, share_count, save_count}` on resources and `{like_count, reply_count}` on community posts. Adding range validation is **not** an authorization fix: a forged but in-range value (for example a 5.0 average) is still accepted. Preferred direction: ordinary clients may only submit engagement deltas (or dedicated engagement documents), while aggregate counters are written by trusted code (Admin SDK / Cloud Functions) or constrained to an exact increment shape. Decide this model before granting write access.
+- **Transactional consistency — lost updates.** Even with correct authorization, read-then-write `current + 1` loses updates under concurrency. Use `runTransaction`/`increment`. This fixes correctness under load, not forgery.
+- **App files:** `src/services/backend/resources.ts` (`createReviewFromBackend`, `createCommentFromBackend`), `src/services/backend/engagement.ts`, `src/services/backend/community.ts` (`reply_count`, `last_activity`), and removal/rewiring of `src/services/engagementService.ts` (currently localStorage fake).
+- **Ordering:** decide counter authorization first; then implement transactions for the aggregates that remain client-written. Emulator tests must cover both an ordinary-user forgery attempt and a successful legitimate update.
 
 ### Group E — Admin role lookup (uid vs legacy profile id)
 - **Rules:** keep `user_roles/{uid}` by doc ID (recommended canonical key).
@@ -122,29 +122,32 @@ Run these **read-only** before any rules deploy. Aggregate counts and field name
 
 ## 4. Prioritized plan (rules + app fixes)
 
+**Standing gate for every rules PR (Firestore or Storage):** ship emulator tests that cover both the allowed path and the denied path, and pass them before review. A rules change without emulator evidence is not ready. Storage PR #2 is the reference pattern (`npm run test:storage-rules`, 10/10 passing).
+
 **P0 — before any rules change (safety + visibility)**
 1. Land this remediation PR (temp rules removed, real `typecheck`, CI env documentation).
 2. Complete console checks R1–R7; record aggregate counts in a dated doc.
 3. Add error/empty states (Group H) so rules denials are diagnosable.
 
-**P1 — role alignment (lowest blast radius, unblocks admin/storage)**
+**P1 — identity, Storage, and live profile privacy verification (one window)**
 4. Group E: uid-keyed `user_roles` migration (dry-run → owner approval), update `useAdminAccess` + `storageService`, verify founder admin write (approve/feature) works.
-5. Group G: scope Storage rules to `resource-images/`, admin-gate write/delete, keep public read; verify admin upload and non-admin denial in a preview channel.
+5. Group G: Storage rules scoped to `resource-images/`, admin-gated create/update, deletion denied; emulator tests pass; verify admin upload and non-admin denial in a preview channel before deploy.
+6. **Bring live profile privacy verification forward (R5):** signed-out and signed-in walkthrough of `/community`, `/blog`, `/resources` to confirm which author names/avatars currently depend on public profile reads. Record the decision (denormalize author fields vs split sensitive fields out of `profiles`) before any profile-rule change. Do not lock `profiles` until the chosen path is proven.
 
 **P2 — schema normalization before visibility rules**
-6. Normalize `resources` field names + `'5-7'` → `'4-7'` + `is_featured` (dry-run, backup snapshot, owner approval).
-7. Ensure every `resources` doc has explicit `is_approved`; every `blog_posts` doc explicit `is_published`; every comment/review explicit `is_approved`.
-8. Group A + B rules; add server-side `where` clauses in `resources.ts` / `blog.ts`; verify public pages and admin tabs.
+7. Normalize `resources` field names + `'5-7'` → `'4-7'` + `is_featured` (dry-run, backup snapshot, owner approval).
+8. Ensure every `resources` doc has explicit `is_approved`; every `blog_posts` doc explicit `is_published`; every comment/review explicit `is_approved`.
+9. Group A + B rules; add server-side `where` clauses in `resources.ts` / `blog.ts`; verify public pages and admin tabs with emulator tests.
 
-**P3 — writes and counters**
-9. Group D: transactions/increments in `resources.ts`, `engagement.ts`, `community.ts`; then add range validation to rules.
-10. Group C: force `is_approved: false` on create in code and rules; owner-update whitelists; rating range; remove caller-controlled approval; verify moderation flow.
+**P3 — writes: authorization first, consistency second**
+10. Group C authorization: force `is_approved: false` on create in code and rules; owner-update whitelists; rating range; remove caller-controlled approval; verify moderation flow.
+11. Group D authorization: decide who may write trusted counters (ordinary clients only submit deltas, or aggregates move to trusted code). Then add transactions/increments for the aggregates that remain client-written. Do not treat a transaction as an authorization control.
 
-**P4 — profiles/PII**
-11. Group F: decide denormalization vs private-fields split; implement; then lock `profiles`; verify signed-out author names and sign-in profile creation/resolution.
+**P4 — profile data model implementation**
+12. Group F: implement the P1 decision (denormalize author fields or split sensitive fields), then lock `profiles`; verify signed-out author names and sign-in profile creation/resolution.
 
-**P5 — verification**
-12. Rules unit tests (emulator) covering each denial/allow path; live click-through checklist; only then deploy rules **with owner approval**.
+**P5 — cross-cutting verification**
+13. Each rules PR already carries emulator tests; this phase adds the live click-through checklist and a final full rules-test pass. Deploy only **with owner approval**.
 
 **Rollback:** every rules deploy is preceded by `git tag`/commit + exported copy of the current deployed rules; reverting is `git revert` + redeploy of the prior rules file. No data migrations without a pre-run snapshot JSON.
 
