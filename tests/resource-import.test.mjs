@@ -6,6 +6,8 @@ import {
   getResourcePublicationErrors,
   importReadyDrafts,
   parseResourceImportFile,
+  retryFailedDrafts,
+  toggleSupportedAgeRange,
 } from '../src/services/resourceImportService.ts';
 
 test('parses JSON envelopes and maps records into unpublished drafts', () => {
@@ -66,6 +68,72 @@ test('recognizes previously imported source IDs and import retries are create-on
   assert.equal(first, 1);
   assert.equal(counts.already_imported, 1);
   assert.equal(stored.size, 1);
+});
+
+test('canonical source_id wins over generic id regardless of object property order and remains idempotent', () => {
+  const first = parseResourceImportFile(JSON.stringify([{ id: 'generic-one', source_id: 'KAR-001', title: 'Original' }]), 'source.json');
+  const reordered = parseResourceImportFile(JSON.stringify([{ source_id: 'KAR-001', id: 'generic-two', title: 'Edited title' }]), 'source.json');
+  assert.equal(first[0].sourceId, 'KAR-001');
+  assert.equal(reordered[0].sourceId, 'KAR-001');
+  assert.equal(first[0].resource.id, reordered[0].resource.id);
+  const analysis = analyzeResourceImport(reordered, [{ id: first[0].resource.id, source_id: 'KAR-001', title: 'Original', url: '' }]);
+  assert.equal(analysis.records[0].status, 'already_imported');
+});
+
+test('CSV alias priority is independent of column order', () => {
+  const parsed = parseResourceImportFile('id,source_id,title\ngeneric,KAR-CSV-1,CSV item\n', 'source.csv');
+  assert.equal(parsed[0].sourceId, 'KAR-CSV-1');
+});
+
+test('unsupported imported ages can be replaced, saved, and pass publication validation while source data remains intact', () => {
+  const sourceData = { source_id: 'KAR-AGE-1', age_ranges: ['5-12'] };
+  const imported = parseResourceImportFile(JSON.stringify([{ ...sourceData, title: 'Age draft', description: 'Details', url: 'https://example.org', resource_type: 'interactive_tools_apps', cost: 'free' }]), 'source.json')[0].resource;
+  const editedAges = toggleSupportedAgeRange(imported.age_ranges, '8-10');
+  assert.deepEqual(editedAges, ['8-10']);
+
+  // Mirrors the Resource Editor save: only edited fields are patched, so source_data is retained.
+  const savedDraft = { ...imported, age_ranges: editedAges };
+  assert.deepEqual(savedDraft.source_data.age_ranges, ['5-12']);
+  assert.deepEqual(getResourcePublicationErrors(savedDraft), []);
+  const published = { ...savedDraft, is_approved: true };
+  assert.equal(published.is_approved, true);
+  assert.deepEqual(getResourcePublicationErrors(published), []);
+});
+
+test('failed records retry without rerunning successes or changing duplicate-review selections', async () => {
+  const [success, transient, duplicate] = parseResourceImportFile(JSON.stringify([
+    { source_id: 'retry-success', title: 'Saved' },
+    { source_id: 'retry-transient', title: 'Transient' },
+    { source_id: 'retry-duplicate', title: 'Duplicate' },
+  ]), 'source.json');
+  const records = [
+    { ...success, status: 'ready' },
+    { ...transient, status: 'ready' },
+    { ...duplicate, status: 'duplicate_review', duplicateOf: 'existing-id' },
+  ];
+  const calls = new Map();
+  const createIfAbsent = async (resource) => {
+    const count = (calls.get(resource.source_id) || 0) + 1;
+    calls.set(resource.source_id, count);
+    if (resource.source_id === 'retry-transient' && count === 1) throw new Error('temporary network error');
+    return 'created';
+  };
+
+  await importReadyDrafts(records, createIfAbsent);
+  assert.equal(records[0].status, 'imported');
+  assert.equal(records[1].status, 'failed');
+  assert.equal(records[2].status, 'duplicate_review');
+
+  const counts = await retryFailedDrafts(records, createIfAbsent);
+  assert.equal(records[0].status, 'imported');
+  assert.equal(records[1].status, 'imported');
+  assert.equal(records[1].errors.length, 0);
+  assert.equal(records[2].status, 'duplicate_review');
+  assert.equal(records[2].duplicateOf, 'existing-id');
+  assert.equal(calls.get('retry-success'), 1);
+  assert.equal(calls.get('retry-transient'), 2);
+  assert.equal(counts.imported, 2);
+  assert.equal(counts.duplicate_review, 1);
 });
 
 test('publishing requires complete, valid publication fields', () => {

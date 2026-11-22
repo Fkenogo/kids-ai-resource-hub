@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { createImportedResourceDraft } from '@/services/backend/admin';
-import { analyzeResourceImport, importReadyDrafts, parseResourceImportFile, type ImportAnalysis } from '@/services/resourceImportService';
+import { analyzeResourceImport, importReadyDrafts, parseResourceImportFile, retryFailedDrafts, type ImportAnalysis } from '@/services/resourceImportService';
 
 interface BulkResourceImportProps {
   existingResources: Array<Record<string, unknown>>;
@@ -52,7 +52,18 @@ export const BulkResourceImport = ({ existingResources, onImported }: BulkResour
       ));
       const counts = await importReadyDrafts(records, createImportedResourceDraft);
       setAnalysis({ ...analysis, records, counts });
-      setReviewedDuplicates(new Set());
+      onImported();
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
+  const retryFailed = async () => {
+    if (!analysis) return;
+    setIsImporting(true);
+    try {
+      const counts = await retryFailedDrafts(analysis.records, createImportedResourceDraft);
+      setAnalysis({ ...analysis, records: analysis.records, counts });
       onImported();
     } finally {
       setIsImporting(false);
@@ -109,6 +120,11 @@ export const BulkResourceImport = ({ existingResources, onImported }: BulkResour
                 <Button onClick={() => void runImport()} disabled={isImporting}>
                   <CheckCircle2 className="mr-2 h-4 w-4" />
                   {isImporting ? 'Importing drafts…' : `Import ${importableCount} as Draft${importableCount === 1 ? '' : 's'}`}
+                </Button>
+              )}
+              {analysis.counts.failed > 0 && (
+                <Button variant="outline" onClick={() => void retryFailed()} disabled={isImporting}>
+                  {isImporting ? 'Retrying failed records…' : `Retry ${analysis.counts.failed} Failed Record${analysis.counts.failed === 1 ? '' : 's'}`}
                 </Button>
               )}
               {analysis.counts.imported > 0 && <p className="text-sm font-medium text-green-700">{analysis.counts.imported} draft(s) saved. None were published.</p>}
