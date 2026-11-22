@@ -19,14 +19,10 @@ import { toast } from 'sonner';
 export const useResources = (filters?: ResourceFilters) => {
   return useQuery({
     queryKey: ['resources', filters],
-    queryFn: async () => {
-      try {
-        return await getResources(filters);
-      } catch (err) {
-        console.error('useResources error:', err);
-        return [];
-      }
-    },
+    // Let React Query retain request failures as errors. Returning [] here
+    // makes permission/index/network failures indistinguishable from a valid
+    // empty directory.
+    queryFn: () => getResources(filters),
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };

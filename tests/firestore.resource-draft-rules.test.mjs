@@ -2,7 +2,7 @@ import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { initializeTestEnvironment, assertFails, assertSucceeds } from '@firebase/rules-unit-testing';
-import { collection, doc, getDoc, getDocs, getDocsFromServer, query, setDoc, updateDoc, where } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, getDocsFromServer, orderBy, query, setDoc, updateDoc, where } from 'firebase/firestore';
 
 const ADMIN_UID = 'resource-admin';
 let env;
@@ -16,16 +16,16 @@ before(async () => {
   await env.withSecurityRulesDisabled(async (context) => {
     const db = context.firestore();
     await setDoc(doc(db, 'user_roles', ADMIN_UID), { role: 'admin' });
-    await setDoc(doc(db, 'resources', 'published'), { title: 'Public resource', is_approved: true });
+    await setDoc(doc(db, 'resources', 'published'), { title: 'Public resource', is_approved: true, created_at: '2025-01-03' });
     await setDoc(doc(db, 'resources', 'draft'), { title: 'Private draft', is_approved: false });
     await setDoc(doc(db, 'resources', 'legacy'), { title: 'Legacy public resource' });
     await setDoc(doc(db, 'resources', 'legacy-url'), {
       title: 'Legacy URL resource', description: 'Existing published content', url: ' https://example.org',
-      resource_type: 'tool', cost: 'free', age_ranges: ['8-10'], is_approved: true,
+      resource_type: 'tool', cost: 'free', age_ranges: ['8-10'], is_approved: true, created_at: '2025-01-02',
     });
     await setDoc(doc(db, 'resources', 'legacy-ages'), {
       title: 'Legacy ages resource', description: 'Existing published content', url: 'https://example.org',
-      resource_type: 'tool', cost: 'free', age_ranges: ['5-7', '8-10'], is_approved: true,
+      resource_type: 'tool', cost: 'free', age_ranges: ['5-7', '8-10'], is_approved: true, created_at: '2025-01-01',
     });
   });
 });
@@ -45,6 +45,14 @@ test('public list queries must constrain results to published records', async ()
   const db = env.unauthenticatedContext().firestore();
   const visible = await assertSucceeds(getDocs(query(collection(db, 'resources'), where('is_approved', '==', true))));
   assert.equal(visible.size, 3);
+  const directoryQuery = query(
+    collection(db, 'resources'),
+    where('is_approved', '==', true),
+    orderBy('created_at', 'desc'),
+  );
+  const directoryResults = await assertSucceeds(getDocs(directoryQuery));
+  assert.equal(directoryResults.size, 3);
+  assert.deepEqual(directoryResults.docs.map((snapshot) => snapshot.id), ['published', 'legacy-url', 'legacy-ages']);
   await assertFails(getDocsFromServer(collection(db, 'resources')));
 });
 
