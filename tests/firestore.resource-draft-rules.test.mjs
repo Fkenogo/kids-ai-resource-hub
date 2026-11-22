@@ -51,13 +51,19 @@ test('admins can create incomplete drafts but cannot publish them until required
   const draftRef = doc(db, 'resources', 'incomplete-import');
   await assertSucceeds(setDoc(draftRef, {
     id: 'incomplete-import', source_id: 'source-42', title: 'Imported draft', description: '',
-    url: '', image_url: '', resource_type: '', cost: '', age_ranges: [], is_approved: false,
+    url: '', image_url: '', resource_type: '', cost: '', age_ranges: ['5-12'],
+    source_data: { age_ranges: ['5-12'] }, is_approved: false,
   }));
   await assertFails(updateDoc(draftRef, { is_approved: true }));
   await assertSucceeds(updateDoc(draftRef, {
     description: 'Reviewed description', url: 'https://example.org/resource',
-    resource_type: 'interactive_tools_apps', cost: 'free', age_ranges: ['8-10'], is_approved: true,
+    resource_type: 'interactive_tools_apps', cost: 'free', age_ranges: ['8-10'],
   }));
+  await assertSucceeds(updateDoc(draftRef, { is_approved: true }));
+  const correctedAndPublished = (await assertSucceeds(getDoc(draftRef))).data();
+  assert.deepEqual(correctedAndPublished.age_ranges, ['8-10']);
+  assert.deepEqual(correctedAndPublished.source_data.age_ranges, ['5-12']);
+  assert.equal(correctedAndPublished.is_approved, true);
 });
 
 test('new resources must explicitly declare approval state', async () => {

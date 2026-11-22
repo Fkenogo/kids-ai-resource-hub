@@ -62,9 +62,13 @@ export interface ImportAnalysis {
 }
 
 const getValue = (row: Record<string, unknown>, ...keys: string[]) => {
-  const wanted = new Set(keys.map(normalizeKey));
-  const found = Object.entries(row).find(([key]) => wanted.has(normalizeKey(key)));
-  return found?.[1];
+  const entries = Object.entries(row);
+  for (const key of keys) {
+    const found = entries.find(([candidate]) => candidate === key)
+      ?? entries.find(([candidate]) => normalizeKey(candidate) === normalizeKey(key));
+    if (found) return found[1];
+  }
+  return undefined;
 };
 
 const normalizeKey = (key: string) => key.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -327,6 +331,14 @@ export const getResourcePublicationErrors = (resource: Record<string, unknown>) 
   return errors;
 };
 
+export const toggleSupportedAgeRange = (current: string[], selected: string) => {
+  if (!['4-7', '8-10', '11-13', '14-17'].includes(selected)) return current;
+  const supportedCurrent = current.filter((age) => ['4-7', '8-10', '11-13', '14-17'].includes(age));
+  return supportedCurrent.includes(selected)
+    ? supportedCurrent.filter((age) => age !== selected)
+    : [...supportedCurrent, selected];
+};
+
 export const importReadyDrafts = async (
   records: ImportRecord[],
   createIfAbsent: (resource: ImportedResourceDraft) => Promise<'created' | 'already_exists'>,
@@ -344,4 +356,17 @@ export const importReadyDrafts = async (
   const statuses: ImportStatus[] = ['ready', 'already_imported', 'duplicate_review', 'invalid', 'failed', 'imported'];
   const counts = Object.fromEntries(statuses.map((status) => [status, records.filter((record) => record.status === status).length])) as Record<ImportStatus, number>;
   return counts;
+};
+
+export const retryFailedDrafts = async (
+  records: ImportRecord[],
+  createIfAbsent: (resource: ImportedResourceDraft) => Promise<'created' | 'already_exists'>,
+) => {
+  records.forEach((record) => {
+    if (record.status === 'failed') {
+      record.status = 'ready';
+      record.errors = [];
+    }
+  });
+  return importReadyDrafts(records, createIfAbsent);
 };

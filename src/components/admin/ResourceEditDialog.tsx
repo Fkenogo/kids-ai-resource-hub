@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { ImageUploader } from '@/components/ImageUploader';
 import { CostType, ResourceType } from '@/types';
 import { DEFAULT_FORMAT_OPTIONS, RESOURCE_TYPE_OPTIONS, formatTagsToStorage, getResourceTypeLabel, normalizeResourceType, parseFormatTags } from '@/utils/resourceTaxonomy';
+import { toggleSupportedAgeRange } from '@/services/resourceImportService';
 
 interface ResourceEditDialogProps {
   resource: {
@@ -107,12 +108,11 @@ export const ResourceEditDialog = ({ resource, onUpdated }: ResourceEditDialogPr
   };
 
   const toggleAgeRange = (ageRange: string) => {
-    setFormData(prev => ({
-      ...prev,
-      age_ranges: prev.age_ranges.includes(ageRange)
-        ? prev.age_ranges.filter(range => range !== ageRange)
-        : [...prev.age_ranges, ageRange]
-    }));
+    setFormData(prev => ({ ...prev, age_ranges: toggleSupportedAgeRange(prev.age_ranges, ageRange) }));
+  };
+
+  const removeUnsupportedAgeRange = (ageRange: string) => {
+    setFormData((prev) => ({ ...prev, age_ranges: prev.age_ranges.filter((range) => range !== ageRange) }));
   };
 
   const addCustomResourceType = () => {
@@ -295,6 +295,24 @@ export const ResourceEditDialog = ({ resource, onUpdated }: ResourceEditDialogPr
 
             <div>
               <label className="text-sm font-medium">Age Ranges *</label>
+              {formData.age_ranges.some((range) => !ageRangeOptions.includes(range)) && (
+                <div className="mt-2 rounded-md border border-amber-500/40 bg-amber-500/5 p-3">
+                  <p className="mb-2 text-xs text-amber-800">Imported age ranges need correction. Select a supported range to replace them, or remove an unsupported value. Original source data is preserved.</p>
+                  <div className="flex flex-wrap gap-2">
+                    {formData.age_ranges.filter((range) => !ageRangeOptions.includes(range)).map((range) => (
+                      <button
+                        key={range}
+                        type="button"
+                        className="inline-flex cursor-pointer items-center rounded-full border border-transparent bg-destructive px-2.5 py-0.5 text-xs font-semibold text-destructive-foreground transition-colors hover:bg-destructive/80"
+                        aria-label={`Remove unsupported age range ${range}`}
+                        onClick={() => removeUnsupportedAgeRange(range)}
+                      >
+                        <X className="mr-1 h-3 w-3" />{range}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
               <div className="flex flex-wrap gap-2 mt-2">
                 {ageRangeOptions.map(range => (
                   <Badge
