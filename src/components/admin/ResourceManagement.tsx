@@ -14,28 +14,32 @@ import {
   PaginationNext, 
   PaginationPrevious 
 } from '@/components/ui/pagination';
-import { Search, Plus, Eye, Star, Users, CheckCircle, XCircle, Image as ImageIcon, Filter } from 'lucide-react';
+import { Search, Eye, Star, Users, CheckCircle, XCircle, Image as ImageIcon, Filter } from 'lucide-react';
 import { deleteResource, getAdminResources, setResourceApproval, setResourceFeatured } from '@/services/backend/admin';
 import { toast } from 'sonner';
 import { ResourceImageEditor } from '@/components/ResourceImageEditor';
 import { AddResourceForm } from './AddResourceForm';
 import { ResourceEditDialog } from './ResourceEditDialog';
 import { getResourceTypeLabel } from '@/utils/resourceTaxonomy';
+import { BulkResourceImport } from './BulkResourceImport';
 
 export const ResourceManagement = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'approved' | 'pending'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'approved' | 'pending' | 'bulk'>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const resourcesPerPage = 10;
   const queryClient = useQueryClient();
 
   // Fetch all resources for admin
-  const { data: allResources = [], isLoading } = useQuery({
-    queryKey: ['admin-resources', statusFilter],
-    queryFn: async () => {
-      return getAdminResources(statusFilter);
-    },
+  const { data: resourceRows = [], isLoading } = useQuery({
+    queryKey: ['admin-resources', 'all'],
+    queryFn: async () => getAdminResources('all'),
   });
+  const allResources = statusFilter === 'approved'
+    ? resourceRows.filter((resource) => resource.is_approved !== false)
+    : statusFilter === 'pending'
+      ? resourceRows.filter((resource) => resource.is_approved === false)
+      : resourceRows;
 
   // Filter resources based on search
   const filteredResources = allResources.filter(resource =>
@@ -64,8 +68,8 @@ export const ResourceManagement = () => {
       queryClient.invalidateQueries({ queryKey: ['admin-resources'] });
       toast.success('Resource status updated');
     },
-    onError: () => {
-      toast.error('Failed to update resource status');
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : 'Failed to update resource status');
     },
   });
 
@@ -112,14 +116,15 @@ export const ResourceManagement = () => {
         </div>
       </div>
 
-      <Tabs value={statusFilter} onValueChange={(value) => setStatusFilter(value as 'all' | 'approved' | 'pending')} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+      <Tabs value={statusFilter} onValueChange={(value) => setStatusFilter(value as 'all' | 'approved' | 'pending' | 'bulk')} className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="all">All Resources</TabsTrigger>
-          <TabsTrigger value="approved">Approved</TabsTrigger>
-          <TabsTrigger value="pending">Pending Approval</TabsTrigger>
+          <TabsTrigger value="approved">Published</TabsTrigger>
+          <TabsTrigger value="pending">Drafts</TabsTrigger>
+          <TabsTrigger value="bulk">Bulk Import</TabsTrigger>
         </TabsList>
 
-        <TabsContent value={statusFilter} className="space-y-4">
+        <TabsContent value={statusFilter === 'bulk' ? 'all' : statusFilter} className="space-y-4">
           <div className="flex flex-col sm:flex-row items-center gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -148,7 +153,7 @@ export const ResourceManagement = () => {
                       <div className="flex items-center gap-2">
                         <h3 className="font-semibold">{resource.title}</h3>
                         <div className="flex gap-1">
-                          {resource.is_approved ? (
+                          {resource.is_approved !== false ? (
                             <Badge variant="default" className="bg-green-100 text-green-800">
                               <CheckCircle className="h-3 w-3 mr-1" />
                               Approved
@@ -203,14 +208,17 @@ export const ResourceManagement = () => {
                       />
                       
                       <Button
-                        variant={resource.is_approved ? "outline" : "default"}
+                        variant={resource.is_approved !== false ? "outline" : "default"}
                         size="sm"
-                        onClick={() => toggleApprovalMutation.mutate({ 
-                          id: resource.id, 
-                          isApproved: resource.is_approved 
-                        })}
+                        onClick={() => {
+                          if (resource.is_approved === false && !confirm(`Publish "${resource.title}" to the public resource directory?`)) return;
+                          toggleApprovalMutation.mutate({
+                            id: resource.id,
+                            isApproved: resource.is_approved !== false,
+                          });
+                        }}
                       >
-                        {resource.is_approved ? 'Unapprove' : 'Approve'}
+                        {resource.is_approved !== false ? 'Unpublish' : 'Publish'}
                       </Button>
                       
                       <Button
@@ -278,6 +286,12 @@ export const ResourceManagement = () => {
             Showing {paginatedResources.length} of {filteredResources.length} resources
             {searchQuery && ` matching "${searchQuery}"`}
           </div>
+        </TabsContent>
+        <TabsContent value="bulk" className="space-y-4">
+          <BulkResourceImport
+            existingResources={resourceRows}
+            onImported={() => queryClient.invalidateQueries({ queryKey: ['admin-resources'] })}
+          />
         </TabsContent>
       </Tabs>
 

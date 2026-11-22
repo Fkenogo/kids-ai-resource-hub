@@ -1,7 +1,7 @@
 import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
 import { connectAuthEmulator, getAuth } from 'firebase/auth';
 import { connectFirestoreEmulator, getFirestore } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
+import { connectStorageEmulator, getStorage } from 'firebase/storage';
 
 const requireEnv = (key: string) => {
   const value = import.meta.env[key];
@@ -47,5 +47,10 @@ if (useFirestoreEmulator) {
     firebaseAuth,
     `http://${emulatorHost}:${Number(import.meta.env.VITE_FIREBASE_AUTH_EMULATOR_PORT || 9099)}`,
     { disableWarnings: true },
+  );
+  connectStorageEmulator(
+    firebaseStorage,
+    emulatorHost,
+    Number(import.meta.env.VITE_FIREBASE_STORAGE_EMULATOR_PORT || 9199),
   );
 }

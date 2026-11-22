@@ -69,7 +69,7 @@ export const AddResourceForm = ({ onSuccess }: AddResourceFormProps) => {
       });
     },
     onSuccess: () => {
-      toast.success('Resource added successfully');
+      toast.success('Resource saved as a draft. Review and publish it from Drafts when ready.');
       setIsOpen(false);
       setFormData({
         title: '',

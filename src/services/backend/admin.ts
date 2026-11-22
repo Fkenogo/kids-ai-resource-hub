@@ -1,6 +1,21 @@
-import { countMany, createOne, readMany, removeOne, updateOne } from './firestoreDb';
+import { countMany, createIfAbsent, createOne, readMany, readOneById, removeOne, updateOne } from './firestoreDb';
 import { upsertOne } from './firestoreDb';
+import { getResourcePublicationErrors, type ImportedResourceDraft } from '../resourceImportService';
 type BackendRow = Record<string, unknown>;
+export type AdminResourceRecord = BackendRow & {
+  id: string;
+  title: string;
+  description: string;
+  resource_type: string;
+  cost?: string;
+  is_approved?: boolean;
+  is_featured?: boolean;
+  image_url?: string;
+  view_count?: number;
+  average_rating?: number;
+  review_count?: number;
+  created_at?: string;
+};
 
 export const getAdminCounts = async () => {
   const [resources, products, users, communityPosts] = await Promise.all([
@@ -13,13 +28,20 @@ export const getAdminCounts = async () => {
 };
 
 export const getAdminResources = async (statusFilter: 'all' | 'approved' | 'pending') => {
-  const rows = await readMany('resources', { orderBy: { field: 'created_at', direction: 'desc' } });
-  if (statusFilter === 'approved') return rows.filter((r: BackendRow) => r.is_approved === true);
-  if (statusFilter === 'pending') return rows.filter((r: BackendRow) => r.is_approved === false);
+  const rows = await readMany('resources') as unknown as AdminResourceRecord[];
+  rows.sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
+  if (statusFilter === 'approved') return rows.filter((r) => r.is_approved !== false);
+  if (statusFilter === 'pending') return rows.filter((r) => r.is_approved === false);
   return rows;
 };
 
 export const setResourceApproval = async (id: string, isApproved: boolean) => {
+  if (isApproved) {
+    const resource = await readOneById('resources', id) as unknown as AdminResourceRecord | null;
+    if (!resource) throw new Error('Resource no longer exists.');
+    const errors = getResourcePublicationErrors(resource);
+    if (errors.length) throw new Error(`Complete the resource before publishing: ${errors.join(' ')}`);
+  }
   await updateOne('resources', id, { is_approved: isApproved, updated_at: new Date().toISOString() });
 };
 
@@ -33,10 +55,36 @@ export const deleteResource = async (id: string) => {
 
 export const createResourceAdmin = async (data: Record<string, unknown>) => {
   const now = new Date().toISOString();
-  return createOne('resources', { ...data, is_approved: true, created_at: now, updated_at: now }, data.id);
+  return createOne('resources', { ...data, is_approved: false, created_at: now, updated_at: now }, typeof data.id === 'string' ? data.id : undefined);
+};
+
+export const createImportedResourceDraft = async (data: ImportedResourceDraft) => {
+  const now = new Date().toISOString();
+  const resource = {
+    ...data,
+    is_approved: false,
+    created_at: now,
+    updated_at: now,
+    date_added: now,
+    view_count: 0,
+    like_count: 0,
+    share_count: 0,
+    save_count: 0,
+    comment_count: 0,
+    average_rating: 0,
+    review_count: 0,
+  };
+  const created = await createIfAbsent('resources', data.id, resource);
+  return created ? 'created' : 'already_exists';
 };
 
 export const updateResourceAdmin = async (id: string, updates: Record<string, unknown>) => {
+  const existing = await readOneById('resources', id) as unknown as AdminResourceRecord | null;
+  if (!existing) throw new Error('Resource no longer exists.');
+  if (existing.is_approved === true) {
+    const errors = getResourcePublicationErrors({ ...existing, ...updates });
+    if (errors.length) throw new Error(`Published resources must remain complete: ${errors.join(' ')}`);
+  }
   await updateOne('resources', id, { ...updates, updated_at: new Date().toISOString() });
 };
 

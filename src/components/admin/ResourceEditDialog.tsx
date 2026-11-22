@@ -28,6 +28,8 @@ interface ResourceEditDialogProps {
     skills_attained?: string[];
     key_features?: string[];
     image_url?: string;
+    is_approved?: boolean;
+    source_id?: string;
   };
   onUpdated: () => void;
 }
@@ -165,7 +167,9 @@ export const ResourceEditDialog = ({ resource, onUpdated }: ResourceEditDialogPr
         <DialogHeader>
           <DialogTitle>Edit Resource</DialogTitle>
           <DialogDescription>
-            Update the resource information below
+            {resource.is_approved === false
+              ? 'Edit and save this unpublished draft. Saving will not publish it.'
+              : 'Update the resource information below.'}
           </DialogDescription>
         </DialogHeader>
 
@@ -191,12 +195,12 @@ export const ResourceEditDialog = ({ resource, onUpdated }: ResourceEditDialogPr
             </div>
 
             <div>
-              <label className="text-sm font-medium">URL *</label>
+              <label className="text-sm font-medium">URL{resource.is_approved === false ? '' : ' *'}</label>
               <Input
                 type="url"
                 value={formData.url}
                 onChange={(e) => setFormData(prev => ({ ...prev, url: e.target.value }))}
-                required
+                required={resource.is_approved !== false}
               />
             </div>
 
@@ -254,6 +258,9 @@ export const ResourceEditDialog = ({ resource, onUpdated }: ResourceEditDialogPr
                         {cost.charAt(0).toUpperCase() + cost.slice(1)}
                       </SelectItem>
                     ))}
+                    {formData.cost && !costOptions.includes(formData.cost) ? (
+                      <SelectItem value={formData.cost}>{formData.cost}</SelectItem>
+                    ) : null}
                   </SelectContent>
                 </Select>
               </div>
