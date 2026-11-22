@@ -80,6 +80,12 @@ service cloud.firestore {
     }
 
     match /resources/{resourceId} {
+      function hasSupportedAgeRanges(data) {
+        return data.get('age_ranges', []) is list
+          && data.get('age_ranges', []).size() > 0
+          && data.get('age_ranges', []).hasOnly(['4-7', '8-10', '11-13', '14-17']);
+      }
+
       function isValidPublishedResource(data) {
         return data.get('is_approved', false) == false
           || (
@@ -92,10 +98,31 @@ service cloud.firestore {
             && data.get('resource_type', '') is string
             && data.get('resource_type', '').trim() != ''
             && data.get('cost', '') in ['free', 'paid', 'subscription', 'freemium']
-            && data.get('age_ranges', []) is list
-            && data.get('age_ranges', []).size() > 0
-            && data.get('age_ranges', []).hasOnly(['4-7', '8-10', '11-13', '14-17'])
+            && hasSupportedAgeRanges(data)
           );
+      }
+
+      function isValidPublishedResourceWithLegacyValues(existing, updated) {
+        let existingUrl = existing.get('url', '');
+        let hasLegacyUrl = !(existingUrl is string && existingUrl.matches('https?://.+'));
+        let updatedUrl = updated.get('url', '');
+        let existingAges = existing.get('age_ranges', []);
+        let updatedAges = updated.get('age_ranges', []);
+        let keepsLegacyUrl = hasLegacyUrl && updatedUrl == existingUrl;
+        let keepsLegacyAges = !hasSupportedAgeRanges(existing)
+          && updatedAges == existingAges;
+        return updated.get('title', '') is string
+          && updated.get('title', '').trim() != ''
+          && updated.get('description', '') is string
+          && updated.get('description', '').trim() != ''
+          && updatedUrl is string
+          && (updatedUrl.matches('https?://.+') || keepsLegacyUrl)
+          && updated.get('resource_type', '') is string
+          && updated.get('resource_type', '').trim() != ''
+          && updated.get('cost', '') in ['free', 'paid', 'subscription', 'freemium']
+          && updatedAges is list
+          && updatedAges.size() > 0
+          && (hasSupportedAgeRanges(updated) || keepsLegacyAges);
       }
 
       // Older records without a publication flag remain public. Explicit drafts are private.
@@ -107,7 +134,15 @@ service cloud.firestore {
         && request.resource.data.is_approved is bool
         && isValidPublishedResource(request.resource.data);
       allow delete: if isAdmin();
-      allow update: if (isAdmin() && isValidPublishedResource(request.resource.data))
+      // Existing published records that predate current URL/age validation may still be edited
+      // without forcing unrelated content changes. Their legacy-invalid values must remain
+      // unchanged until an administrator explicitly corrects them; new published content still
+      // has to satisfy the complete validator.
+      allow update: if (isAdmin() && (
+          isValidPublishedResource(request.resource.data)
+          || (resource.data.get('is_approved', true) == true
+            && isValidPublishedResourceWithLegacyValues(resource.data, request.resource.data))
+        ))
         || (
           signedIn()
           && resource.data.get('is_approved', true) == true
