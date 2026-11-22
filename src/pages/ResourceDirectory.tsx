@@ -11,6 +11,7 @@ import { Grid2x2, List } from 'lucide-react';
 import { mapDbResourceToResource } from '@/utils/resourceTransform';
 import { logger } from '@/lib/logger';
 import { parseFormatTags } from '@/utils/resourceTaxonomy';
+import { getResourceDirectoryState } from '@/utils/resourceDirectoryState';
 
 const ResourceDirectory = () => {
   const location = useLocation();
@@ -20,7 +21,7 @@ const ResourceDirectory = () => {
     ? [queryParams.get('age') as AgeRange] 
     : [];
 
-  const { data: dbResourcesRaw = [], isLoading, error } = useResources();
+  const { data: dbResourcesRaw = [], isLoading, error, refetch } = useResources();
   if (error) logger.error("ResourceDirectory: resource query error", error);
   logger.debug("ResourceDirectory: dbResourcesRaw", dbResourcesRaw);
 
@@ -83,6 +84,11 @@ const ResourceDirectory = () => {
     }
     return true;
   });
+  const directoryState = getResourceDirectoryState({
+    isLoading,
+    hasError: Boolean(error),
+    resourceCount: filteredResources.length,
+  });
 
   useEffect(() => {
     // If age range filter is applied, disable category grouping
@@ -128,8 +134,10 @@ const ResourceDirectory = () => {
           
           <div className="md:w-3/4 lg:w-4/5">
             <div className="mb-6 flex justify-between items-center">
-              <h2 className="text-xl font-medium">
-                {filteredResources.length} {filteredResources.length === 1 ? 'resource' : 'resources'} found
+              <h2 className="text-xl font-medium" aria-live="polite">
+                {directoryState === 'loading'
+                  ? 'Loading resources…'
+                  : `${filteredResources.length} ${filteredResources.length === 1 ? 'resource' : 'resources'} found`}
               </h2>
               
               <div className="flex items-center gap-4">
@@ -152,7 +160,25 @@ const ResourceDirectory = () => {
               </div>
             </div>
             
-            {filteredResources.length > 0 ? (
+            {directoryState === 'loading' ? (
+              <div className="glass-panel rounded-xl p-8 text-center" role="status" aria-live="polite">
+                <p className="text-muted-foreground">Loading resources…</p>
+              </div>
+            ) : directoryState === 'error' ? (
+              <div className="glass-panel rounded-xl p-8 text-center" role="alert">
+                <h3 className="text-lg font-medium mb-2">Resources could not be loaded</h3>
+                <p className="text-muted-foreground mb-4">
+                  The directory request failed. Please try again.
+                </p>
+                <button
+                  type="button"
+                  className="text-primary underline underline-offset-4"
+                  onClick={() => void refetch()}
+                >
+                  Retry
+                </button>
+              </div>
+            ) : directoryState === 'results' ? (
               <ResourceGrid 
                 resources={filteredResources} 
                 columns={3} 

@@ -14,6 +14,7 @@
     "test:backfill": "firebase emulators:exec --only firestore --project demo-kids-ai \"node --test tests/backfill-concurrency.test.mjs\"",
     "test:profile-identity": "firebase emulators:exec --only firestore --project demo-kids-ai \"node --test tests/profile-identity-regression.test.mjs\"",
     "test:resource-import": "node --experimental-strip-types --test tests/resource-import.test.mjs",
+    "test:resource-directory-state": "node --experimental-strip-types --test tests/resource-directory-state.test.mjs",
     "test:resource-rules": "firebase emulators:exec --only firestore --project demo-kids-ai \"node --test tests/firestore.resource-draft-rules.test.mjs\"",
     "backfill:public-profiles": "node scripts/backfill-public-profiles.mjs",
     "verify:public-profiles": "node scripts/verify-public-profiles.mjs",
