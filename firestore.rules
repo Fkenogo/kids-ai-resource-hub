@@ -80,11 +80,37 @@ service cloud.firestore {
     }
 
     match /resources/{resourceId} {
-      allow read: if true;
-      allow create, delete: if isAdmin();
-      allow update: if isAdmin()
+      function isValidPublishedResource(data) {
+        return data.get('is_approved', false) == false
+          || (
+            data.get('title', '') is string
+            && data.get('title', '').trim() != ''
+            && data.get('description', '') is string
+            && data.get('description', '').trim() != ''
+            && data.get('url', '') is string
+            && data.get('url', '').matches('https?://.+')
+            && data.get('resource_type', '') is string
+            && data.get('resource_type', '').trim() != ''
+            && data.get('cost', '') in ['free', 'paid', 'subscription', 'freemium']
+            && data.get('age_ranges', []) is list
+            && data.get('age_ranges', []).size() > 0
+            && data.get('age_ranges', []).hasOnly(['4-7', '8-10', '11-13', '14-17'])
+          );
+      }
+
+      // Older records without a publication flag remain public. Explicit drafts are private.
+      allow get: if isAdmin() || resource.data.get('is_approved', true) == true;
+      allow list: if isAdmin() || resource.data.is_approved == true;
+      // New records must declare their state so an omitted flag cannot become public by default.
+      allow create: if isAdmin()
+        && request.resource.data.keys().hasAny(['is_approved'])
+        && request.resource.data.is_approved is bool
+        && isValidPublishedResource(request.resource.data);
+      allow delete: if isAdmin();
+      allow update: if (isAdmin() && isValidPublishedResource(request.resource.data))
         || (
           signedIn()
+          && resource.data.get('is_approved', true) == true
           && request.resource.data.diff(resource.data).affectedKeys()
             .hasOnly([
               'average_rating',

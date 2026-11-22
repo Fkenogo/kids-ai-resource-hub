@@ -11,6 +11,7 @@ import {
   limit as withLimit,
   orderBy as withOrderBy,
   query,
+  runTransaction,
   setDoc,
   updateDoc,
   where,
@@ -95,6 +96,17 @@ export const createOne = async (collectionName: string, data: Record<string, unk
   }
   const ref = await addDoc(collection(db, collectionName), data);
   return { id: ref.id, ...data };
+};
+
+/** Creates a document only when the deterministic ID is unused; never merges or overwrites. */
+export const createIfAbsent = async (collectionName: string, id: string, data: Record<string, unknown>) => {
+  const reference = doc(db, collectionName, id);
+  return runTransaction(db, async (transaction) => {
+    const snapshot = await transaction.get(reference);
+    if (snapshot.exists()) return false;
+    transaction.set(reference, data);
+    return true;
+  });
 };
 
 export const updateOne = async (collectionName: string, id: string, data: Record<string, unknown>) => {
